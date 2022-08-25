@@ -1,9 +1,11 @@
-import React, { Component } from "react"; // import from react
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ * @flow strict-local
+ */
 
-import notifier from "node-notifier";
-import { Window, App, Text, View, TextInput } from "proton-native"; // import the proton-native components
-
- 
 /* Todo: 
 - Show Group
 - Enable/disable groups
@@ -11,69 +13,105 @@ import { Window, App, Text, View, TextInput } from "proton-native"; // import th
 - Update button, if link specified
 - Add button (list of known ad blockers), Add button in each group, add group button
 - Find,remove duplicates
-*/ 
+*/
 
+import React from 'react';
+import type {Node} from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  // StyleSheet,
+  // Text,
+  useColorScheme,
+  View,
+} from 'react-native';
+import {Header} from './StartPage';
+import colors from './colors';
 
+// import {IsDarkMode} from './styles';
 
+// const Section = ({children, title}): Node => {
+//   const isDarkMode = IsDarkMode();
+//   return (
+//     <View style={styles.sectionContainer}>
+//       <Text
+//         style={[
+//           styles.sectionTitle,
+//           {
+//             color: isDarkMode ? Colors.white : Colors.black,
+//           },
+//         ]}>
+//         {title}
+//       </Text>
+//       <Text
+//         style={[
+//           styles.sectionDescription,
+//           {
+//             color: isDarkMode ? Colors.light : Colors.dark,
+//           },
+//         ]}>
+//         {children}
+//       </Text>
+//     </View>
+//   );
+// };
 
-notifier.on("click", (notifierObject, options, event) => {
-  console.log("Hi!");
-});
-notifier.on("timeout", (notifierObject, options) => {
-  console.log("Hi!");
-});
-notifier.notify({
-  title: "My notification",
-  message: "Hello, there!",
-  icon: "./icon.png",
-});
+const App: () => Node = () => {
+  const isDarkMode = useColorScheme() === 'dark';
 
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? colors.black : colors.lighter,
+  };
 
-export class AdAway extends Component {
-  render() {
-    // all Components must have a render method
-    return (
-      <App>
-        {/* you must always include App around everything */}
-        <Window
-          // borderless={true}
-          // closed={false}
-          // menuBar={true}
-          // title="AdAway"
-          style={{ width: 450, height: 600, backgroundColor: "black" }}
-        >
-          <View
-            style={{
-              width: "100%",
-              height: "30%",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
-            }}
-          >
-            <Text
-              style={{
-                color: "white",
-                fontSize: 80,
-                textAlign: "right",
-                marginRight: 35,
-                marginBottom: 15,
-                fontWeight: 200,
-              }}
-            >
-              Hallo
-            </Text>
-            
-          </View>
-          <View style={{ flex: 1 }}>
+  return (
+    <SafeAreaView style={backgroundStyle}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        style={backgroundStyle}>
+        <Header />
+        <View
+          style={{
+            backgroundColor: isDarkMode ? colors.black : colors.white,
+          }}>
+          {/* <Section title="Step One">
+            Edit <Text style={styles.highlight}>App.js</Text> to change this
+            screen and then come back to see your edits.
+          </Section>
+          <Section title="See Your Changes">
+            <ReloadInstructions />
+          </Section>
+          <Section title="Debug">
+            <DebugInstructions />
+          </Section>
+          <Section title="Learn More">
+            Read the docs to discover what to do next:
+          </Section>
+          <LearnMoreLinks /> */}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
 
-            <TextInput
-              value={hostsFile.toString()}
-              style={{ color: "white", flex: 1 }}
-              multiline
-              ></TextInput>
-              </View>
-        </Window>
-      </App>
-    );
-  }
-}
+// const styles = StyleSheet.create({
+//   sectionContainer: {
+//     marginTop: 32,
+//     paddingHorizontal: 24,
+//   },
+//   sectionTitle: {
+//     fontSize: 24,
+//     fontWeight: '600',
+//   },
+//   sectionDescription: {
+//     marginTop: 8,
+//     fontSize: 18,
+//     fontWeight: '400',
+//   },
+//   highlight: {
+//     fontWeight: '700',
+//   },
+// });
+
+export default App;
