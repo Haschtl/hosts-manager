@@ -1,4 +1,5 @@
 import fs from 'fs';
+import {DOMParser} from 'xmldom';
 
 let hosts_path = 'C://windows/system32/drivers/etc/hosts';
 let backup_path = './hosts.bak';
@@ -56,7 +57,7 @@ export function parse_hosts_file(file: string) {
     source: null,
     enabled: true,
   };
-  let current_category: HostsCategory | undefined = undefined;
+  let current_category: HostsCategory | undefined;
   let parser = new DOMParser();
   file.split('\n').forEach((line, idx) => {
     let is_annotation = false;
