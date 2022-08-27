@@ -1,12 +1,12 @@
-import process from 'node:process';
-import execa from 'execa';
+import process from 'process';
+import {execa} from 'execa';
 
 export default async function isElevated() {
   return process.platform === 'win32' ? isAdmin() : isRoot();
 }
 
 export function isRoot() {
-  return process.getuid && process.getuid() === 0;
+  return process.getuid ? process.getuid() === 0 : false;
 }
 
 // https://stackoverflow.com/a/28268802
