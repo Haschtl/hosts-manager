@@ -103,7 +103,7 @@ const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
               footerStyle.statebutton,
               active
                 ? {backgroundColor: colors.primary}
-                : {backgroundColor: colors.dark},
+                : {backgroundColor: colors.primary},
             ]}
             // activeOpacity={0.2}
 
@@ -113,7 +113,7 @@ const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
             {active ? (
               <Image source={require('../drawable/ic_pause_24dp.svg')} />
             ) : (
-              <Image source={require('../drawable/ic_record_24dp.svg')} />
+              <Image source={require('../drawable/icon_white.svg')} />
             )}
           </TouchableHighlight>
         </View>

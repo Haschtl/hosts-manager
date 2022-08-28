@@ -3,6 +3,16 @@ import {AppState} from './types';
 
 const initialState: AppState = {
   active: false,
+  version: '1.0.0',
+  settings: {
+    autoUpdates: true,
+    blockMode: 'admin',
+    darkMode: true,
+    diagnostics: true,
+    ipv6: true,
+    logging: true,
+  },
+  hosts: {categories: []},
 };
 
 const appReducer = (state = initialState, action: any) => {

@@ -5,10 +5,15 @@ import {ScreenComponentType} from '../App';
 
 type Props = {
   children?: React.ReactNode;
+  backPage?: string;
 } & ScreenComponentType;
-export let Header: React.FC<Props> = ({navigation, children}) => {
+export let Header: React.FC<Props> = ({
+  navigation,
+  children,
+  backPage = 'start',
+}) => {
   let goBack = () => {
-    navigation.navigate('start');
+    navigation.navigate(backPage);
   };
   return (
     <View style={headerStyle.wrapper}>
@@ -41,5 +46,8 @@ export const headerStyle = StyleSheet.create({
   text: {
     fontSize: 20,
     fontWeight: '400',
+    textAlign: 'left',
+    width: '100%',
+    paddingLeft: 20,
   },
 });

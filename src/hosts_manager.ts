@@ -21,10 +21,13 @@ export type Hosts = {
   categories: HostsCategory[];
 };
 export type HostsCategory = {
-  name: string;
-  source: string | null;
+  label: string;
+  location: string | null;
+  format: 'block' | 'allow';
+  type: 'url' | 'file';
   content: string[];
   enabled?: boolean;
+  applyRedirects: boolean;
 };
 
 export function hosts_to_string(hosts: Hosts) {
@@ -37,10 +40,10 @@ export function hosts_to_string(hosts: Hosts) {
 
 export function hosts_category_to_string(category: HostsCategory) {
   let text = '';
-  if (category.source !== null) {
-    text += `${annotation_start} <group name="${category.name}" source="${category.source}">\n`;
+  if (category.location !== null) {
+    text += `${annotation_start} <group label="${category.label}" location="${category.location}">\n`;
   } else {
-    text += `${annotation_start} <group name="${category.name}">\n`;
+    text += `${annotation_start} <group label="${category.label}">\n`;
   }
   category.content.forEach(l => {
     text += l + '\n';
@@ -52,10 +55,13 @@ export function hosts_category_to_string(category: HostsCategory) {
 export function parse_hosts_file(file: string) {
   let hosts: Hosts = {categories: []};
   let unknown_category: HostsCategory = {
-    name: 'Unknown',
+    label: 'Unknown',
     content: [],
-    source: null,
+    location: null,
     enabled: true,
+    type: 'file',
+    applyRedirects: true,
+    format: 'block',
   };
   let current_category: HostsCategory | undefined;
   let parser = new DOMParser();
@@ -74,16 +80,19 @@ export function parse_hosts_file(file: string) {
       );
       try {
         if (tree.children[0].nodeName === 'group') {
-          let category_name = tree.children[0].getAttribute('name');
-          let source = tree.children[0].getAttribute('source');
+          let category_name = tree.children[0].getAttribute('label');
+          let location = tree.children[0].getAttribute('location');
           if (category_name !== null) {
             is_annotation = true;
             if (!is_category_end && current_category === undefined) {
               current_category = {
-                name: category_name,
+                label: category_name,
                 content: [],
-                source: source,
+                location: location,
                 enabled: true,
+                format: 'block',
+                applyRedirects: true,
+                type: 'file',
               };
             } else if (current_category !== undefined) {
               hosts.categories.push(current_category);

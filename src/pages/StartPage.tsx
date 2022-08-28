@@ -13,11 +13,13 @@ import {
 import {ScreenComponentType} from '../App';
 import Footer from '../components/Footer';
 import {connect} from 'react-redux';
+// import path from 'node:path';
 import {State} from '../store/types';
 
 // import SvgUri from 'react-native-svg-uri';
 import colors from '../styles/colors';
 import {IsDarkMode} from '../styles/styles';
+import {NotImplemented} from '../components/NotImplemented';
 // import isElevated from '../utils/isElevated';
 // import {IsDarkMode} from '../styles/styles';
 type Props = ScreenComponentType & {
@@ -37,12 +39,20 @@ const StartPage: React.FC<Props> = ({navigation, active}) => {
   };
   let [isAdmin, setIsElevated] = useState(true);
   // isElevated().then(v => setIsElevated(v));
+  let [notImplemented, setNotImplemented] = useState(false);
+  let hideNotImplemented = () => {
+    setNotImplemented(false);
+  };
 
-  let updateSources = () => {};
-  let upgradeSources = () => {};
-
+  let updateSources = () => {
+    setNotImplemented(true);
+  };
+  let upgradeSources = () => {
+    setNotImplemented(true);
+  };
   return (
     <View style={pageStyle}>
+      <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
       {!isAdmin && (
         <View style={contentStyles.adminWarning}>
           <Text style={contentStyles.adminWarningText}>
@@ -135,11 +145,13 @@ export const StartHeader: React.FC<HProps> = ({navigation, active}) => {
             ? {backgroundColor: colors.primary}
             : {backgroundColor: colors.dark},
         ]}>
-        <Image
-          style={headerStyles.icon}
-          accessibilityRole="image"
-          source={require('../drawable/icon_foreground.png')}
-        />
+        <View style={headerStyles.iconwrapper}>
+          <Image
+            style={headerStyles.icon}
+            accessibilityRole="image"
+            source={require('../drawable/icon_foreground.png')}
+          />
+        </View>
         <View style={headerStyles.textWrapper}>
           <Text
             style={[
@@ -337,8 +349,20 @@ const headerStyles = StyleSheet.create({
     height: 35,
   },
   icon: {
-    maxWidth: '30%',
+    // maxWidth: '30%',
+    // aspectRatio: 1,
+    width: '100%',
+    height: '100%',
+  },
+  iconwrapper: {
+    maxWidth: '20%',
+    width: '20%',
     aspectRatio: 1,
+    margin: 10,
+    marginBottom: 20,
+    marginLeft: 20,
+    backgroundColor: colors.primary,
+    borderRadius: 20,
   },
   buttonbar: {
     width: '100%',

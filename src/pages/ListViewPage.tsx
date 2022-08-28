@@ -205,7 +205,7 @@ let ListHeader: React.FC<Props> = ({props, navigation}) => {
     </Header>
   );
 };
-const listStyle = StyleSheet.create({
+export const listStyle = StyleSheet.create({
   text: {
     fontSize: 20,
     fontWeight: '300',

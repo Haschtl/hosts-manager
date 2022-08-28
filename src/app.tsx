@@ -17,7 +17,7 @@ import Routes from './Routes';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import store from './store';
-// import {systray} from './utils/systray';
+import {systray} from './utils/systray';
 // import notifier from './utils/notifier';
 
 export type ScreenComponentType = {
@@ -38,12 +38,12 @@ const App: () => ReactNode = () => {
   };
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <SafeAreaView style={backgroundStyle}>
-          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <SafeAreaView style={backgroundStyle}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <NavigationContainer>
           <Routes />
-        </SafeAreaView>
-      </NavigationContainer>
+        </NavigationContainer>
+      </SafeAreaView>
     </Provider>
   );
 };

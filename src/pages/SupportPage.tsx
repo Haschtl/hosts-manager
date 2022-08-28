@@ -22,38 +22,29 @@ const SupportPage: React.FC<ScreenComponentType> = ({navigation}) => {
   };
   return (
     <View style={pageStyle}>
-      <View style={versionStyles.background}>
-        <View style={versionStyles.textWrapper}>
+      <View style={supportStyles.background}>
+        <View style={supportStyles.textWrapper}>
           <Image
-            style={versionStyles.icon}
+            style={supportStyles.icon}
             accessibilityRole="image"
-            source={require('../drawable/icon_foreground.png')}
+            source={require('../drawable/baseline_favorite_24.svg')}
           />
-          <Text style={versionStyles.title}>You are up to date</Text>
+          <Text style={supportStyles.title}>Support Me!</Text>
         </View>
-        <View style={versionStyles.changelog}>
-          <Text
-            style={[
-              versionStyles.subtitle,
-              {
-                color: colors.white,
-              },
-            ]}>
-            Latest changes
+        <View style={supportStyles.changelog}>
+          <Text style={supportStyles.text}>
+            This is a free and open-source application. I develop it in my free
+            time. If you like it, please support me:
           </Text>
-          <Text style={versionStyles.change}>- Fix hosts file install</Text>
-          <Text style={[versionStyles.subtitle, {marginTop: 20}]}>
-            Support development
-          </Text>
-          <View style={versionStyles.buttonbar}>
-            <TouchableOpacity style={versionStyles.supportButton}>
+          <View style={supportStyles.buttonbar}>
+            <TouchableOpacity style={supportStyles.supportButton}>
               <Image
                 style={{width: 20}}
                 source={require('../drawable/paypal.svg')}
               />
               <Text style={{marginLeft: 5}}>Spenden</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={versionStyles.supportButton}>
+            <TouchableOpacity style={supportStyles.supportButton}>
               <Image
                 style={{width: 20}}
                 source={require('../drawable/ic_github_24dp.svg')}
@@ -73,7 +64,7 @@ const mapStateToProps = (state: State) => {
 };
 export default connect(mapStateToProps)(SupportPage);
 
-const versionStyles = StyleSheet.create({
+const supportStyles = StyleSheet.create({
   background: {
     // paddingTop: 40,
     backgroundColor: colors.primary,
@@ -105,11 +96,12 @@ const versionStyles = StyleSheet.create({
     textAlign: 'left',
     height: 35,
   },
-  change: {
+  text: {
     fontSize: 17,
     fontWeight: '200',
     color: colors.text,
-    textAlign: 'left',
+    marginBottom: 40,
+    textAlign: 'center',
   },
 
   icon: {
@@ -131,11 +123,13 @@ const versionStyles = StyleSheet.create({
     margin: 5,
     width: '100%',
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
   supportButton: {
     padding: 5,
+    margin: 10,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
