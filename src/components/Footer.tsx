@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import {Animated} from 'react-native-windows';
 import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
 import {ScreenComponentType} from '../App';
 import * as actions from '../store/actions';
 import {State} from '../store/types';
@@ -68,7 +67,7 @@ const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
           <Image source={require('../drawable/baseline_favorite_24.svg')} />
           <Text>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={footerStyle.menuEntry}
           onPress={() => navigate('sources')}>
           <Image source={require('../drawable/ic_outline_rule_24.svg')} />
@@ -79,7 +78,7 @@ const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
           onPress={() => navigate('list')}>
           <Image source={require('../drawable/ic_list_red.svg')} />
           <Text>Lists</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity
           style={footerStyle.menuEntry}
           onPress={() => navigate('support')}>
@@ -121,8 +120,7 @@ const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
     </>
   );
 };
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators({setActive: actions.setActive}, dispatch);
+const mapDispatchToProps = {setActive: actions.setActive};
 const mapStateToProps = (state: State) => {
   return {active: state.app.active};
 };

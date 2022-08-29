@@ -47,7 +47,7 @@ export const headerStyle = StyleSheet.create({
     fontSize: 20,
     fontWeight: '400',
     textAlign: 'left',
-    width: '100%',
+    width: '70%',
     paddingLeft: 20,
   },
 });

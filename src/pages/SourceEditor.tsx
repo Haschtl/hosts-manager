@@ -15,11 +15,16 @@ import {connect} from 'react-redux';
 import {State} from '../store/types';
 import {IsDarkMode} from '../styles/styles';
 import colors from '../styles/colors';
-import {Source} from './SourcesPage';
 import CheckBox from '@react-native-community/checkbox';
+import {HostsCategory} from '../hosts_manager';
+import * as actions from '../store/actions';
 
-type Props = ScreenComponentType & {
-  source?: Source;
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps> &
+  OwnProps;
+type OwnProps = {
+  source: HostsCategory;
 };
 const SourceEditor: React.FC<Props> = ({navigation, source}) => {
   const isDarkMode = IsDarkMode();
@@ -85,11 +90,12 @@ let SourceEditorHeader: React.FC<HProps> = ({navigation}) => {
     </Header>
   );
 };
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: State) => {
   return {active: state.app.active};
 };
-export default connect(mapStateToProps)(SourceEditor);
+export default connect(mapStateToProps, mapDispatchToProps)(SourceEditor);
 
 type IProps = {
   label?: string;

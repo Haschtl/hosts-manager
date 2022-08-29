@@ -15,7 +15,10 @@ import {connect} from 'react-redux';
 import {State} from '../store/types';
 // import {IsDarkMode} from '../styles/styles';
 
-const SupportPage: React.FC<ScreenComponentType> = ({navigation}) => {
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+const SupportPage: React.FC<Props> = ({navigation}) => {
   const pageStyle: ViewStyle = {
     display: 'flex',
     flex: 1,
@@ -58,11 +61,12 @@ const SupportPage: React.FC<ScreenComponentType> = ({navigation}) => {
     </View>
   );
 };
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: State) => {
   return {active: state.app.active};
 };
-export default connect(mapStateToProps)(SupportPage);
+export default connect(mapStateToProps, mapDispatchToProps)(SupportPage);
 
 const supportStyles = StyleSheet.create({
   background: {

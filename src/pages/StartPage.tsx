@@ -15,19 +15,26 @@ import Footer from '../components/Footer';
 import {connect} from 'react-redux';
 // import path from 'node:path';
 import {State} from '../store/types';
-
+import {request} from 'react-native-permissions';
 // import SvgUri from 'react-native-svg-uri';
 import colors from '../styles/colors';
 import {IsDarkMode} from '../styles/styles';
 import {NotImplemented} from '../components/NotImplemented';
+import {sortHosts} from './ListViewPage';
 // import isElevated from '../utils/isElevated';
 // import {IsDarkMode} from '../styles/styles';
-type Props = ScreenComponentType & {
-  active: boolean;
-};
-const StartPage: React.FC<Props> = ({navigation, active}) => {
-  const isDarkMode = IsDarkMode();
 
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+const StartPage: React.FC<Props> = ({navigation, active, hosts}) => {
+  const isDarkMode = IsDarkMode();
+  request('windows.permission.allowElevation').then(v => {
+    console.log(v);
+    if (v === 'unavailable') {
+      setIsElevated(false);
+    }
+  });
   const backgroundStyle: ViewStyle = {
     backgroundColor: isDarkMode ? colors.black : colors.lighter,
     display: 'flex',
@@ -50,6 +57,8 @@ const StartPage: React.FC<Props> = ({navigation, active}) => {
   let upgradeSources = () => {
     setNotImplemented(true);
   };
+
+  let sorted = sortHosts(hosts);
   return (
     <View style={pageStyle}>
       <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
@@ -63,7 +72,13 @@ const StartPage: React.FC<Props> = ({navigation, active}) => {
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
-        <StartHeader navigation={navigation} active={active} />
+        <StartHeader
+          navigation={navigation}
+          active={active}
+          blocked={sorted.blocked.length}
+          redirected={sorted.redirected.length}
+          allowed={sorted.allowed.length}
+        />
         <View style={contentStyles.content}>
           <TouchableHighlight
             style={contentStyles.mainbutton}
@@ -79,11 +94,11 @@ const StartPage: React.FC<Props> = ({navigation, active}) => {
               <View style={contentStyles.maincenter}>
                 <Text
                   style={{color: colors.text, margin: 5, textAlign: 'center'}}>
-                  {'3 aktuelle Quellen'}
+                  {hosts.categories.length + ' aktuelle Quellen'}
                 </Text>
                 <Text
                   style={{color: colors.text, margin: 5, textAlign: 'center'}}>
-                  {'3 veraltete Quellen'}
+                  {'0 veraltete Quellen'}
                 </Text>
               </View>
               <View style={contentStyles.mainright}>
@@ -120,22 +135,29 @@ const StartPage: React.FC<Props> = ({navigation, active}) => {
     </View>
   );
 };
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: State) => {
-  return {active: state.app.active};
+  return {active: state.app.active, hosts: state.app.hosts};
 };
-export default connect(mapStateToProps)(StartPage);
+export default connect(mapStateToProps, mapDispatchToProps)(StartPage);
 
 type HProps = ScreenComponentType & {
   active: boolean;
+  allowed: number;
+  blocked: number;
+  redirected: number;
 };
-export const StartHeader: React.FC<HProps> = ({navigation, active}) => {
+export const StartHeader: React.FC<HProps> = ({
+  navigation,
+  active,
+  allowed,
+  blocked,
+  redirected,
+}) => {
   const goToVersion = () => {
     navigation.navigate('version');
   };
-  let numBlocked = 194475;
-  let numRedirected = 0;
-  let numAllowed = 0;
   return (
     <>
       <View
@@ -177,19 +199,19 @@ export const StartHeader: React.FC<HProps> = ({navigation, active}) => {
         </Text>
         <View style={headerStyles.abs_buttonbar}>
           <HeaderButton
-            title={numBlocked + ''}
+            title={blocked + ''}
             subtitle="Blocked"
             icon={require('../drawable/baseline_block_24.svg')}
             onPress={() => navigation.navigate('list')}
           />
           <HeaderButton
-            title={numAllowed + ''}
+            title={allowed + ''}
             subtitle="Allowed"
             icon={require('../drawable/baseline_check_24.svg')}
             onPress={() => navigation.navigate('list')}
           />
           <HeaderButton
-            title={numRedirected + ''}
+            title={redirected + ''}
             subtitle="Redirected"
             icon={require('../drawable/baseline_compare_arrows_24.svg')}
             onPress={() => navigation.navigate('list')}

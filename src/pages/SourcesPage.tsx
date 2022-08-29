@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -17,17 +18,14 @@ import colors from '../styles/colors';
 import {IsDarkMode} from '../styles/styles';
 import {listStyle} from './ListViewPage';
 import CheckBox from '@react-native-community/checkbox';
+import {HostsCategory} from '../hosts_manager';
+import * as actions from '../store/actions';
 
-export type Source = {
-  active: boolean;
-  label: string;
-  format: 'block' | 'allow';
-  type: 'url' | 'file';
-  location?: string;
-  list?: string[];
-  applyRedirections: boolean;
-};
-const SourcesPage: React.FC<ScreenComponentType> = ({navigation}) => {
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+
+const SourcesPage: React.FC<Props> = ({navigation, hosts}) => {
   const isDarkMode = IsDarkMode();
 
   const backgroundStyle: ViewStyle = {
@@ -35,33 +33,39 @@ const SourcesPage: React.FC<ScreenComponentType> = ({navigation}) => {
     display: 'flex',
     flex: 1,
   };
-  let sources: Source[] = [
-    {
-      active: true,
-      label: 'AdAway official hosts',
-      format: 'block',
-      type: 'url',
-      location: 'https://adaway.org/hosts.txt',
-      applyRedirections: false,
-    },
-    {
-      active: true,
-      label: 'StevenBlack Unified hosts',
-      format: 'block',
-      type: 'url',
-      location:
-        'https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts',
-      applyRedirections: false,
-    },
-  ];
+  // let sources: HostsCategory[] = [
+  //   {
+  //     enabled: true,
+  //     label: 'AdAway official hosts',
+  //     format: 'block',
+  //     type: 'url',
+  //     location: 'https://adaway.org/hosts.txt',
+  //     content: [],
+  //     applyRedirects: false,
+  //   },
+  //   {
+  //     enabled: true,
+  //     label: 'StevenBlack Unified hosts',
+  //     format: 'block',
+  //     type: 'url',
+  //     location:
+  //       'https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts',
+  //     content: [],
+  //     applyRedirects: false,
+  //   },
+  // ];
   return (
     <View style={backgroundStyle}>
       <SourcesHeader navigation={navigation} />
-      <View style={sourcesStyle.list}>
-        {sources.map(s => (
-          <SourceListElement source={s} navigation={navigation} />
+      <ScrollView style={sourcesStyle.list}>
+        {hosts.categories.map((s, idx) => (
+          <SourceListElement
+            source={s}
+            navigation={navigation}
+            key={'category' + idx}
+          />
         ))}
-      </View>
+      </ScrollView>
       <TouchableOpacity style={listStyle.addbutton}>
         <Image source={require('../drawable/ic_add_black_24px.svg')} />
       </TouchableOpacity>
@@ -69,10 +73,21 @@ const SourcesPage: React.FC<ScreenComponentType> = ({navigation}) => {
   );
 };
 
-type Props = {
+// const mapDispatchToProps = (dispatch: any) =>
+//   bindActionCreators({setState: actions.setState}, dispatch);
+const mapDispatchToProps = {
+  setState: actions.setState,
+};
+
+const mapStateToProps = (state: State) => {
+  return {active: state.app.active, hosts: state.app.hosts};
+};
+export default connect(mapStateToProps, mapDispatchToProps)(SourcesPage);
+
+type HProps = {
   children?: React.ReactNode;
 } & ScreenComponentType;
-let SourcesHeader: React.FC<Props> = ({navigation}) => {
+let SourcesHeader: React.FC<HProps> = ({navigation}) => {
   return (
     <Header navigation={navigation}>
       <Text style={headerStyle.text}>Hosts-Sources</Text>
@@ -81,13 +96,8 @@ let SourcesHeader: React.FC<Props> = ({navigation}) => {
   );
 };
 
-const mapStateToProps = (state: State) => {
-  return {active: state.app.active};
-};
-export default connect(mapStateToProps)(SourcesPage);
-
 type SLEProps = ScreenComponentType & {
-  source: Source;
+  source: HostsCategory;
 };
 let SourceListElement: React.FC<SLEProps> = ({source, navigation}) => {
   let onPress = () => {
@@ -95,19 +105,27 @@ let SourceListElement: React.FC<SLEProps> = ({source, navigation}) => {
   };
   return (
     <TouchableOpacity style={sourcesStyle.element} onPress={onPress}>
-      <CheckBox style={{margin: 10}} />
+      <CheckBox style={{margin: 10}} value={source.enabled} />
       <View style={sourcesStyle.content}>
         <Text style={sourcesStyle.title}>{source.label}</Text>
         <Text style={sourcesStyle.subtitle}>{source.location}</Text>
         <Text style={sourcesStyle.subsubtitle}>Since 3 days up to date</Text>
       </View>
-      <Text style={sourcesStyle.fixed}>4k hosts</Text>
+      <Text style={sourcesStyle.fixed}>
+        {numFormatter(source.content.length)} hosts
+      </Text>
     </TouchableOpacity>
   );
 };
 
 export const sourcesStyle = StyleSheet.create({
-  list: {display: 'flex', flex: 1, flexDirection: 'column', padding: 10},
+  list: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    // padding: 10,
+    margin: 10,
+  },
   element: {
     width: '100%',
     backgroundColor: colors.dark,
@@ -143,3 +161,11 @@ export const sourcesStyle = StyleSheet.create({
     fontWeight: '400',
   },
 });
+
+let numFormatter = (num: number) => {
+  if (num < 1000) {
+    return num + '';
+  } else {
+    return (num / 1000).toFixed(0) + 'k';
+  }
+};

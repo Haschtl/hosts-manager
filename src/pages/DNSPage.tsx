@@ -9,7 +9,10 @@ import {listStyle} from './ListViewPage';
 import {IsDarkMode} from '../styles/styles';
 import colors from '../styles/colors';
 
-const DNSPage: React.FC<ScreenComponentType> = ({navigation}) => {
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+const DNSPage: React.FC<Props> = ({navigation}) => {
   const isDarkMode = IsDarkMode();
 
   const backgroundStyle: ViewStyle = {
@@ -35,10 +38,10 @@ const DNSPage: React.FC<ScreenComponentType> = ({navigation}) => {
   );
 };
 
-type Props = {
+type HProps = {
   children?: React.ReactNode;
 } & ScreenComponentType;
-let DNSHeader: React.FC<Props> = ({navigation}) => {
+let DNSHeader: React.FC<HProps> = ({navigation}) => {
   return (
     <Header navigation={navigation}>
       <Text style={headerStyle.text}>DNS-Requests</Text>
@@ -60,7 +63,8 @@ let DNSHeader: React.FC<Props> = ({navigation}) => {
   );
 };
 
+const mapDispatchToProps = {};
 const mapStateToProps = (state: State) => {
   return {active: state.app.active};
 };
-export default connect(mapStateToProps)(DNSPage);
+export default connect(mapStateToProps, mapDispatchToProps)(DNSPage);

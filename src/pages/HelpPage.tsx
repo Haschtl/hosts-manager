@@ -8,7 +8,10 @@ import {State} from '../store/types';
 import {IsDarkMode} from '../styles/styles';
 import colors from '../styles/colors';
 
-const HelpPage: React.FC<ScreenComponentType> = ({navigation}) => {
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+const HelpPage: React.FC<Props> = ({navigation}) => {
   const isDarkMode = IsDarkMode();
 
   const backgroundStyle: ViewStyle = {
@@ -23,10 +26,10 @@ const HelpPage: React.FC<ScreenComponentType> = ({navigation}) => {
   );
 };
 
-type Props = {
+type HProps = {
   children?: React.ReactNode;
 } & ScreenComponentType;
-let HelpHeader: React.FC<Props> = ({navigation}) => {
+let HelpHeader: React.FC<HProps> = ({navigation}) => {
   return (
     <Header navigation={navigation}>
       <Text style={headerStyle.text}>Help</Text>
@@ -34,8 +37,9 @@ let HelpHeader: React.FC<Props> = ({navigation}) => {
     </Header>
   );
 };
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: State) => {
   return {active: state.app.active};
 };
-export default connect(mapStateToProps)(HelpPage);
+export default connect(mapStateToProps, mapDispatchToProps)(HelpPage);

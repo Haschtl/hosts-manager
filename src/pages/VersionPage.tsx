@@ -32,7 +32,10 @@ export let openPaypal = () => {
     }
   });
 };
-const VersionPage: React.FC<ScreenComponentType> = ({navigation}) => {
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+const VersionPage: React.FC<Props> = ({navigation}) => {
   const pageStyle: ViewStyle = {
     display: 'flex',
     flex: 1,
@@ -88,11 +91,12 @@ const VersionPage: React.FC<ScreenComponentType> = ({navigation}) => {
     </View>
   );
 };
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: State) => {
   return {active: state.app.active};
 };
-export default connect(mapStateToProps)(VersionPage);
+export default connect(mapStateToProps, mapDispatchToProps)(VersionPage);
 
 const versionStyles = StyleSheet.create({
   background: {

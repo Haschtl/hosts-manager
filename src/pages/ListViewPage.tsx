@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
+  FlatList,
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -19,8 +19,13 @@ import {ScreenComponentType} from '../App';
 import {Header, headerStyle} from '../components/Header';
 import {connect} from 'react-redux';
 import {State} from '../store/types';
+import {Hosts, HostsLine} from '../hosts_manager';
+import * as actions from '../store/actions';
 
-let AllowList: React.FC = () => {
+type RProps = {
+  lines: HostsLine[];
+};
+let HostsList: React.FC<RProps> = ({lines}) => {
   const isDarkMode = IsDarkMode();
 
   const backgroundStyle: ViewStyle = {
@@ -30,13 +35,12 @@ let AllowList: React.FC = () => {
   };
   return (
     <View style={backgroundStyle}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={listStyle.wrapper}>
-        <ListElement />
-        <ListElement />
-        <ListElement />
-      </ScrollView>
+      <FlatList
+        data={lines}
+        renderItem={i => <ListElement line={i.item} key={i.index} />}
+        // contentInsetAdjustmentBehavior="automatic"
+        style={listStyle.wrapper}
+      />
       <TouchableOpacity style={listStyle.addbutton}>
         <Image source={require('../drawable/ic_add_black_24px.svg')} />
       </TouchableOpacity>
@@ -44,92 +48,35 @@ let AllowList: React.FC = () => {
   );
 };
 
-let BlockedList: React.FC = () => {
-  const isDarkMode = IsDarkMode();
-
-  const backgroundStyle: ViewStyle = {
-    backgroundColor: isDarkMode ? colors.black : colors.lighter,
-    display: 'flex',
-    flex: 1,
-  };
-  return (
-    <View style={backgroundStyle}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={listStyle.wrapper}>
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-        <ListElement />
-      </ScrollView>
-      <TouchableOpacity style={listStyle.addbutton}>
-        <Image source={require('../drawable/ic_add_black_24px.svg')} />
-      </TouchableOpacity>
-    </View>
-  );
+type EProps = {
+  line: HostsLine;
 };
-
-let RedirectList: React.FC = () => {
-  const isDarkMode = IsDarkMode();
-
-  const backgroundStyle: ViewStyle = {
-    backgroundColor: isDarkMode ? colors.black : colors.lighter,
-    display: 'flex',
-    flex: 1,
-  };
-  return (
-    <View style={backgroundStyle}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={listStyle.wrapper}>
-        <ListElement />
-        <ListElement />
-        <ListElement />
-      </ScrollView>
-      <TouchableOpacity style={listStyle.addbutton}>
-        <Image source={require('../drawable/ic_add_black_24px.svg')} />
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-let ListElement: React.FC = () => {
+let ListElement: React.FC<EProps> = ({line}) => {
   return (
     <View style={listStyle.element}>
-      <CheckBox />
-      <Text style={listStyle.text}>blabla.de</Text>
+      <CheckBox value={line.enabled} />
+      <Text style={listStyle.text}>{line.domain}</Text>
+      <Text style={listStyle.host}>{line.host}</Text>
     </View>
   );
 };
 
 const Tab = createBottomTabNavigator();
 
-const ListViewPage: React.FC<ScreenComponentType> = ({navigation}) => {
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+const ListViewPage: React.FC<Props> = ({navigation, hosts}) => {
+  let sorted = sortHosts(hosts);
+  let Blocked = (props: any) => {
+    return HostsList({...props, lines: sorted.blocked});
+  };
+  let Allowed = (props: any) => {
+    return HostsList({...props, lines: sorted.allowed});
+  };
+  let Redirected = (props: any) => {
+    return HostsList({...props, lines: sorted.redirected});
+  };
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -168,23 +115,24 @@ const ListViewPage: React.FC<ScreenComponentType> = ({navigation}) => {
         tabBarStyle: {borderTopWidth: 1, borderColor: colors.dark},
         header: p => <ListHeader props={p} navigation={navigation} />,
       })}>
-      <Tab.Screen name="Blocked" component={BlockedList} />
-      <Tab.Screen name="Allowed" component={AllowList} />
-      <Tab.Screen name="Redirect" component={RedirectList} />
+      <Tab.Screen name="Blocked" component={Blocked} />
+      <Tab.Screen name="Allowed" component={Allowed} />
+      <Tab.Screen name="Redirect" component={Redirected} />
     </Tab.Navigator>
   );
 };
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: State) => {
-  return {active: state.app.active};
+  return {active: state.app.active, hosts: state.app.hosts};
 };
-export default connect(mapStateToProps)(ListViewPage);
+export default connect(mapStateToProps, mapDispatchToProps)(ListViewPage);
 
-type Props = {
+type HProps = {
   props: BottomTabHeaderProps;
   children?: React.ReactNode;
 } & ScreenComponentType;
-let ListHeader: React.FC<Props> = ({props, navigation}) => {
+let ListHeader: React.FC<HProps> = ({props, navigation}) => {
   return (
     <Header navigation={navigation}>
       <Text style={headerStyle.text}>{props.route.name}</Text>
@@ -208,7 +156,19 @@ let ListHeader: React.FC<Props> = ({props, navigation}) => {
 export const listStyle = StyleSheet.create({
   text: {
     fontSize: 20,
+    height: 30,
     fontWeight: '300',
+    textAlignVertical: 'center',
+  },
+  host: {
+    position: 'absolute',
+    right: 8,
+    bottom: 0,
+    fontSize: 12,
+    height: 30,
+    color: colors.text,
+    fontWeight: '200',
+    textAlignVertical: 'center',
   },
   element: {
     padding: 10,
@@ -236,3 +196,25 @@ export const listStyle = StyleSheet.create({
     backgroundColor: colors.primary,
   },
 });
+
+export let sortHosts = (hosts: Hosts) => {
+  let blocked: HostsLine[] = [];
+  let allowed: HostsLine[] = [];
+  let redirected: HostsLine[] = [];
+  hosts.categories.forEach(v => {
+    v.content.forEach(l => {
+      if (l.host !== undefined) {
+        if (['127.0.0.1', '0.0.0.0'].includes(l.host)) {
+          if (v.format === 'allow') {
+            allowed.push(l);
+          } else {
+            blocked.push(l);
+          }
+        } else {
+          redirected.push(l);
+        }
+      }
+    });
+  });
+  return {blocked, allowed, redirected};
+};

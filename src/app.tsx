@@ -7,17 +7,19 @@
 - Find,remove duplicates
 */
 
-import React from 'react';
-import type {ReactNode} from 'react';
+import React, {useEffect} from 'react';
 import {SafeAreaView, ViewStyle} from 'react-native';
 import {StatusBar} from 'react-native-windows';
 import colors from './styles/colors';
 import {IsDarkMode} from './styles/styles';
 import Routes from './Routes';
 import {NavigationContainer} from '@react-navigation/native';
-import {Provider} from 'react-redux';
+import {connect, Provider} from 'react-redux';
 import store from './store';
-import {systray} from './utils/systray';
+// import {systray} from './utils/systray';
+import {loadState} from './store/reducer';
+import * as actions from './store/actions';
+import {State} from './store/types';
 // import notifier from './utils/notifier';
 
 export type ScreenComponentType = {
@@ -29,13 +31,25 @@ export type ScreenComponentType = {
 //   title: 'My notification',
 //   message: 'Hello, there!',
 // });
-const App: () => ReactNode = () => {
+
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+const App: React.FC<Props> = ({setState}) => {
   const isDarkMode = IsDarkMode();
   const backgroundStyle: ViewStyle = {
     backgroundColor: isDarkMode ? colors.black : colors.lighter,
     display: 'flex',
     flex: 1,
   };
+  useEffect(() => {
+    loadState()
+      .then(state => {
+        // console.log(state);
+        setState(state);
+      })
+      .catch(e => console.warn(e));
+  }, [setState]);
   return (
     <Provider store={store}>
       <SafeAreaView style={backgroundStyle}>
@@ -48,4 +62,17 @@ const App: () => ReactNode = () => {
   );
 };
 
-export default App;
+const mapDispatchToProps = {setState: actions.setState};
+// export default App;
+const mapStateToProps = (state: State) => {
+  return {active: state.app.active};
+};
+let _App = connect(mapStateToProps, mapDispatchToProps)(App);
+let __App: React.FC<ScreenComponentType> = ({navigation}) => {
+  return (
+    <Provider store={store}>
+      <_App navigation={navigation} />
+    </Provider>
+  );
+};
+export default __App;
