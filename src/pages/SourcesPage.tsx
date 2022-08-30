@@ -16,10 +16,10 @@ import {connect} from 'react-redux';
 import {State} from '../store/types';
 import colors from '../styles/colors';
 import {IsDarkMode} from '../styles/styles';
-import {listStyle} from './ListViewPage';
-import CheckBox from '@react-native-community/checkbox';
-import {HostsCategory} from '../hosts_manager';
 import * as actions from '../store/actions';
+import SourceListElement from '../components/SourceListElement';
+import {HostsCategory} from '../hosts_manager';
+import {listStyle} from '../components/HostsFileEditor';
 
 type Props = ScreenComponentType &
   typeof mapDispatchToProps &
@@ -32,6 +32,19 @@ const SourcesPage: React.FC<Props> = ({navigation, hosts}) => {
     backgroundColor: isDarkMode ? colors.black : colors.lighter,
     display: 'flex',
     flex: 1,
+  };
+  let addSource = () => {
+    navigation.navigate('editsource', {
+      source: {
+        enabled: true,
+        label: '',
+        format: 'block',
+        type: 'url',
+        content: [],
+        applyRedirects: false,
+      } as HostsCategory,
+      idx: -1,
+    });
   };
   // let sources: HostsCategory[] = [
   //   {
@@ -61,12 +74,13 @@ const SourcesPage: React.FC<Props> = ({navigation, hosts}) => {
         {hosts.categories.map((s, idx) => (
           <SourceListElement
             source={s}
+            idx={idx}
             navigation={navigation}
             key={'category' + idx}
           />
         ))}
       </ScrollView>
-      <TouchableOpacity style={listStyle.addbutton}>
+      <TouchableOpacity style={listStyle.addbutton} onPress={addSource}>
         <Image source={require('../drawable/ic_add_black_24px.svg')} />
       </TouchableOpacity>
     </View>
@@ -96,28 +110,6 @@ let SourcesHeader: React.FC<HProps> = ({navigation}) => {
   );
 };
 
-type SLEProps = ScreenComponentType & {
-  source: HostsCategory;
-};
-let SourceListElement: React.FC<SLEProps> = ({source, navigation}) => {
-  let onPress = () => {
-    navigation.navigate('editsource');
-  };
-  return (
-    <TouchableOpacity style={sourcesStyle.element} onPress={onPress}>
-      <CheckBox style={{margin: 10}} value={source.enabled} />
-      <View style={sourcesStyle.content}>
-        <Text style={sourcesStyle.title}>{source.label}</Text>
-        <Text style={sourcesStyle.subtitle}>{source.location}</Text>
-        <Text style={sourcesStyle.subsubtitle}>Since 3 days up to date</Text>
-      </View>
-      <Text style={sourcesStyle.fixed}>
-        {numFormatter(source.content.length)} hosts
-      </Text>
-    </TouchableOpacity>
-  );
-};
-
 export const sourcesStyle = StyleSheet.create({
   list: {
     display: 'flex',
@@ -126,46 +118,4 @@ export const sourcesStyle = StyleSheet.create({
     // padding: 10,
     margin: 10,
   },
-  element: {
-    width: '100%',
-    backgroundColor: colors.dark,
-    borderRadius: 7,
-    marginBottom: 10,
-    padding: 10,
-    display: 'flex',
-    flexDirection: 'row',
-    // justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  content: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: '400',
-  },
-  subtitle: {
-    fontSize: 12,
-    fontWeight: '200',
-  },
-  subsubtitle: {
-    fontSize: 12,
-    fontWeight: '400',
-  },
-  fixed: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    fontSize: 12,
-    fontWeight: '400',
-  },
 });
-
-let numFormatter = (num: number) => {
-  if (num < 1000) {
-    return num + '';
-  } else {
-    return (num / 1000).toFixed(0) + 'k';
-  }
-};

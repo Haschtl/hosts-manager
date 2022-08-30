@@ -10,6 +10,12 @@ let backup_path = user_folder + '/hosts.bak';
 let config_path = user_folder + '/config.json';
 let sources_path = user_folder + '/sources/';
 
+export let downloadFile = (label: string, url: string) => {
+  return fs
+    .downloadFile({fromUrl: url, toFile: sources_path + label + '.host'})
+    .promise.then(v => v);
+};
+
 export let loadConfig = (path = config_path) => {
   console.log('Loading settings from ' + path);
   return fs.exists(path).then(exists => {
@@ -38,13 +44,16 @@ export let loadSources = (path = sources_path) => {
   return fs.exists(path).then(exists => {
     if (exists) {
       return fs.readdir(path).then(files => {
+        console.log('Found files: ' + files.join(', '));
         let promises = files.map(file => {
-          return loadHostsFile(file);
+          return loadHostsFile(path + file);
         });
         return Promise.all(promises).then(v => {
           let sources: Hosts = {categories: []};
           v.forEach(h => {
-            sources.categories = [...sources.categories, ...h.categories];
+            if (h) {
+              sources.categories = [...sources.categories, ...h.categories];
+            }
           });
           return sources;
         });
@@ -72,8 +81,8 @@ export let saveSources = (hosts: Hosts, path = sources_path) => {
 };
 export let _saveSources = (hosts: Hosts, path = sources_path) => {
   hosts.categories.forEach(h => {
-    let fpath = path + h.label;
-    fs.writeFile(fpath, formatHosts({categories: [h]}));
+    let fpath = path + h.label + '.host';
+    fs.writeFile(fpath, formatHosts({categories: [h]}, true));
   });
 };
 

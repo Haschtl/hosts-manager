@@ -2,6 +2,7 @@ import {Hosts} from '../hosts_manager';
 
 export type AppState = {
   active: boolean;
+  isElevated: boolean;
   version: string;
   settings: Settings;
   hosts: Hosts;

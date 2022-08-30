@@ -1,5 +1,4 @@
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import StartPage from './pages/StartPage';
 import VersionPage from './pages/VersionPage';
 import ListViewPage from './pages/ListViewPage';
@@ -9,11 +8,23 @@ import SettingsPage from './pages/SettingsPage';
 import HelpPage from './pages/HelpPage';
 import DNSPage from './pages/DNSPage';
 import SourceEditor from './pages/SourceEditor';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+// import {createNativeStackNavigator} from '@react-navigation/native-stack';
+// import {createDrawerNavigator} from '@react-navigation/drawer';
 
-const Stack = createNativeStackNavigator();
+const Stack = createBottomTabNavigator();
 
 const Routes = () => (
-  <Stack.Navigator key="root">
+  <Stack.Navigator
+    key="root"
+    id="routes"
+    screenOptions={({}) => ({
+      tabBarIcon: () => <></>,
+      tabBarStyle: {height: 0},
+      tabBar: () => <></>,
+      header: () => <></>,
+      // headerShown: false,
+    })}>
     <Stack.Screen
       name="home"
       key="home"

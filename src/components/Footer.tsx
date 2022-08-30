@@ -16,11 +16,15 @@ import {State} from '../store/types';
 import colors from '../styles/colors';
 // import {IsDarkMode} from '../styles/styles';
 
-type Props = {
-  active: boolean;
-  setActive(v: boolean): void;
-} & ScreenComponentType;
-const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
+type Props = ScreenComponentType &
+  typeof mapDispatchToProps &
+  ReturnType<typeof mapStateToProps>;
+const Footer: React.FC<Props> = ({
+  navigation,
+  active,
+  setActive,
+  isElevated,
+}) => {
   const navigate = (v: string) => {
     navigation.navigate(v);
     setValue(0);
@@ -29,6 +33,11 @@ const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
   //   let menu = new Animated.Value(0);
   let [current, setCurrent] = useState(0);
   let onPress = () => setValue();
+  let toggleActive = () => {
+    if (isElevated) {
+      setActive(!active);
+    }
+  };
   let setValue = (v?: number) => {
     if (v === undefined) {
       v = current;
@@ -106,7 +115,7 @@ const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
             ]}
             // activeOpacity={0.2}
 
-            onPress={() => setActive(!active)}
+            onPress={toggleActive}
             // underlayColor={'#000000'}
           >
             {active ? (
@@ -122,7 +131,7 @@ const Footer: React.FC<Props> = ({navigation, active, setActive}) => {
 };
 const mapDispatchToProps = {setActive: actions.setActive};
 const mapStateToProps = (state: State) => {
-  return {active: state.app.active};
+  return {active: state.app.active, isElevated: state.app.isElevated};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Footer);
 

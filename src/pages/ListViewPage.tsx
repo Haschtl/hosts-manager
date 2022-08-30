@@ -1,65 +1,17 @@
 import * as React from 'react';
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from 'react-native';
+import {Image, Text, TouchableOpacity, View} from 'react-native';
 import {
   BottomTabHeaderProps,
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 import colors from '../styles/colors';
-import {IsDarkMode} from '../styles/styles';
-import CheckBox from '@react-native-community/checkbox';
 import {ScreenComponentType} from '../App';
 import {Header, headerStyle} from '../components/Header';
 import {connect} from 'react-redux';
 import {State} from '../store/types';
-import {Hosts, HostsLine} from '../hosts_manager';
-import * as actions from '../store/actions';
-
-type RProps = {
-  lines: HostsLine[];
-};
-let HostsList: React.FC<RProps> = ({lines}) => {
-  const isDarkMode = IsDarkMode();
-
-  const backgroundStyle: ViewStyle = {
-    backgroundColor: isDarkMode ? colors.black : colors.lighter,
-    display: 'flex',
-    flex: 1,
-  };
-  return (
-    <View style={backgroundStyle}>
-      <FlatList
-        data={lines}
-        renderItem={i => <ListElement line={i.item} key={i.index} />}
-        // contentInsetAdjustmentBehavior="automatic"
-        style={listStyle.wrapper}
-      />
-      <TouchableOpacity style={listStyle.addbutton}>
-        <Image source={require('../drawable/ic_add_black_24px.svg')} />
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-type EProps = {
-  line: HostsLine;
-};
-let ListElement: React.FC<EProps> = ({line}) => {
-  return (
-    <View style={listStyle.element}>
-      <CheckBox value={line.enabled} />
-      <Text style={listStyle.text}>{line.domain}</Text>
-      <Text style={listStyle.host}>{line.host}</Text>
-    </View>
-  );
-};
+import {sortHosts} from '../hosts_manager';
+// import * as actions from '../store/actions';
+import HostsFileEditor from '../components/HostsFileEditor';
 
 const Tab = createBottomTabNavigator();
 
@@ -68,17 +20,50 @@ type Props = ScreenComponentType &
   ReturnType<typeof mapStateToProps>;
 const ListViewPage: React.FC<Props> = ({navigation, hosts}) => {
   let sorted = sortHosts(hosts);
+  console.log(sorted);
   let Blocked = (props: any) => {
-    return HostsList({...props, lines: sorted.blocked});
+    return HostsFileEditor({
+      ...props,
+      category: {
+        content: sorted.blocked,
+        applyRedirects: false,
+        format: 'block',
+        label: '',
+        type: 'file',
+      },
+      navigation,
+    });
   };
   let Allowed = (props: any) => {
-    return HostsList({...props, lines: sorted.allowed});
+    return HostsFileEditor({
+      ...props,
+      category: {
+        content: sorted.allowed,
+        applyRedirects: false,
+        format: 'block',
+        label: '',
+        type: 'file',
+      },
+      navigation,
+    });
   };
   let Redirected = (props: any) => {
-    return HostsList({...props, lines: sorted.redirected});
+    return HostsFileEditor({
+      ...props,
+      category: {
+        content: sorted.redirected,
+        applyRedirects: false,
+        format: 'block',
+        label: '',
+        type: 'file',
+      },
+      navigation,
+    });
   };
   return (
     <Tab.Navigator
+      key="listroot"
+      id="lists"
       screenOptions={({route}) => ({
         tabBarIcon: () => {
           //   let iconName;
@@ -152,69 +137,4 @@ let ListHeader: React.FC<HProps> = ({props, navigation}) => {
       </View>
     </Header>
   );
-};
-export const listStyle = StyleSheet.create({
-  text: {
-    fontSize: 20,
-    height: 30,
-    fontWeight: '300',
-    textAlignVertical: 'center',
-  },
-  host: {
-    position: 'absolute',
-    right: 8,
-    bottom: 0,
-    fontSize: 12,
-    height: 30,
-    color: colors.text,
-    fontWeight: '200',
-    textAlignVertical: 'center',
-  },
-  element: {
-    padding: 10,
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    alignContent: 'center',
-  },
-  wrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-  },
-  addbutton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    width: 50,
-    height: 50,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 25,
-    backgroundColor: colors.primary,
-  },
-});
-
-export let sortHosts = (hosts: Hosts) => {
-  let blocked: HostsLine[] = [];
-  let allowed: HostsLine[] = [];
-  let redirected: HostsLine[] = [];
-  hosts.categories.forEach(v => {
-    v.content.forEach(l => {
-      if (l.host !== undefined) {
-        if (['127.0.0.1', '0.0.0.0'].includes(l.host)) {
-          if (v.format === 'allow') {
-            allowed.push(l);
-          } else {
-            blocked.push(l);
-          }
-        } else {
-          redirected.push(l);
-        }
-      }
-    });
-  });
-  return {blocked, allowed, redirected};
 };

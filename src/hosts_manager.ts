@@ -21,23 +21,54 @@ export type HostsLine = {
   enabled: boolean;
 };
 
-export function formatHosts(hosts: Hosts) {
+export function formatHosts(hosts: Hosts, ignoreWhitelist = false) {
   let text = '';
+  let whitelist: string[] = [];
+  if (ignoreWhitelist === false) {
+    hosts.categories.forEach(c => {
+      if (c.format === 'allow' && c.enabled) {
+        c.content.forEach(l => {
+          if (l.enabled && l.domain) {
+            whitelist.push(l.domain);
+          }
+        });
+      }
+    });
+  }
   hosts.categories.forEach(c => {
-    text += hosts_category_to_string(c) + '\n';
+    if (c.enabled || ignoreWhitelist) {
+      text += hosts_category_to_string(c, whitelist) + '\n';
+    }
   });
   return text;
 }
 
-export function hosts_category_to_string(category: HostsCategory) {
-  let text = '';
-  if (category.location !== null) {
-    text += `${annotation_start} <group label="${category.label}" location="${category.location}">\n`;
-  } else {
-    text += `${annotation_start} <group label="${category.label}">\n`;
+export function hosts_category_to_string(
+  category: HostsCategory,
+  whitelist: string[],
+) {
+  let text = `${annotation_start} <group`;
+  if (category.label !== undefined) {
+    text += ` label="${category.label}"`;
   }
+  if (category.location !== undefined) {
+    text += ` location="${category.location}"`;
+  }
+  if (category.enabled !== undefined) {
+    text += ` enabled="${category.enabled}"`;
+  }
+  if (category.format !== undefined) {
+    text += ` format="${category.format}"`;
+  }
+  if (category.applyRedirects !== undefined) {
+    text += ` applyRedirects="${category.applyRedirects}"`;
+  }
+  if (category.type !== undefined) {
+    text += ` type="${category.type}"`;
+  }
+  text += '>\n';
   category.content.forEach(l => {
-    let l2 = formatLine(l);
+    let l2 = formatLine(l, whitelist);
     if (l2 !== undefined) {
       text += l2 + '\n';
     }
@@ -69,7 +100,10 @@ export function parseLine(line: string, enabled = true): HostsLine {
   }
 }
 
-export function formatLine(line: HostsLine): string | undefined {
+export function formatLine(
+  line: HostsLine,
+  whitelist: string[],
+): string | undefined {
   if (line.domain === undefined && line.host === undefined) {
     if (line.comment) {
       return '# ' + line.comment;
@@ -77,7 +111,10 @@ export function formatLine(line: HostsLine): string | undefined {
       return undefined;
     }
   } else {
-    let text = line.host + ' ' + line.comment;
+    if (line.domain === undefined || whitelist.indexOf(line.domain) >= 0) {
+      return undefined;
+    }
+    let text = line.host + ' ' + line.domain;
     if (line.comment) {
       text += ' # ' + line.comment;
     }
@@ -103,89 +140,91 @@ export function parse_hosts_file(file: string) {
   let parser = new DOMParser();
   file.split('\n').forEach((line, idx) => {
     let is_annotation = false;
-    if (line.startsWith(annotation_start)) {
-      // Annotation for AdAway
-      if (line.includes('</group>')) {
-        if (current_category !== undefined) {
-          hosts.categories.push(current_category);
-          current_category = undefined;
-          is_annotation = true;
-        }
-      } else {
-        let tree = parser.parseFromString(
-          line.replace(annotation_start, '').trim() + '</group>',
-          'text/xml',
-        );
-        try {
-          if (tree.childNodes[0].nodeName === 'group') {
-            let attributes: {[id: number]: {name: string; value: string}} =
-              //@ts-ignore
-              tree.childNodes[0].attributes;
-            let label: string | undefined = undefined;
-            let location: string | undefined;
-            let enabled = true;
-            let format: 'block' | 'allow' = 'block';
-            let type: 'file' | 'url' = 'file';
-            let applyRedirects = true;
-            Object.values(attributes).forEach(a => {
-              switch (a.name) {
-                case 'label':
-                  label = a.value;
-                  break;
-                case 'location':
-                  location = a.value;
-                  break;
-                case 'enabled':
-                  enabled = Boolean(a.value);
-                  break;
-                case 'format':
-                  format = a.value as 'block';
-                  break;
-                case 'type':
-                  type = a.value as 'file';
-                  break;
-                case 'applyRedirects':
-                  applyRedirects = Boolean(a.value);
-                  break;
-              }
-            });
-            if (label !== undefined) {
-              is_annotation = true;
-              if (current_category === undefined) {
-                current_category = {
-                  label,
-                  content: [],
-                  location,
-                  enabled,
-                  format,
-                  applyRedirects,
-                  type,
-                };
+    if (line.trim() !== '') {
+      if (line.startsWith(annotation_start)) {
+        // Annotation for AdAway
+        if (line.includes('</group>')) {
+          if (current_category !== undefined) {
+            hosts.categories.push(current_category);
+            current_category = undefined;
+            is_annotation = true;
+          }
+        } else {
+          let tree = parser.parseFromString(
+            line.replace(annotation_start, '').trim() + '</group>',
+            'text/xml',
+          );
+          try {
+            if (tree.childNodes[0].nodeName === 'group') {
+              let attributes: {[id: number]: {name: string; value: string}} =
+                //@ts-ignore
+                tree.childNodes[0].attributes;
+              let label: string | undefined = undefined;
+              let location: string | undefined;
+              let enabled = true;
+              let format: 'block' | 'allow' = 'block';
+              let type: 'file' | 'url' = 'file';
+              let applyRedirects = true;
+              Object.values(attributes).forEach(a => {
+                switch (a.name) {
+                  case 'label':
+                    label = a.value;
+                    break;
+                  case 'location':
+                    location = a.value;
+                    break;
+                  case 'enabled':
+                    enabled = Boolean(a.value);
+                    break;
+                  case 'format':
+                    format = a.value as 'block';
+                    break;
+                  case 'type':
+                    type = a.value as 'file';
+                    break;
+                  case 'applyRedirects':
+                    applyRedirects = Boolean(a.value);
+                    break;
+                }
+              });
+              if (label !== undefined) {
+                is_annotation = true;
+                if (current_category === undefined) {
+                  current_category = {
+                    label,
+                    content: [],
+                    location,
+                    enabled,
+                    format,
+                    applyRedirects,
+                    type,
+                  };
+                }
               }
             }
+          } catch (e) {
+            console.log('Error parsing line ' + (idx + 1), e);
           }
-        } catch (e) {
-          console.log('Error parsing line ' + (idx + 1), e);
         }
       }
-    }
-    if (!is_annotation) {
-      let hostsLine = parseLine(line);
-      if (current_category !== undefined) {
-        current_category.content.push(hostsLine);
-        if (current_category.enabled !== undefined) {
-          if (line.startsWith('#')) {
-            if (idx !== 0 && current_category.enabled === true) {
+      if (!is_annotation) {
+        let hostsLine = parseLine(line);
+        if (current_category !== undefined) {
+          current_category.content.push(hostsLine);
+          if (current_category.enabled !== undefined) {
+            if (line.startsWith('#')) {
+              if (idx !== 0 && current_category.enabled === true) {
+                current_category.enabled = undefined;
+              } else {
+                current_category.enabled = false;
+              }
+            } else if (current_category.enabled === false) {
               current_category.enabled = undefined;
-            } else {
-              current_category.enabled = false;
             }
-          } else if (current_category.enabled === false) {
-            current_category.enabled = undefined;
           }
+        } else {
+          unknown_category.content.push(hostsLine);
         }
-      } else {
-        unknown_category.content.push(hostsLine);
       }
     }
   });
@@ -209,3 +248,29 @@ export function remove_duplicates(hosts: Hosts) {
   });
   return hosts;
 }
+
+export let sortHosts = (hosts: Hosts) => {
+  let blocked: HostsLine[] = [];
+  let allowed: HostsLine[] = [];
+  let redirected: HostsLine[] = [];
+  hosts.categories.forEach(v => {
+    if (v.enabled) {
+      v.content.forEach(l => {
+        if (l.enabled) {
+          if (l.host !== undefined) {
+            if (['127.0.0.1', '0.0.0.0'].includes(l.host)) {
+              if (v.format === 'allow') {
+                allowed.push(l);
+              } else {
+                blocked.push(l);
+              }
+            } else {
+              redirected.push(l);
+            }
+          }
+        }
+      });
+    }
+  });
+  return {blocked, allowed, redirected};
+};

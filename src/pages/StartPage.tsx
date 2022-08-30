@@ -9,32 +9,32 @@ import {
   ScrollView,
   ViewStyle,
   TouchableOpacity,
+  Button,
 } from 'react-native';
 import {ScreenComponentType} from '../App';
 import Footer from '../components/Footer';
 import {connect} from 'react-redux';
 // import path from 'node:path';
 import {State} from '../store/types';
-import {request} from 'react-native-permissions';
 // import SvgUri from 'react-native-svg-uri';
 import colors from '../styles/colors';
 import {IsDarkMode} from '../styles/styles';
 import {NotImplemented} from '../components/NotImplemented';
-import {sortHosts} from './ListViewPage';
+import {sortHosts} from '../hosts_manager';
+import {saveHostsFile} from '../files';
 // import isElevated from '../utils/isElevated';
 // import {IsDarkMode} from '../styles/styles';
 
 type Props = ScreenComponentType &
   typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps>;
-const StartPage: React.FC<Props> = ({navigation, active, hosts}) => {
+const StartPage: React.FC<Props> = ({
+  navigation,
+  active,
+  hosts,
+  isElevated,
+}) => {
   const isDarkMode = IsDarkMode();
-  request('windows.permission.allowElevation').then(v => {
-    console.log(v);
-    if (v === 'unavailable') {
-      setIsElevated(false);
-    }
-  });
   const backgroundStyle: ViewStyle = {
     backgroundColor: isDarkMode ? colors.black : colors.lighter,
     display: 'flex',
@@ -44,7 +44,6 @@ const StartPage: React.FC<Props> = ({navigation, active, hosts}) => {
     display: 'flex',
     flex: 1,
   };
-  let [isAdmin, setIsElevated] = useState(true);
   // isElevated().then(v => setIsElevated(v));
   let [notImplemented, setNotImplemented] = useState(false);
   let hideNotImplemented = () => {
@@ -62,7 +61,7 @@ const StartPage: React.FC<Props> = ({navigation, active, hosts}) => {
   return (
     <View style={pageStyle}>
       <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
-      {!isAdmin && (
+      {!isElevated && (
         <View style={contentStyles.adminWarning}>
           <Text style={contentStyles.adminWarningText}>
             AdAway not running as Admin. Can not write hosts file directly
@@ -130,6 +129,11 @@ const StartPage: React.FC<Props> = ({navigation, active, hosts}) => {
             onPress={() => navigation.navigate('support')}
           />
         </View>
+        <Button
+          title="Export hosts"
+          onPress={() => {
+            saveHostsFile(hosts);
+          }}></Button>
       </ScrollView>
       <Footer navigation={navigation} />
     </View>
@@ -138,7 +142,11 @@ const StartPage: React.FC<Props> = ({navigation, active, hosts}) => {
 const mapDispatchToProps = {};
 
 const mapStateToProps = (state: State) => {
-  return {active: state.app.active, hosts: state.app.hosts};
+  return {
+    active: state.app.active,
+    hosts: state.app.hosts,
+    isElevated: state.app.isElevated,
+  };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(StartPage);
 
@@ -277,7 +285,9 @@ const contentStyles = StyleSheet.create({
   },
   adminWarningText: {
     fontWeight: '400',
-    fontSize: 20,
+    fontSize: 12,
+    textAlign: 'center',
+    color: colors.black,
   },
   mainbutton: {
     // height: 40,

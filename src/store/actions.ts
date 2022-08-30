@@ -9,6 +9,10 @@ export const setActive = (value: boolean) => ({
   type: 'setActive',
   payload: {value},
 });
+export const setElevated = (value: boolean) => ({
+  type: 'setElevated',
+  payload: {value},
+});
 export const setSettings = (settings: Settings) => ({
   type: 'setSettings',
   payload: {settings},

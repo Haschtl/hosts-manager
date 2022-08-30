@@ -12,6 +12,7 @@ import {SafeAreaView, ViewStyle} from 'react-native';
 import {StatusBar} from 'react-native-windows';
 import colors from './styles/colors';
 import {IsDarkMode} from './styles/styles';
+import {request} from 'react-native-permissions';
 import Routes from './Routes';
 import {NavigationContainer} from '@react-navigation/native';
 import {connect, Provider} from 'react-redux';
@@ -23,7 +24,7 @@ import {State} from './store/types';
 // import notifier from './utils/notifier';
 
 export type ScreenComponentType = {
-  route?: any;
+  route?: {params: any};
   navigation: any;
 };
 
@@ -35,7 +36,13 @@ export type ScreenComponentType = {
 type Props = ScreenComponentType &
   typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps>;
-const App: React.FC<Props> = ({setState}) => {
+const App: React.FC<Props> = ({setState, setElevated}) => {
+  request('windows.permission.allowElevation').then(v => {
+    console.log(v);
+    if (v === 'unavailable') {
+      setElevated(false);
+    }
+  });
   const isDarkMode = IsDarkMode();
   const backgroundStyle: ViewStyle = {
     backgroundColor: isDarkMode ? colors.black : colors.lighter,
@@ -62,7 +69,10 @@ const App: React.FC<Props> = ({setState}) => {
   );
 };
 
-const mapDispatchToProps = {setState: actions.setState};
+const mapDispatchToProps = {
+  setState: actions.setState,
+  setElevated: actions.setElevated,
+};
 // export default App;
 const mapStateToProps = (state: State) => {
   return {active: state.app.active};
