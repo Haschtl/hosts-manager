@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Button,
 } from 'react-native';
+import {spawn} from 'react-native-childprocess';
 import {ScreenComponentType} from '../App';
 import Footer from '../components/Footer';
 import {connect} from 'react-redux';
@@ -21,7 +22,7 @@ import colors from '../styles/colors';
 import {IsDarkMode} from '../styles/styles';
 import {NotImplemented} from '../components/NotImplemented';
 import {sortHosts} from '../hosts_manager';
-import {saveHostsFile} from '../files';
+import {saveHostsFile, user_folder} from '../files';
 // import isElevated from '../utils/isElevated';
 // import {IsDarkMode} from '../styles/styles';
 
@@ -56,17 +57,22 @@ const StartPage: React.FC<Props> = ({
   let upgradeSources = () => {
     setNotImplemented(true);
   };
+  let openFolder = () => {
+    spawn('start ' + user_folder, {cwd: user_folder});
+  };
 
   let sorted = sortHosts(hosts);
   return (
     <View style={pageStyle}>
       <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
       {!isElevated && (
-        <View style={contentStyles.adminWarning}>
+        <TouchableOpacity
+          style={contentStyles.adminWarning}
+          onPress={openFolder}>
           <Text style={contentStyles.adminWarningText}>
             AdAway not running as Admin. Can not write hosts file directly
           </Text>
-        </View>
+        </TouchableOpacity>
       )}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"

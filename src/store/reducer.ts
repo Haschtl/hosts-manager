@@ -39,7 +39,7 @@ export const loadState = () => {
         active: false,
         version: VERSION,
         settings: v[0],
-        hosts: v[1],
+        hosts: v[1] !== undefined ? v[1] : {categories: []},
       } as AppState;
     });
   });

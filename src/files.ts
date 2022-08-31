@@ -1,21 +1,61 @@
 import fs from 'react-native-fs';
+import RNFetchBlob from 'rn-fetch-blob';
 import {formatHosts, Hosts, parse_hosts_file} from './hosts_manager';
 import {initialSettings} from './store/reducer';
 import {Settings} from './store/types';
 
-let user_folder = fs.DocumentDirectoryPath + '/.adaway';
+export let user_folder = fs.DocumentDirectoryPath + '/.adaway';
 let hosts_path = 'C://windows/system32/drivers/etc/hosts';
 let pre_hosts_path = user_folder + '/hosts';
 let backup_path = user_folder + '/hosts.bak';
 let config_path = user_folder + '/config.json';
+let online_path = user_folder + '/online/';
 let sources_path = user_folder + '/sources/';
 
-export let downloadFile = (label: string, url: string) => {
+export let checkBackendService = () => {
+  return RNFetchBlob.config({
+    trusty: true,
+  })
+    .fetch('GET', 'http://localhost:1312/', {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    })
+    .then(() => true)
+    .catch(() => false);
+};
+export let getSystemHostsFile = (path = pre_hosts_path) => {
+  return RNFetchBlob.config({
+    trusty: true,
+  }).fetch('GET', `http://localhost:1312/get?path=${encodeURI(path)}`, {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  });
+};
+export let setSystemHostsFile = (path = pre_hosts_path) => {
+  return RNFetchBlob.config({
+    trusty: true,
+  }).fetch('GET', `http://localhost:1312/set?path=${encodeURI(path)}`, {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  });
+};
+
+export let downloadFile = async (url: string, path = online_path) => {
+  let exists = await fs.exists(path);
+  if (!exists) {
+    await fs.mkdir(path);
+  }
   return fs
-    .downloadFile({fromUrl: url, toFile: sources_path + label + '.host'})
+    .downloadFile({fromUrl: url, toFile: path + urlToFilename(url)})
     .promise.then(v => v);
 };
 
+export let urlToFilename = (url: string) => {
+  return (
+    url.replace('http://', '').replace('https://', '').replaceAll('/', '_') +
+    '.host'
+  );
+};
 export let loadConfig = (path = config_path) => {
   console.log('Loading settings from ' + path);
   return fs.exists(path).then(exists => {
