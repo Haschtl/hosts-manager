@@ -8,7 +8,7 @@
 */
 
 import React, {useEffect} from 'react';
-import {spawn} from 'react-native-childprocess';
+// import {spawn} from 'react-native-childprocess';
 import {SafeAreaView, ViewStyle} from 'react-native';
 import {StatusBar} from 'react-native-windows';
 import colors from './styles/colors';
@@ -22,14 +22,14 @@ import store from './store';
 import {loadState} from './store/reducer';
 import * as actions from './store/actions';
 import {State} from './store/types';
-import {user_folder} from './files';
+// import {user_folder} from './files';
 // import notifier from './utils/notifier';
 
 export type ScreenComponentType = {
   route?: {params: any};
   navigation: any;
 };
-spawn('.\\copyFromSystem.bat', {cwd: user_folder});
+// spawn('.\\copyFromSystem.bat', {cwd: user_folder});
 // notifier.notify({
 //   title: 'My notification',
 //   message: 'Hello, there!',
@@ -60,14 +60,14 @@ const App: React.FC<Props> = ({setState, setElevated}) => {
       .catch(e => console.warn(e));
   }, [setState]);
   return (
-    <Provider store={store}>
-      <SafeAreaView style={backgroundStyle}>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <NavigationContainer>
-          <Routes />
-        </NavigationContainer>
-      </SafeAreaView>
-    </Provider>
+    // <Provider store={store}>
+    <SafeAreaView style={backgroundStyle}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <NavigationContainer>
+        <Routes />
+      </NavigationContainer>
+    </SafeAreaView>
+    // </Provider>
   );
 };
 

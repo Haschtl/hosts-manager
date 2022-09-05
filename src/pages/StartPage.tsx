@@ -22,7 +22,7 @@ import colors from '../styles/colors';
 import {IsDarkMode} from '../styles/styles';
 import {NotImplemented} from '../components/NotImplemented';
 import {sortHosts} from '../hosts_manager';
-import {saveHostsFile, user_folder} from '../files';
+import {checkBackendService, saveHostsFile, user_folder} from '../files';
 // import isElevated from '../utils/isElevated';
 // import {IsDarkMode} from '../styles/styles';
 
@@ -59,6 +59,9 @@ const StartPage: React.FC<Props> = ({
   };
   let openFolder = () => {
     spawn('start ' + user_folder, {cwd: user_folder});
+  };
+  let checkHostFile = () => {
+    checkBackendService().then(v => console.log(v));
   };
 
   let sorted = sortHosts(hosts);
@@ -140,6 +143,7 @@ const StartPage: React.FC<Props> = ({
           onPress={() => {
             saveHostsFile(hosts);
           }}></Button>
+        <Button title="Check backend" onPress={checkHostFile} />
       </ScrollView>
       <Footer navigation={navigation} />
     </View>

@@ -1,5 +1,5 @@
 import fs from 'react-native-fs';
-import RNFetchBlob from 'rn-fetch-blob';
+// import RNFetchBlob from 'rn-fetch-blob';
 import {formatHosts, Hosts, parse_hosts_file} from './hosts_manager';
 import {initialSettings} from './store/reducer';
 import {Settings} from './store/types';
@@ -13,30 +13,41 @@ let online_path = user_folder + '/online/';
 let sources_path = user_folder + '/sources/';
 
 export let checkBackendService = () => {
-  return RNFetchBlob.config({
-    trusty: true,
-  })
-    .fetch('GET', 'http://localhost:1312/', {
+  // return RNFetchBlob.config({
+  //   trusty: true,
+  // })
+  return fetch('https://localhost:1312/', {
+    method: 'GET',
+    headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
+    },
+  })
+    .then(e => {
+      console.log(e);
+      return true;
     })
-    .then(() => true)
-    .catch(() => false);
+    .catch(e => {
+      console.log(e);
+      return false;
+    });
 };
 export let getSystemHostsFile = (path = pre_hosts_path) => {
-  return RNFetchBlob.config({
-    trusty: true,
-  }).fetch('GET', `http://localhost:1312/get?path=${encodeURI(path)}`, {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
+  return fetch(`https://localhost:1312/get?path=${encodeURI(path)}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
   });
 };
 export let setSystemHostsFile = (path = pre_hosts_path) => {
-  return RNFetchBlob.config({
-    trusty: true,
-  }).fetch('GET', `http://localhost:1312/set?path=${encodeURI(path)}`, {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
+  return fetch(`https://localhost:1312/set?path=${encodeURI(path)}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
   });
 };
 
