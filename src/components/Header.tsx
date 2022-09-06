@@ -1,53 +1,23 @@
-import * as React from 'react';
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import colors from '../styles/colors';
-import {ScreenComponentType} from '../App';
+import * as React from "react";
+import { useNavigate } from "react-router";
+import "./Header.scss";
+import BackIcon from "../drawable/baseline_arrow_left.svg";
 
 type Props = {
   children?: React.ReactNode;
   backPage?: string;
-} & ScreenComponentType;
-export let Header: React.FC<Props> = ({
-  navigation,
-  children,
-  backPage = 'start',
-}) => {
+};
+export let Header: React.FC<Props> = ({ children, backPage = "start" }) => {
+  let navigate = useNavigate();
   let goBack = () => {
-    navigation.navigate(backPage);
+    navigate(backPage);
   };
   return (
-    <View style={headerStyle.wrapper}>
-      <TouchableOpacity onPress={goBack}>
-        <Image
-          style={{margin: 10}}
-          source={require('../drawable/baseline_arrow_left.svg')}
-        />
-      </TouchableOpacity>
+    <div className="page-header">
+      <div onClick={goBack} className="button back-button">
+        <BackIcon />
+      </div>
       {children}
-    </View>
+    </div>
   );
 };
-export const headerStyle = StyleSheet.create({
-  wrapper: {
-    height: 50,
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    alignContent: 'center',
-    padding: 4,
-    backgroundColor: colors.black,
-  },
-  buttonwrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: '400',
-    textAlign: 'left',
-    width: '70%',
-    paddingLeft: 20,
-  },
-});

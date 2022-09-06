@@ -1,70 +1,54 @@
-import * as React from 'react';
-import {Image, Text, TouchableOpacity, View, ViewStyle} from 'react-native';
-import {ScreenComponentType} from '../App';
-import {Header, headerStyle} from '../components/Header';
+import * as React from "react";
+import { Header } from "../components/Header";
 // import {Footer} from '../components/Footer';
-import {connect} from 'react-redux';
-import {State} from '../store/types';
-import {listStyle} from './ListViewPage';
-import {IsDarkMode} from '../styles/styles';
-import colors from '../styles/colors';
+import { connect } from "react-redux";
+import { State } from "../store/types";
+import RecordIcon from "../drawable/ic_record_24dp.svg";
+import SortIcon from "../drawable/baseline_sort_by_alpha_24.svg";
+import DeleteIcon from "../drawable/outline_delete_24.svg";
+import "./DNSPage.scss";
 
-type Props = ScreenComponentType &
-  typeof mapDispatchToProps &
-  ReturnType<typeof mapStateToProps>;
-const DNSPage: React.FC<Props> = ({navigation}) => {
-  const isDarkMode = IsDarkMode();
-
-  const backgroundStyle: ViewStyle = {
-    backgroundColor: isDarkMode ? colors.black : colors.lighter,
-    display: 'flex',
-    flex: 1,
-  };
+type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
+const DNSPage: React.FC<Props> = ({}) => {
   return (
-    <View style={backgroundStyle}>
-      <DNSHeader navigation={navigation} />
-      <Text>
+    <div className="page">
+      <DNSHeader />
+      <div>
         Press record to start logging requests, browse the Web or use apps, then
         go back or swipe to refresh the logs.
-      </Text>
-      <Text>
+      </div>
+      <div>
         Blocked requests will not be logged. Disable ad-blocking first if you
         want to log them too.
-      </Text>
-      <TouchableOpacity style={listStyle.addbutton}>
-        <Image source={require('../drawable/ic_record_24dp.svg')} />
-      </TouchableOpacity>
-    </View>
+      </div>
+      <div className="floating-button">
+        <RecordIcon />
+      </div>
+    </div>
   );
 };
 
 type HProps = {
   children?: React.ReactNode;
-} & ScreenComponentType;
-let DNSHeader: React.FC<HProps> = ({navigation}) => {
+};
+let DNSHeader: React.FC<HProps> = ({}) => {
   return (
-    <Header navigation={navigation}>
-      <Text style={headerStyle.text}>DNS-Requests</Text>
-      <View style={headerStyle.buttonwrapper}>
-        <TouchableOpacity>
-          <Image
-            style={{margin: 10}}
-            source={require('../drawable/baseline_sort_by_alpha_24.svg')}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image
-            style={{margin: 10}}
-            source={require('../drawable/outline_delete_24.svg')}
-          />
-        </TouchableOpacity>
-      </View>
+    <Header>
+      <div>DNS-Requests</div>
+      <div className="buttonwrapper">
+        <div className="button">
+          <SortIcon />
+        </div>
+        <div className="button">
+          <DeleteIcon />
+        </div>
+      </div>
     </Header>
   );
 };
 
 const mapDispatchToProps = {};
 const mapStateToProps = (state: State) => {
-  return {active: state.app.active};
+  return { active: state.app.active };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DNSPage);

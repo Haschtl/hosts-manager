@@ -1,0 +1,54 @@
+.hostline-editor {
+  background-color: var(--dark);
+  width: 400;
+  height: 400;
+  border-radius: 20;
+  .iconWrapper {
+  }
+  .icon {
+    height: 30;
+    width: 30;
+    margin-top: 10;
+    margin-bottom: 5;
+    margin-left: 10;
+    margin-right: 10;
+  }
+  .buttonbar {
+    // padding: 20;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    // height: 40;
+    align-items: center;
+    justify-content: space-between;
+    align-content: center;
+  }
+  .buttonbar2 {
+    display: flex;
+    flex-direction: row;
+  }
+  .text {
+    font-size: 20;
+    height: 30;
+    font-weight: 300;
+    text-align: center;
+  }
+  .host {
+    position: absolute;
+    right: 8;
+    bottom: 0;
+    font-size: 12;
+    height: 30;
+    color: var(--text);
+    font-weight: 200;
+    text-align: center;
+  }
+  .element {
+    padding: 10;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    align-content: center;
+  }
+}

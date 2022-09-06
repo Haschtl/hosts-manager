@@ -1,7 +1,8 @@
 import SysTray from 'systray';
-import fs from 'fs';
+// import {remote} from 'electron';
 import {Buffer} from 'buffer';
 
+const fs = window.require("fs")
 export const systray = new SysTray({
   menu: {
     // you should using .png icon in macOS/Linux, but .ico format in windows

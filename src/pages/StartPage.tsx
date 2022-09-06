@@ -1,51 +1,26 @@
-import React, {useState} from 'react';
-import {
-  StyleSheet,
-  Text,
-  Image,
-  View,
-  TouchableHighlight,
-  ImageURISource,
-  ScrollView,
-  ViewStyle,
-  TouchableOpacity,
-  Button,
-} from 'react-native';
-import {spawn} from 'react-native-childprocess';
-import {ScreenComponentType} from '../App';
-import Footer from '../components/Footer';
-import {connect} from 'react-redux';
+import React, { useState } from "react";
+import Footer from "../components/Footer";
+import { connect } from "react-redux";
+// import { shell } from "electron";
 // import path from 'node:path';
-import {State} from '../store/types';
+import { State } from "../store/types";
 // import SvgUri from 'react-native-svg-uri';
-import colors from '../styles/colors';
-import {IsDarkMode} from '../styles/styles';
-import {NotImplemented} from '../components/NotImplemented';
-import {sortHosts} from '../hosts_manager';
-import {checkBackendService, saveHostsFile, user_folder} from '../files';
+import { NotImplemented } from "../components/NotImplemented";
+import { sortHosts } from "../hosts_manager";
+import { checkBackendService, saveHostsFile, user_folder } from "../files";
+import { useNavigate } from "react-router";
 // import isElevated from '../utils/isElevated';
 // import {IsDarkMode} from '../styles/styles';
-
-type Props = ScreenComponentType &
-  typeof mapDispatchToProps &
-  ReturnType<typeof mapStateToProps>;
-const StartPage: React.FC<Props> = ({
-  navigation,
-  active,
-  hosts,
-  isElevated,
-}) => {
-  const isDarkMode = IsDarkMode();
-  const backgroundStyle: ViewStyle = {
-    backgroundColor: isDarkMode ? colors.black : colors.lighter,
-    display: 'flex',
-    flex: 1,
-  };
-  const pageStyle: ViewStyle = {
-    display: 'flex',
-    flex: 1,
-  };
+import BookMarkIcon from "../drawable/ic_collections_bookmark_24dp.svg";
+import AddIcon from "../drawable/ic_get_app_24dp.svg";
+import SyncIcon from "../drawable/ic_sync_24dp.svg";
+import AppIcon from "../drawable/icon_foreground.png";
+import "./StartPage.scss";
+const shell = window.require("electron").shell
+type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
+const StartPage: React.FC<Props> = ({ active, hosts, isElevated }) => {
   // isElevated().then(v => setIsElevated(v));
+  let navigate = useNavigate();
   let [notImplemented, setNotImplemented] = useState(false);
   let hideNotImplemented = () => {
     setNotImplemented(false);
@@ -58,95 +33,94 @@ const StartPage: React.FC<Props> = ({
     setNotImplemented(true);
   };
   let openFolder = () => {
-    spawn('start ' + user_folder, {cwd: user_folder});
+    shell.openPath(user_folder);
   };
   let checkHostFile = () => {
-    checkBackendService().then(v => console.log(v));
+    checkBackendService().then((v) => console.log(v));
   };
 
   let sorted = sortHosts(hosts);
   return (
-    <View style={pageStyle}>
+    <div className="page start">
       <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
       {!isElevated && (
-        <TouchableOpacity
-          style={contentStyles.adminWarning}
-          onPress={openFolder}>
-          <Text style={contentStyles.adminWarningText}>
+        <div className="button adminWarning" onClick={openFolder}>
+          <div className="adminWarningText">
             AdAway not running as Admin. Can not write hosts file directly
-          </Text>
-        </TouchableOpacity>
+          </div>
+        </div>
       )}
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+      <div>
         <StartHeader
-          navigation={navigation}
           active={active}
           blocked={sorted.blocked.length}
           redirected={sorted.redirected.length}
           allowed={sorted.allowed.length}
         />
-        <View style={contentStyles.content}>
-          <TouchableHighlight
-            style={contentStyles.mainbutton}
-            onPress={() => navigation.navigate('sources')}>
-            <View style={headerStyles.buttonbar}>
-              <View style={contentStyles.mainleft}>
-                <Image
-                  style={{width: 50, height: 50}}
-                  source={require('../drawable/ic_collections_bookmark_24dp.svg')}
-                />
-              </View>
+        <div className="content">
+          <div
+            className="button mainbutton"
+            onClick={() => navigate("sources")}
+          >
+            <div className="buttonbar">
+              <div className="mainleft">
+                <BookMarkIcon />
+              </div>
 
-              <View style={contentStyles.maincenter}>
-                <Text
-                  style={{color: colors.text, margin: 5, textAlign: 'center'}}>
-                  {hosts.categories.length + ' aktuelle Quellen'}
-                </Text>
-                <Text
-                  style={{color: colors.text, margin: 5, textAlign: 'center'}}>
-                  {'0 veraltete Quellen'}
-                </Text>
-              </View>
-              <View style={contentStyles.mainright}>
-                <TouchableOpacity style={{margin: 5}} onPress={updateSources}>
-                  <Image source={require('../drawable/ic_sync_24dp.svg')} />
-                </TouchableOpacity>
-                <TouchableOpacity style={{margin: 5}} onPress={upgradeSources}>
-                  <Image source={require('../drawable/ic_get_app_24dp.svg')} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableHighlight>
-        </View>
-        {/* <Text>gg</Text> */}
-        <View style={headerStyles.buttonbar}>
+              <div className="maincenter">
+                <div>{hosts.categories.length + " aktuelle Quellen"}</div>
+                <div>{"0 veraltete Quellen"}</div>
+              </div>
+              <div className="mainright">
+                <div
+                  className="button"
+                  style={{ margin: 5 }}
+                  onClick={updateSources}
+                >
+                  <SyncIcon />
+                </div>
+                <div
+                  className="button"
+                  style={{ margin: 5 }}
+                  onClick={upgradeSources}
+                >
+                  <AddIcon />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="buttonbar">
           <HeaderButton
             subtitle="Show DNS-Request-Protocol"
-            icon={require('../drawable/ic_outline_rule_24.svg')}
-            onPress={() => navigation.navigate('dns')}
+            icon={require("../drawable/ic_outline_rule_24.svg")}
+            onClick={() => navigate("dns")}
           />
           <HeaderButton
             subtitle="Show Tips and Help"
-            icon={require('../drawable/ic_help_24dp.svg')}
-            onPress={() => navigation.navigate('help')}
+            icon={require("../drawable/ic_help_24dp.svg")}
+            onClick={() => navigate("help")}
           />
           <HeaderButton
             subtitle="Support"
-            icon={require('../drawable/baseline_favorite_24.svg')}
-            onPress={() => navigation.navigate('support')}
+            icon={require("../drawable/baseline_favorite_24.svg")}
+            onClick={() => navigate("support")}
           />
-        </View>
-        <Button
-          title="Export hosts"
-          onPress={() => {
+        </div>
+        <div
+          className="button"
+          onClick={() => {
             saveHostsFile(hosts);
-          }}></Button>
-        <Button title="Check backend" onPress={checkHostFile} />
-      </ScrollView>
-      <Footer navigation={navigation} />
-    </View>
+          }}
+        >
+          Export hosts
+        </div>
+        <div className="button" onClick={checkHostFile}>
+          Check backend
+        </div>
+      </div>
+      <Footer />
+    </div>
   );
 };
 const mapDispatchToProps = {};
@@ -160,82 +134,56 @@ const mapStateToProps = (state: State) => {
 };
 export default connect(mapStateToProps, mapDispatchToProps)(StartPage);
 
-type HProps = ScreenComponentType & {
+type HProps = {
   active: boolean;
   allowed: number;
   blocked: number;
   redirected: number;
 };
 export const StartHeader: React.FC<HProps> = ({
-  navigation,
   active,
   allowed,
   blocked,
   redirected,
 }) => {
+  let navigate = useNavigate();
   const goToVersion = () => {
-    navigation.navigate('version');
+    navigate("version");
   };
   return (
     <>
-      <View
-        style={[
-          headerStyles.background,
-          active
-            ? {backgroundColor: colors.primary}
-            : {backgroundColor: colors.dark},
-        ]}>
-        <View style={headerStyles.iconwrapper}>
-          <Image
-            style={headerStyles.icon}
-            accessibilityRole="image"
-            source={require('../drawable/icon_foreground.png')}
-          />
-        </View>
-        <View style={headerStyles.textWrapper}>
-          <Text
-            style={[
-              headerStyles.title,
-              {
-                color: colors.white,
-              },
-            ]}>
-            AdAway
-          </Text>
-          <Text
-            style={[
-              headerStyles.subtitle,
-              {
-                color: colors.white,
-              },
-            ]}>
-            Open Source ad blocker
-          </Text>
-        </View>
-        <Text style={headerStyles.abs_version} onPress={goToVersion}>
-          {'1.0.0'}
-        </Text>
-        <View style={headerStyles.abs_buttonbar}>
+      <div className={"header-background " + active ? "active" : "inactive"}>
+        <div className="iconwrapper">
+          <AppIcon />
+        </div>
+        <div className="textWrapper">
+          <div className="title">AdAway</div>
+          <div className="subtitle">Open Source ad blocker</div>
+        </div>
+        <div className="abs_version" onClick={goToVersion}>
+          {"1.0.0"}
+        </div>
+        <div className="abs_buttonbar">
           <HeaderButton
-            title={blocked + ''}
+            title={blocked + ""}
             subtitle="Blocked"
-            icon={require('../drawable/baseline_block_24.svg')}
-            onPress={() => navigation.navigate('list')}
+            icon="../drawable/baseline_block_24.svg"
+            onClick={() => navigate("list")}
           />
           <HeaderButton
-            title={allowed + ''}
+            title={allowed + ""}
             subtitle="Allowed"
-            icon={require('../drawable/baseline_check_24.svg')}
-            onPress={() => navigation.navigate('list')}
+            icon="../drawable/baseline_check_24.svg"
+            onClick={() => navigate("list")}
           />
           <HeaderButton
-            title={redirected + ''}
+            title={redirected + ""}
             subtitle="Redirected"
-            icon={require('../drawable/baseline_compare_arrows_24.svg')}
-            onPress={() => navigation.navigate('list')}
+            icon="../drawable/baseline_compare_arrows_24.svg"
+            onClick={() => navigate("list")}
           />
-        </View>
-      </View>
+        </div>
+      </div>
     </>
   );
 };
@@ -243,189 +191,28 @@ export const StartHeader: React.FC<HProps> = ({
 interface HBProps {
   title?: string;
   subtitle?: string;
-  icon?: ImageURISource;
-  onPress?(): void;
+  icon?: string;
+  onClick?(): void;
 }
 export const HeaderButton: React.FC<HBProps> = ({
   title,
   subtitle,
   icon,
-  onPress,
+  onClick,
 }) => {
   return (
-    <View style={buttonStyles.buttonwrapper}>
-      <TouchableHighlight
-        style={buttonStyles.headerbutton}
-        onPress={onPress}
-        activeOpacity={0.5}>
-        <View style={buttonStyles.content}>
-          {title !== undefined && (
-            <Text style={buttonStyles.title}>{title}</Text>
-          )}
-          {subtitle !== undefined && (
-            <Text style={buttonStyles.subtitle}>{subtitle}</Text>
-          )}
-        </View>
-      </TouchableHighlight>
+    <div className="buttonwrapper">
+      <div className="button headerbutton" onClick={onClick}>
+        <div className="content">
+          {title !== undefined && <div className="title">{title}</div>}
+          {subtitle !== undefined && <div className="subtitle">{subtitle}</div>}
+        </div>
+      </div>
       {icon !== undefined ? (
-        <View style={buttonStyles.buttonicon}>
-          <Image source={icon} style={buttonStyles.icon} />
-        </View>
-      ) : // <SvgUri width="200" height="200" source={icon} />
-      null}
-    </View>
+        <div className="buttonicon">
+          <img src={icon} className="icon" />
+        </div>
+      ) : null}
+    </div>
   );
 };
-const contentStyles = StyleSheet.create({
-  content: {
-    display: 'flex',
-    flex: 1,
-    alignContent: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    marginLeft: '2%',
-    marginTop: 0,
-    marginRight: '2%',
-    marginBottom: 20,
-  },
-  adminWarning: {
-    width: '100%',
-    backgroundColor: colors.warning,
-    padding: 5,
-  },
-  adminWarningText: {
-    fontWeight: '400',
-    fontSize: 12,
-    textAlign: 'center',
-    color: colors.black,
-  },
-  mainbutton: {
-    // height: 40,
-    padding: 10,
-    width: '99%',
-    backgroundColor: colors.darker,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mainleft: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignContent: 'center',
-    justifyContent: 'center',
-    padding: 10,
-  },
-  maincenter: {display: 'flex', flexDirection: 'column', flex: 1, padding: 10},
-  mainright: {display: 'flex', flexDirection: 'column', padding: 10},
-});
-const buttonStyles = StyleSheet.create({
-  subtitle: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: '100',
-    textAlign: 'center',
-  },
-  title: {
-    color: colors.text,
-    fontSize: 25,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  icon: {
-    marginTop: 0,
-    width: 30,
-  },
-  content: {
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  buttonicon: {
-    height: 40,
-    width: 40,
-    backgroundColor: colors.darker,
-    borderRadius: 20,
-    position: 'absolute',
-    top: 0,
-    display: 'flex',
-    flex: 1,
-    alignItems: 'center',
-    alignContent: 'center',
-    justifyContent: 'center',
-  },
-  buttonwrapper: {display: 'flex', flex: 1, alignItems: 'center'},
-  headerbutton: {
-    // height: 40,
-    width: 150,
-    marginTop: 20,
-    backgroundColor: colors.darker,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
-
-const headerStyles = StyleSheet.create({
-  background: {
-    paddingBottom: 40,
-    // backgroundColor: colors.primary,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 80,
-  },
-  textWrapper: {
-    display: 'flex',
-    alignContent: 'flex-start',
-    justifyContent: 'flex-start',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '400',
-    textAlign: 'left',
-    height: 40,
-  },
-  subtitle: {
-    fontSize: 25,
-    fontWeight: '300',
-    textAlign: 'left',
-    height: 35,
-  },
-  icon: {
-    // maxWidth: '30%',
-    // aspectRatio: 1,
-    width: '100%',
-    height: '100%',
-  },
-  iconwrapper: {
-    maxWidth: '20%',
-    width: '20%',
-    aspectRatio: 1,
-    margin: 10,
-    marginBottom: 20,
-    marginLeft: 20,
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-  },
-  buttonbar: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  abs_version: {
-    position: 'absolute',
-    color: colors.text,
-    top: 10,
-    right: 10,
-    fontSize: 17,
-    // fontWeight: '250',
-  },
-  abs_buttonbar: {
-    position: 'absolute',
-    bottom: -50,
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-});

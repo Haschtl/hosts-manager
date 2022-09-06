@@ -1,0 +1,19 @@
+.hosts-file-editor {
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .addbutton {
+    position: absolute;
+    bottom: 20;
+    right: 20;
+    width: 50;
+    height: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 25;
+    background-color: var(--primary);
+  }
+}

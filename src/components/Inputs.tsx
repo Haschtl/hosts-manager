@@ -1,32 +1,28 @@
-import * as React from 'react';
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import colors from '../styles/colors';
+import * as React from "react";
+import "./Inputs.scss";
 
 type IProps = {
   label?: string;
   value?: string;
-  onChangeText?: (text: string) => void;
+  onChange?: (text: string) => void;
 };
-export let TextInputStyled: React.FC<IProps> = ({
-  label,
-  value,
-  onChangeText,
-}) => {
+export let TextInputStyled: React.FC<IProps> = ({ label, value, onChange }) => {
+  let onChangeText = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange && onChange(e.target.value);
+    },
+    [onChange]
+  );
   return (
-    <View style={inputStyle.wrapper}>
-      <Text style={inputStyle.label}>{label}</Text>
-      <TextInput
-        style={inputStyle.input}
-        onChangeText={onChangeText}
+    <div className="text-input">
+      <div className="label">{label}</div>
+      <input
+        type="text"
+        className="input"
+        onChange={onChangeText}
         value={value}
       />
-    </View>
+    </div>
   );
 };
 
@@ -45,80 +41,26 @@ export let SwitchStyled: React.FC<SProps> = ({
   onChange,
 }) => {
   return (
-    <View style={switchStyle.wrapper}>
-      <Text style={switchStyle.label}>{label}</Text>
-      <View style={switchStyle.buttons}>
-        <TouchableOpacity
-          onPress={() => onChange && onChange(true)}
-          style={[
-            switchStyle.button,
-            switchStyle.buttonLeft,
-            value ? switchStyle.buttonActive : switchStyle.buttonInactive,
-          ]}>
-          <Text>{trueLabel}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            switchStyle.button,
-            switchStyle.buttonRight,
-            value ? switchStyle.buttonInactive : switchStyle.buttonActive,
-          ]}
-          onPress={() => onChange && onChange(false)}>
-          <Text>{falseLabel}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <div className="switch-input">
+      <div className="label">{label}</div>
+      <div className="buttons">
+        <div
+          onClick={() => onChange && onChange(true)}
+          className={
+            "button buttonLeft " + value ? "buttonActive" : "buttonInactive"
+          }
+        >
+          <div>{trueLabel}</div>
+        </div>
+        <div
+          className={
+            "button buttonRight " + value ? "buttonInactive" : "buttonActive"
+          }
+          onClick={() => onChange && onChange(false)}
+        >
+          <div>{falseLabel}</div>
+        </div>
+      </div>
+    </div>
   );
 };
-
-export const switchStyle = StyleSheet.create({
-  wrapper: {
-    marginTop: 10,
-    marginBottom: 10,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-  },
-  label: {},
-  buttons: {
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  buttonActive: {
-    borderColor: colors.primary80,
-    borderWidth: 2,
-    backgroundColor: colors.primary40,
-  },
-  buttonInactive: {
-    borderColor: colors.dark,
-    borderWidth: 1,
-  },
-  buttonLeft: {borderTopLeftRadius: 5, borderBottomLeftRadius: 5},
-  buttonRight: {borderTopRightRadius: 5, borderBottomRightRadius: 5},
-  button: {
-    color: colors.text,
-    paddingTop: 10,
-    width: 80,
-    paddingBottom: 10,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
-export const inputStyle = StyleSheet.create({
-  wrapper: {
-    backgroundColor: colors.darker,
-    borderTopEndRadius: 5,
-    borderTopLeftRadius: 5,
-    padding: 10,
-    borderColor: colors.dark,
-    borderBottomWidth: 1,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  label: {fontSize: 12, color: colors.text},
-  input: {backgroundColor: 'transparent', borderWidth: 0, height: 30},
-});

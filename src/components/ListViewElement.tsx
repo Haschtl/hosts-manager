@@ -1,17 +1,13 @@
-import * as React from 'react';
-import {StyleSheet, Text, TouchableOpacity} from 'react-native';
-import CheckBox from '@react-native-community/checkbox';
-import {ScreenComponentType} from '../App';
-import {connect} from 'react-redux';
-import {State} from '../store/types';
-import {HostsCategory, HostsLine} from '../hosts_manager';
-import colors from '../styles/colors';
-import {Popup} from 'react-native-windows';
-import HostLineEditor from './HostLineEditor';
-import * as actions from '../store/actions';
+import * as React from "react";
+import { connect } from "react-redux";
+import { State } from "../store/types";
+import { HostsCategory, HostsLine } from "../hosts_manager";
+import HostLineEditor from "./HostLineEditor";
+import "./ListViewElement.scss";
+import * as actions from "../store/actions";
+import Popup from "./Popup";
 
-type Props = ScreenComponentType &
-  typeof mapDispatchToProps &
+type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
   OwnProps;
 
@@ -45,13 +41,13 @@ let ListViewElement: React.FC<Props> = ({
   };
   let onDismiss = () => setIsOpen(false);
   return (
-    <TouchableOpacity style={listStyle.element} onPress={openPopup}>
+    <div className="button list-view-element" onClick={openPopup}>
       <Popup
         isOpen={isOpen}
-        isLightDismissEnabled={true}
         onDismiss={() => {
           onDismiss();
-        }}>
+        }}
+      >
         <HostLineEditor
           line={line}
           onDismiss={onDismiss}
@@ -59,10 +55,10 @@ let ListViewElement: React.FC<Props> = ({
           onRemove={onRemove}
         />
       </Popup>
-      <CheckBox value={line.enabled} />
-      <Text style={listStyle.text}>{line.domain}</Text>
-      <Text style={listStyle.host}>{line.host}</Text>
-    </TouchableOpacity>
+      <input type="checkbox" value={line.enabled + ""} />
+      <div className="text">{line.domain}</div>
+      <div className="host">{line.host}</div>
+    </div>
   );
 };
 
@@ -79,35 +75,3 @@ const mapStateToProps = (state: State, ownProps: OwnProps) => {
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ListViewElement);
-
-export const listStyle = StyleSheet.create({
-  popup: {
-    // width: '50%',
-    // height: '50%',
-    backgroundColor: colors.dark,
-  },
-  text: {
-    fontSize: 20,
-    height: 30,
-    fontWeight: '300',
-    textAlignVertical: 'center',
-  },
-  host: {
-    position: 'absolute',
-    right: 8,
-    bottom: 0,
-    fontSize: 12,
-    height: 30,
-    color: colors.text,
-    fontWeight: '200',
-    textAlignVertical: 'center',
-  },
-  element: {
-    padding: 10,
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    alignContent: 'center',
-  },
-});

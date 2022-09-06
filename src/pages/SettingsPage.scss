@@ -1,0 +1,32 @@
+.settings {
+  .group {
+    display: flex;
+    flex-direction: column;
+    border-bottom-width: 1;
+    border-color: var(--dark);
+  }
+  .groupHeader {
+    margin-left: 62;
+    margin-top: 20;
+    color: var(--primary);
+    font-size: 12;
+    font-weight: 400;
+  }
+  .element {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .elementDisabled {
+    opacity: 0.5;
+  }
+  .elementEnabled {
+  }
+  .elementContent {
+    flex: 1;
+  }
+  .elementIcon {
+    margin: 13;
+    margin-right: 25;
+  }
+}

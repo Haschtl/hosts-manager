@@ -1,39 +1,30 @@
 import * as React from 'react';
-import {Text, View, ViewStyle} from 'react-native';
-import {ScreenComponentType} from '../App';
-import {Header, headerStyle} from '../components/Header';
+import {Header} from '../components/Header';
 // import {Footer} from '../components/Footer';
 import {connect} from 'react-redux';
 import {State} from '../store/types';
-import {IsDarkMode} from '../styles/styles';
-import colors from '../styles/colors';
+import "./HelpPage.scss";
 
-type Props = ScreenComponentType &
+type Props =
   typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps>;
-const HelpPage: React.FC<Props> = ({navigation}) => {
-  const isDarkMode = IsDarkMode();
+const HelpPage: React.FC<Props> = ({}) => {
 
-  const backgroundStyle: ViewStyle = {
-    backgroundColor: isDarkMode ? colors.black : colors.lighter,
-    display: 'flex',
-    flex: 1,
-  };
   return (
-    <View style={backgroundStyle}>
-      <HelpHeader navigation={navigation} />
-    </View>
+    <div className="page">
+      <HelpHeader />
+    </div>
   );
 };
 
 type HProps = {
   children?: React.ReactNode;
-} & ScreenComponentType;
-let HelpHeader: React.FC<HProps> = ({navigation}) => {
+};
+let HelpHeader: React.FC<HProps> = ({}) => {
   return (
-    <Header navigation={navigation}>
-      <Text style={headerStyle.text}>Help</Text>
-      <View style={headerStyle.buttonwrapper}></View>
+    <Header >
+      <div className="text">Help</div>
+      <div className="buttonwrapper"></div>
     </Header>
   );
 };
