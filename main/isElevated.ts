@@ -1,16 +1,21 @@
 import process from "process";
+import util from "util";
 // import {execa} from 'execa';
 import { exec } from "child_process";
+const exec_p = util.promisify(exec);
 
-export function isElevated2(){
-  exec("NET SESSION", function (err, so, se) {
-    console.log(se.length === 0 ? "admin" : "not admin");
-  });
+export async function isElevated2(){
+  let {stdout,stderr} = await exec_p("NET SESSION");
+  if (stderr.length===0){
+    return true
+  }else{
+    return false
+  }
 }
 export async function isElevated() {
   return process.platform === "win32" ? isAdmin() : isRoot();
 }
-export default isElevated;
+export default isElevated2;
 
 export function isRoot() {
   return process.getuid ? process.getuid() === 0 : false;

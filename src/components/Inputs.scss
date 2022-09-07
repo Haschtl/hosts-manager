@@ -61,10 +61,14 @@
     background-color: transparent;
     border-width: 0px;
     height: 30px;
+    width:100%;
+    border-bottom: 1px solid var(--text);
   }
 }
 
-
+textarea:focus, input:focus{
+    outline: none;
+}
 .checkbox{
   width:30px;
   height:30px;

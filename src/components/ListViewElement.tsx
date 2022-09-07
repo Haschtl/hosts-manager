@@ -1,4 +1,6 @@
 import * as React from "react";
+import * as ReactDOM from "react-dom";
+
 import { connect } from "react-redux";
 import { State } from "../store/types";
 import { HostsCategory, HostsLine } from "../hosts_manager";
@@ -6,7 +8,9 @@ import HostLineEditor from "./HostLineEditor";
 import "./ListViewElement.scss";
 import * as actions from "../store/actions";
 import Popup from "./Popup";
+import { CheckBox } from "./Inputs";
 
+const portalRoot = document.querySelector(".page");
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
   OwnProps;
@@ -16,6 +20,8 @@ type OwnProps = {
   line: HostsLine;
   category: HostsCategory;
   editable?: boolean;
+  setHostsLine(category: HostsCategory, idx: number, line: HostsLine): void;
+  rmHostsLine(category: HostsCategory, idx: number): void;
 };
 let ListViewElement: React.FC<Props> = ({
   line,
@@ -31,18 +37,40 @@ let ListViewElement: React.FC<Props> = ({
       setIsOpen(true);
     }
   };
-  let onSave = (_line: HostsLine) => {
-    setHostsLine(category, idx, _line);
-    setIsOpen(false);
+  let toggleCheckbox = (v: boolean) => {
+    setHostsLine(category, idx, { ...line, enabled: !line.enabled });
   };
-  let onRemove = () => {
+  let onSave = React.useCallback(
+    (_line: HostsLine) => {
+      console.log("list-element", _line, idx);
+      setIsOpen(false);
+      setHostsLine(category, idx, _line);
+    },
+    [setIsOpen, setHostsLine, category, idx]
+  );
+  let onRemove = React.useCallback(() => {
+    setIsOpen(false);
     rmHostsLine(category, idx);
+  }, [rmHostsLine, setIsOpen, category, idx]);
+
+  let onDismiss = React.useCallback(() => {
     setIsOpen(false);
-  };
-  let onDismiss = () => setIsOpen(false);
+  }, [setIsOpen]);
   return (
-    <div className="button list-view-element" onClick={openPopup}>
-      <Popup
+    <>
+      {isOpen === true && (
+        <Popup isOpen={isOpen} onDismiss={onDismiss}>
+          <HostLineEditor
+            line={line}
+            onDismiss={onDismiss}
+            onSave={onSave}
+            onRemove={onRemove}
+          />
+        </Popup>
+      )}
+      <div className="button list-view-element">
+        {/* // ReactDOM.createPortal(popup, portalRoot || document.body)} */}
+        {/* <Popup
         isOpen={isOpen}
         onDismiss={() => {
           onDismiss();
@@ -54,17 +82,24 @@ let ListViewElement: React.FC<Props> = ({
           onSave={onSave}
           onRemove={onRemove}
         />
-      </Popup>
-      <input type="checkbox" value={line.enabled + ""} />
-      <div className="text">{line.domain}</div>
-      <div className="host">{line.host}</div>
-    </div>
+      </Popup> */}
+        {editable && (
+          <CheckBox value={line.enabled} onChange={toggleCheckbox} />
+        )}
+        <div className="list-view-content" onClick={openPopup}>
+          <div className="text">
+            {line.domain ? line.domain : "example.com"}
+          </div>
+          <div className="host">{line.host ? line.host : "0.0.0.0"}</div>
+        </div>
+      </div>
+    </>
   );
 };
 
 const mapDispatchToProps = {
-  rmHostsLine: actions.rmHostsLine,
-  setHostsLine: actions.setHostsLine,
+  // rmHostsLine: actions.rmHostsLine,
+  // setHostsLine: actions.setHostsLine,
 };
 
 const mapStateToProps = (state: State, ownProps: OwnProps) => {

@@ -29,14 +29,12 @@ export const loadState = async () => {
   let exists = await sourcesExist();
   let sources: Hosts | undefined;
   if (exists) {
-    if (exists) {
-      sources = await loadSources();
-      if (sources) {
-        saveSources(sources);
-      }
-    } else {
-      sources = await loadHostsFile();
+    sources = await loadSources();
+    if (sources) {
+      saveSources(sources);
     }
+  } else {
+    sources = await loadHostsFile();
   }
   return {
     active: false,
@@ -50,7 +48,6 @@ const appReducer = (
   state = initialState,
   action: { type: string; payload: any }
 ): AppState => {
-  console.log(action);
   switch (action.type) {
     case "setState":
       return { ...state, ...action.payload.state };
@@ -91,8 +88,10 @@ const appReducer = (
       let __categories = state.hosts.categories;
       let _category = __categories[__idx];
       _category.content[action.payload.idx] = action.payload.line;
+      _category.content = [..._category.content];
       // _category.content = [..._category.content];
       __categories[__idx] = { ..._category };
+      console.log(__categories)
       return {
         ...state,
         hosts: {

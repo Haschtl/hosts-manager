@@ -36,20 +36,41 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.isAdmin = exports.isRoot = void 0;
+exports.isAdmin = exports.isRoot = exports.isElevated = exports.isElevated2 = void 0;
 var process_1 = require("process");
+var util_1 = require("util");
 // import {execa} from 'execa';
 var child_process_1 = require("child_process");
+var exec_p = util_1.promisify(child_process_1.exec);
+function isElevated2() {
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, stdout, stderr;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, exec_p("NET SESSION")];
+                case 1:
+                    _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                    if (stderr.length === 0) {
+                        return [2 /*return*/, true];
+                    }
+                    else {
+                        return [2 /*return*/, false];
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.isElevated2 = isElevated2;
 function isElevated() {
-        console.log("CHECK ELEVATION");
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, process_1.platform === "win32" ? isAdmin() : isRoot()];
         });
     });
 }
-exports["default"] = isElevated;
 exports.isElevated = isElevated;
+exports["default"] = isElevated2;
 function isRoot() {
     return process_1.getuid ? process_1.getuid() === 0 : false;
 }
@@ -63,7 +84,7 @@ function testFltmc() {
                 case 0:
                     _b.trys.push([0, 2, , 3]);
                     // await execa('fltmc');
-                    return [4 /*yield*/, (0, child_process_1.spawn)("fltmc")];
+                    return [4 /*yield*/, (0, child_process_1.exec)("fltmc")];
                 case 1:
                     // await execa('fltmc');
                     _b.sent();
@@ -90,7 +111,7 @@ function isAdmin() {
                     _a.trys.push([1, 3, , 4]);
                     drive = process_1.env.systemdrive ? process_1.env.systemdrive : "C";
                     // await execa("fsutil", ["dirty", "query", drive]);
-                    return [4 /*yield*/, (0, child_process_1.spawn)("fsutil dirty query ".concat(drive))];
+                    return [4 /*yield*/, (0, child_process_1.exec)("fsutil dirty query ".concat(drive))];
                 case 2:
                     // await execa("fsutil", ["dirty", "query", drive]);
                     _a.sent();

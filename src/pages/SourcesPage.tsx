@@ -18,14 +18,6 @@ const SourcesPage: React.FC<Props> = ({ hosts }) => {
   let addSource = () => {
     navigate("/editsource", {
       state: {
-        source: {
-          enabled: true,
-          label: "",
-          format: "block",
-          type: "url",
-          content: [],
-          applyRedirects: false,
-        } as HostsCategory,
         idx: -1,
       },
     });
@@ -33,13 +25,15 @@ const SourcesPage: React.FC<Props> = ({ hosts }) => {
   return (
     <div className="page sources-page">
       <SourcesHeader />
-      <div className="list">
-        {hosts.categories.map((s, idx) => (
-          <SourceListElement source={s} idx={idx} key={"category" + idx} />
-        ))}
-      </div>
-      <div className="floating-button" onClick={addSource}>
-        <img src={AddIcon} />
+      <div className="content">
+        <div className="list">
+          {hosts.categories.map((s, idx) => (
+            <SourceListElement source={s} idx={idx} key={"category" + idx} />
+          ))}
+        </div>
+        <div className="floating-button" onClick={addSource}>
+          <img src={AddIcon} />
+        </div>
       </div>
     </div>
   );

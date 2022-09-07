@@ -6,7 +6,7 @@ import { HostsCategory } from "../hosts_manager";
 import * as actions from "../store/actions";
 import HostsFileEditor from "../components/HostsFileEditor";
 import { SwitchStyled, TextInputStyled } from "../components/Inputs";
-import { useNavigate, useRoutes } from "react-router";
+import { useLocation, useNavigate, useRoutes } from "react-router";
 import { useMatch } from "react-router-dom";
 import DeleteIcon from "../drawable/outline_delete_24.svg";
 import SaveIcon from "../drawable/baseline_check_24.svg";
@@ -20,14 +20,28 @@ const SourceEditor: React.FC<Props> = ({
   rmHostCategory,
   setHostCategory,
   addHostCategory,
+  hosts,
 }) => {
   let navigate = useNavigate();
-  let match = useMatch("");
-  const { source, idx } = match?.params as any as {
-    source: HostsCategory;
-    idx: number;
-  };
-  let [category, setCategory] = React.useState<HostsCategory>(source);
+  let location = useLocation();
+  let idx = -1;
+  let source: HostsCategory | undefined = undefined;
+  if ((location.state as any)?.idx!==undefined) {
+    idx = Number((location.state as any).idx);
+    source = hosts.categories[idx];
+  }
+  let [category, setCategory] = React.useState<HostsCategory>(
+    source
+      ? source
+      : {
+          applyRedirects: false,
+          content: [],
+          enabled: true,
+          format: "block",
+          label: "",
+          type: "url",
+        }
+  );
 
   let onSave = () => {
     if (idx < 0) {
@@ -56,6 +70,9 @@ const SourceEditor: React.FC<Props> = ({
   let onApplyRedirectsChange = () => {
     setCategory({ ...category, applyRedirects: !category.applyRedirects });
   };
+  let editCategory=(c:HostsCategory)=>{
+    setCategory({...c})
+  }
   return (
     <div className="page source-editor">
       <SourceEditorHeader onSave={onSave} onRemove={onRemove} />
@@ -97,11 +114,17 @@ const SourceEditor: React.FC<Props> = ({
             </div>
           </>
         ) : (
-          <HostsFileEditor
-            category={source}
-            showAddButton={true}
-            editable={true}
-          />
+          <>
+            <div style={{ color: "var(--primary)" }}>Hosts</div>
+            <div style={{border:"1px solid var(--text)",borderRadius:"5px",height:"100%"}}>
+              <HostsFileEditor
+                category={category}
+                showAddButton={true}
+                editable={true}
+                onEdit={editCategory}
+              />
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -135,6 +158,6 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state: State) => {
-  return { active: state.app.active };
+  return { active: state.app.active, hosts: state.app.hosts };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(SourceEditor);

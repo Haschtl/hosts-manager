@@ -5,6 +5,7 @@ import { HostsCategory } from "../hosts_manager";
 import * as actions from "../store/actions";
 import { useNavigate } from "react-router";
 import "./SourceListElement.scss";
+import { CheckBox } from "./Inputs";
 
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
@@ -19,7 +20,6 @@ let SourceListElement: React.FC<Props> = ({ source, idx, setHostCategory }) => {
   let onClick = () => {
     navigate("/editsource", {
       state: {
-        source,
         idx,
       },
     });
@@ -29,10 +29,8 @@ let SourceListElement: React.FC<Props> = ({ source, idx, setHostCategory }) => {
   };
   return (
     <div className="button source-list-element" onClick={onClick}>
-      <input
-        type="checkbox"
-        style={{ margin: 10 }}
-        value={source.enabled + ""}
+      <CheckBox
+        value={source.enabled}
         onChange={toggleCategory}
       />
       <div className="content">

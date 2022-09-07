@@ -73,7 +73,8 @@ type CProps = {
 };
 export let CheckBox: React.FC<CProps> = ({ value=false, onChange }) => {
   let onChangeValue = React.useCallback(
-    () => {
+    (e:React.ChangeEvent) => {
+      e.stopPropagation()
       onChange && onChange(!value);
     },
     [onChange]

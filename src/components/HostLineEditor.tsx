@@ -2,7 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { State } from "../store/types";
 import { HostsLine } from "../hosts_manager";
-import { TextInputStyled } from "./Inputs";
+import { CheckBox, TextInputStyled } from "./Inputs";
 import "./HostLineEditor.scss";
 import BackIcon from "../drawable/baseline_arrow_left.svg";
 import DeleteIcon from "../drawable/outline_delete_24.svg";
@@ -37,12 +37,12 @@ let HostLineEditor: React.FC<Props> = ({
     setCurrent({ ...current, enabled: !current.enabled });
   };
   let _onSave = () => {
+    console.log("line-editor",current)
     onSave(current);
   };
   let _onRemove = () => {
     onRemove(current);
   };
-  console.log(line, current);
   return (
     <div className="hostline-editor">
       <div className="buttonbar">
@@ -74,9 +74,8 @@ let HostLineEditor: React.FC<Props> = ({
         onChange={onCommentChange}
       />
       <div className="element">
-        <input
-          type="checkbox"
-          value={current.enabled + ""}
+        <CheckBox
+          value={current.enabled}
           onChange={toggleEnabled}
         />
         <div className="text">Enabled</div>

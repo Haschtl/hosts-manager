@@ -143,9 +143,6 @@ const StartPage: React.FC<Props> = ({ active, hosts, stateIsElevated,setElevated
         >
           Export hosts
         </div>
-        <div className="button simple" onClick={checkHostFile}>
-          Check backend
-        </div>
       </div>
       <Footer />
     </div>

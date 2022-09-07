@@ -23,7 +23,6 @@ import {
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const ListViewPage: React.FC<Props> = ({ hosts }) => {
   let sorted = sortHosts(hosts);
-  console.log(sorted);
 
   let Blocked = (props: any) => {
     return HostsFileEditor({
@@ -85,7 +84,7 @@ const ListViewPage: React.FC<Props> = ({ hosts }) => {
         <Routes key="listroot">
           <Route path="blocked" element={<Blocked />} />
           <Route path="allowed" element={<Allowed />} />
-          <Route path="redirect" element={<Redirected />} />
+          <Route path="redirected" element={<Redirected />} />
         </Routes>
       </div>
       <div className="tab-bar">

@@ -47,7 +47,6 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
   let startBackup = () => {
     setNotImplemented(true);
   };
-  console.log(settings);
   return (
     <div className="page settings">
       <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />

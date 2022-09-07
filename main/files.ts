@@ -1,9 +1,10 @@
 import fs from "fs";
 // import os from "os";
 import http from "http";
+import { dirname } from "path";
 import { formatHosts, Hosts, parse_hosts_file } from "../src/hosts_manager";
 import { Settings } from "../src/store/types";
-import {app} from "electron"
+import { app } from "electron";
 
 // const fs = window.require("fs");
 // const os = window.require("os");
@@ -38,7 +39,7 @@ let sources_path = user_folder + "/sources/";
 //       return false;
 //     });
 // };
-export let getSystemHostsFile = (path = pre_hosts_path) => {
+export let getSystemHostsFile = (path = hosts_path) => {
   return fetch(`https://localhost:1312/get?path=${encodeURI(path)}`, {
     method: "GET",
     headers: {
@@ -47,7 +48,7 @@ export let getSystemHostsFile = (path = pre_hosts_path) => {
     },
   });
 };
-export let setSystemHostsFile = (path = pre_hosts_path) => {
+export let setSystemHostsFile = (path = hosts_path) => {
   return fetch(`https://localhost:1312/set?path=${encodeURI(path)}`, {
     method: "GET",
     headers: {
@@ -94,7 +95,7 @@ export let loadConfig = (path = config_path) => {
       ...JSON.parse(fs.readFileSync(path).toString()),
     } as Partial<Settings>;
   } catch {
-    fs.mkdirSync(path);
+    fs.mkdirSync(dirname(path));
     return undefined;
   }
 };
@@ -166,16 +167,29 @@ export function backupHostsFile() {
 export function backupExists() {
   return fs.statSync(backup_path).isFile();
 }
-export function loadHostsFile(path = pre_hosts_path) {
+export function loadHostsFile(system?: boolean | string) {
+  let path = hosts_path;
+  if (typeof system === "string") {
+    path = system;
+  } else {
+    if (!system) {
+      path = pre_hosts_path;
+    }
+  }
   console.log("Loading hosts-file from " + path);
-
   try {
     fs.accessSync(path);
     let hostsFile = fs.readFileSync(path);
     return parse_hosts_file(hostsFile.toString());
   } catch {}
 }
-export let saveHostsFile = (hosts: Hosts, path = pre_hosts_path) => {
+export let saveHostsFile = (hosts: Hosts, system: boolean | string = true) => {
+  let path = hosts_path;
+  if (typeof system === "string") {
+    path = system;
+  } else if (!system) {
+    path = pre_hosts_path;
+  }
   console.log("Saving hosts-file to " + path);
   let h = formatHosts(hosts);
   return fs.writeFileSync(path, h);

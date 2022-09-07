@@ -99,11 +99,11 @@ export default class Main {
     ipcMain.handle("app:backup-exists", () => {
       return io.backupExists();
     });
-    ipcMain.handle("app:load-hosts-file", (e, path) => {
-      return io.loadHostsFile(path);
+    ipcMain.handle("app:load-hosts-file", (e, system) => {
+      return io.loadHostsFile(system);
     });
-    ipcMain.handle("app:save-hosts-file", (e, hosts, path) => {
-      return io.saveHostsFile(hosts, path);
+    ipcMain.handle("app:save-hosts-file", (e, hosts, system) => {
+      return io.saveHostsFile(hosts, system);
     });
     ipcMain.handle("app:download-file", (e, url: string) => {
       return io.downloadFile(url);

@@ -24,6 +24,7 @@ exports.saveHostsFile = exports.loadHostsFile = exports.backupExists = exports.b
 var fs_1 = require("fs");
 // import os from "os";
 var http_1 = require("http");
+var path_1 = require("path");
 var hosts_manager_1 = require("../src/hosts_manager");
 var electron_1 = require("electron");
 // const fs = window.require("fs");
@@ -59,7 +60,7 @@ var sources_path = exports.user_folder + "/sources/";
 //     });
 // };
 var getSystemHostsFile = function (path) {
-    if (path === void 0) { path = pre_hosts_path; }
+    if (path === void 0) { path = hosts_path; }
     return fetch("https://localhost:1312/get?path=".concat(encodeURI(path)), {
         method: "GET",
         headers: {
@@ -70,7 +71,7 @@ var getSystemHostsFile = function (path) {
 };
 exports.getSystemHostsFile = getSystemHostsFile;
 var setSystemHostsFile = function (path) {
-    if (path === void 0) { path = pre_hosts_path; }
+    if (path === void 0) { path = hosts_path; }
     return fetch("https://localhost:1312/set?path=".concat(encodeURI(path)), {
         method: "GET",
         headers: {
@@ -114,7 +115,7 @@ var loadConfig = function (path) {
         return __assign({}, JSON.parse(fs_1.readFileSync(path).toString()));
     }
     catch (_a) {
-        fs_1.mkdirSync(path);
+        fs_1.mkdirSync((0, path_1.dirname)(path));
         return undefined;
     }
 };
@@ -200,7 +201,7 @@ function backupExists() {
 }
 exports.backupExists = backupExists;
 function loadHostsFile(path) {
-    if (path === void 0) { path = pre_hosts_path; }
+    if (path === void 0) { path = hosts_path; }
     console.log("Loading hosts-file from " + path);
     try {
         fs_1.accessSync(path);
@@ -211,7 +212,7 @@ function loadHostsFile(path) {
 }
 exports.loadHostsFile = loadHostsFile;
 var saveHostsFile = function (hosts, path) {
-    if (path === void 0) { path = pre_hosts_path; }
+    if (path === void 0) { path = hosts_path; }
     console.log("Saving hosts-file to " + path);
     var h = (0, hosts_manager_1.formatHosts)(hosts);
     return fs_1.writeFileSync(path, h);
