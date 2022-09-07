@@ -12,7 +12,9 @@ type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 
 let App: React.FC<Props> = ({ setState, darkMode }) => {
   useEffect(() => {
-    setState(loadState());
+    loadState().then((state) => {
+      setState(state);
+    });
   }, [setState]);
   return (
     <div className={"root " + (darkMode ? " dark-mode" : " light-mode")}>

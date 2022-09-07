@@ -24,24 +24,24 @@ export const initialState: AppState = {
   settings: initialSettings,
   hosts: { categories: [] },
 };
-export const loadState = () => {
-  // let config = loadConfig();
-  // let exists = sourcesExist();
+export const loadState = async () => {
+  let config = await loadConfig();
+  let exists = await sourcesExist();
   let sources: Hosts | undefined;
-  // if (exists) {
-  //   if (exists) {
-  //     sources = loadSources();
-  //     if (sources) {
-  //       saveSources(sources);
-  //     }
-  //   } else {
-  //     sources = loadHostsFile();
-  //   }
-  // }
+  if (exists) {
+    if (exists) {
+      sources = await loadSources();
+      if (sources) {
+        saveSources(sources);
+      }
+    } else {
+      sources = await loadHostsFile();
+    }
+  }
   return {
     active: false,
     version: VERSION,
-    settings: initialSettings,
+    settings: { ...config, ...initialSettings },
     hosts: sources !== undefined ? sources : { categories: [] },
   } as AppState;
 };

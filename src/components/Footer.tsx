@@ -10,6 +10,8 @@ import SettingsIcon from "../drawable/ic_settings_24dp.svg";
 import PauseIcon from "../drawable/ic_pause_24dp.svg";
 import LogoIcon from "../drawable/icon_white.svg";
 import "./Footer.scss";
+// import { closeWindow } from "../files";
+// const { remote } = window.require("electron");
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const Footer: React.FC<Props> = ({ active, setActive, isElevated }) => {
@@ -25,6 +27,11 @@ const Footer: React.FC<Props> = ({ active, setActive, isElevated }) => {
       setActive(!active);
     }
   };
+  let _closeWindow = () => {
+    // var window = remote.getCurrentWindow();
+    // window.close();
+    // closeWindow()
+  };
   return (
     <div className="footer">
       <div className={"menu " + (menuVisible ? "visible" : "hidden")}>
@@ -39,6 +46,10 @@ const Footer: React.FC<Props> = ({ active, setActive, isElevated }) => {
         <div className="button menuEntry" onClick={() => navigate("/settings")}>
           <img src={SettingsIcon} />
           <div>Options</div>
+        </div>
+        <div className="button menuEntry" onClick={() => _closeWindow()}>
+          <img src={SettingsIcon} />
+          <div>Minimize</div>
         </div>
       </div>
       <div className="wrapper">

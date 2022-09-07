@@ -7,9 +7,10 @@ import { State } from "../store/types";
 // import SvgUri from 'react-native-svg-uri';
 import { NotImplemented } from "../components/NotImplemented";
 import { sortHosts } from "../hosts_manager";
-import { checkBackendService, saveHostsFile, user_folder } from "../files";
+import { saveHostsFile, openUserFolder,notify,isElevated } from "../files";
+import * as actions from "../store/actions";
 import { useNavigate } from "react-router";
-// import isElevated from '../utils/isElevated';
+// import isElevated from "../isElevated";
 // import {IsDarkMode} from '../styles/styles';
 import BookMarkIcon from "../drawable/ic_collections_bookmark_24dp.svg";
 import AddIcon from "../drawable/ic_get_app_24dp.svg";
@@ -24,8 +25,8 @@ import RedirectedIcon from "../drawable/baseline_compare_arrows_24.svg";
 import "./StartPage.scss";
 // const shell = window.require("electron").shell
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
-const StartPage: React.FC<Props> = ({ active, hosts, isElevated }) => {
-  // isElevated().then(v => setIsElevated(v));
+const StartPage: React.FC<Props> = ({ active, hosts, stateIsElevated,setElevated }) => {
+  isElevated().then((v) => setElevated(v));
   let [updatesAvailable, setUpdatesAvailable] = useState(false);
   let [loading, setLoading] = useState(false);
   let navigate = useNavigate();
@@ -43,6 +44,7 @@ const StartPage: React.FC<Props> = ({ active, hosts, isElevated }) => {
       setLoading(false);
       setUpdatesAvailable(true);
     }, 2000);
+    notify("Updating sources")
   };
   let upgradeSources = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -50,17 +52,17 @@ const StartPage: React.FC<Props> = ({ active, hosts, isElevated }) => {
     setUpdatesAvailable(false);
   };
   let openFolder = () => {
-    // shell.openPath(user_folder);
+    openUserFolder();
   };
   let checkHostFile = () => {
-    checkBackendService().then((v) => console.log(v));
+    // checkBackendService().then((v) => console.log(v));
   };
 
   let sorted = sortHosts(hosts);
   return (
     <div className="page start">
       <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
-      {!isElevated && (
+      {!stateIsElevated && (
         <div className="button adminWarning" onClick={openFolder}>
           <div className="adminWarningText">
             AdAway not running as Admin. Can not write hosts file directly
@@ -149,13 +151,15 @@ const StartPage: React.FC<Props> = ({ active, hosts, isElevated }) => {
     </div>
   );
 };
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setElevated: actions.setElevated
+};
 
 const mapStateToProps = (state: State) => {
   return {
     active: state.app.active,
     hosts: state.app.hosts,
-    isElevated: state.app.isElevated,
+    stateIsElevated: state.app.isElevated,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(StartPage);

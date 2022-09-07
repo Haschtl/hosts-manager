@@ -32,7 +32,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
     setNotImplemented(true);
   };
   let _setSettings = (settings: Settings) => {
-    // saveConfig(settings);
+    saveConfig(settings);
     setSettings(settings);
   };
   let toggleLogging = () =>
