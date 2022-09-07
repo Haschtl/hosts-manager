@@ -13,7 +13,7 @@ const SupportPage: React.FC<Props> = ({ }) => {
     <div className="page support">
       <div className="background">
         <div className="textWrapper">
-          <FavoritesIcon />
+          <img src={FavoritesIcon} />
           <div className="title">Support Me!</div>
         </div>
         <div className="changelog">
@@ -23,11 +23,11 @@ const SupportPage: React.FC<Props> = ({ }) => {
           </div>
           <div className="buttonbar">
             <div className="button supportButton">
-              <PayPalIcon />
+              <img src={PayPalIcon} />
               <div style={{ marginLeft: 5 }}>Spenden</div>
             </div>
             <div className="button supportButton">
-              <GithubIcon />
+              <img src={GithubIcon} />
               <div style={{ marginLeft: 5 }}>Sponsor</div>
             </div>
           </div>

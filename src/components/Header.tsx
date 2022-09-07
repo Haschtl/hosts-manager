@@ -7,7 +7,7 @@ type Props = {
   children?: React.ReactNode;
   backPage?: string;
 };
-export let Header: React.FC<Props> = ({ children, backPage = "start" }) => {
+export let Header: React.FC<Props> = ({ children, backPage = "/start" }) => {
   let navigate = useNavigate();
   let goBack = () => {
     navigate(backPage);
@@ -15,7 +15,7 @@ export let Header: React.FC<Props> = ({ children, backPage = "start" }) => {
   return (
     <div className="page-header">
       <div onClick={goBack} className="button back-button">
-        <BackIcon />
+        <img src={BackIcon} />
       </div>
       {children}
     </div>

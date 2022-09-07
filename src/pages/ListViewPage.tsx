@@ -7,8 +7,18 @@ import { sortHosts } from "../hosts_manager";
 import HostsFileEditor from "../components/HostsFileEditor";
 import SearchIcon from "../drawable/baseline_search_24.svg";
 import BookMarkIcon from "../drawable/ic_collections_bookmark_24dp.svg";
+
+import BlockedIcon from "../drawable/baseline_block_24.svg";
+import AllowedIcon from "../drawable/baseline_check_24.svg";
+import RedirectedIcon from "../drawable/baseline_compare_arrows_24.svg";
 import "./ListViewPage.scss";
-import { Route, Routes } from "react-router-dom";
+import {
+  Route,
+  Routes,
+  useLocation,
+  useMatch,
+  useNavigate,
+} from "react-router-dom";
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const ListViewPage: React.FC<Props> = ({ hosts }) => {
@@ -51,18 +61,66 @@ const ListViewPage: React.FC<Props> = ({ hosts }) => {
       },
     });
   };
+  let navigate = useNavigate();
+  let location = useLocation();
+  let goToBlocked = React.useCallback(() => {
+    navigate("/list/blocked");
+  }, [navigate]);
+  let goToAllowed = React.useCallback(() => {
+    navigate("/list/allowed");
+  }, [navigate]);
+  let goToRedirected = React.useCallback(() => {
+    navigate("/list/redirected");
+  }, [navigate]);
   return (
-    <Routes key="listroot">
-      <Route path="blocked">
-        <Blocked />
-      </Route>
-      <Route path="allowed">
-        <Allowed />
-      </Route>
-      <Route path="redirect">
-        <Redirected />
-      </Route>
-    </Routes>
+    <div className="page list">
+      <ListHeader>
+        {location.pathname.includes("blocked")
+          ? "Blocked"
+          : location.pathname.includes("allowed")
+          ? "Allowed"
+          : "Redirected"}
+      </ListHeader>
+      <div className="content">
+        <Routes key="listroot">
+          <Route path="blocked" element={<Blocked />} />
+          <Route path="allowed" element={<Allowed />} />
+          <Route path="redirect" element={<Redirected />} />
+        </Routes>
+      </div>
+      <div className="tab-bar">
+        <div
+          className={
+            "tab-button" +
+            (location.pathname.includes("blocked") ? " active" : "")
+          }
+          onClick={goToBlocked}
+        >
+          <img src={BlockedIcon} />
+          Blocked
+        </div>
+        <div
+          className={
+            "tab-button" +
+            (location.pathname.includes("allowed") ? " active" : "")
+          }
+          onClick={goToAllowed}
+        >
+          <img src={AllowedIcon} />
+          Allowed
+        </div>
+        <div
+          className={
+            "tab-button" +
+            (location.pathname.includes("redirected") ? " active" : "")
+          }
+          onClick={goToRedirected}
+        >
+          <img src={RedirectedIcon} />
+          Redirected
+        </div>
+      </div>
+    </div>
   );
 };
 const mapDispatchToProps = {};
@@ -75,16 +133,16 @@ export default connect(mapStateToProps, mapDispatchToProps)(ListViewPage);
 type HProps = {
   children?: React.ReactNode;
 };
-let ListHeader: React.FC<HProps> = ({}) => {
+let ListHeader: React.FC<HProps> = ({ children }) => {
   return (
     <Header>
-      {/* <div style={headerStyle.text}>{props.route.name}</div> */}
+      {children}
       <div className="buttonwrapper">
         <div className="button">
-          <SearchIcon />
+          <img src={SearchIcon} />
         </div>
         <div className="button">
-          <BookMarkIcon />
+          <img src={BookMarkIcon} />
         </div>
       </div>
     </Header>

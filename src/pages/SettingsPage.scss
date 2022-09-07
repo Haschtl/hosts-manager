@@ -6,8 +6,8 @@
     border-color: var(--dark);
   }
   .groupHeader {
-    margin-left: 62;
-    margin-top: 20;
+    margin-left: 6px;
+    margin-top: 20px;
     color: var(--primary);
     font-size: 12;
     font-weight: 400;
@@ -16,6 +16,12 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    padding-right:10px;
+    height:50px;
+    img{
+      height:50%;
+      padding: 10px;
+    }
   }
   .elementDisabled {
     opacity: 0.5;
@@ -29,4 +35,5 @@
     margin: 13;
     margin-right: 25;
   }
+
 }

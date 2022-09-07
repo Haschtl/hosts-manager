@@ -8,14 +8,14 @@ import PayPalIcon from "../drawable/paypal.svg";
 import GithubIcon from "../drawable/ic_github_24dp.svg";
 import "./VersionPage.scss";
 
-const shell = window.require("electron").shell;
+// const shell = window.require("electron").shell;
 export let openSupportWebsite = () => {
   let url = "https://google.de";
-  shell.openExternal(url);
+  // shell.openExternal(url);
 };
 export let openPaypal = () => {
   let url = "https://paypal.com";
-  shell.openExternal(url);
+  // shell.openExternal(url);
 };
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const VersionPage: React.FC<Props> = ({}) => {
@@ -23,7 +23,7 @@ const VersionPage: React.FC<Props> = ({}) => {
     <div className="page version">
       <div className="background">
         <div className="textWrapper">
-          <AppIcon />
+          <img src={AppIcon} />
           <div className="title">You are up to date</div>
         </div>
         <div className="changelog">
@@ -41,11 +41,11 @@ const VersionPage: React.FC<Props> = ({}) => {
           </div>
           <div className="buttonbar">
             <div className="button supportButton" onClick={openPaypal}>
-              <PayPalIcon />
+              <img src={PayPalIcon} />
               <div style={{ marginLeft: 5 }}>Spenden</div>
             </div>
             <div className="button supportButton" onClick={openSupportWebsite}>
-              <GithubIcon />
+              <img src={GithubIcon} />
               <div style={{ marginLeft: 5 }}>Sponsor</div>
             </div>
           </div>

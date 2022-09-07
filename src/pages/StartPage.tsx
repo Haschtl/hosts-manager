@@ -15,25 +15,42 @@ import BookMarkIcon from "../drawable/ic_collections_bookmark_24dp.svg";
 import AddIcon from "../drawable/ic_get_app_24dp.svg";
 import SyncIcon from "../drawable/ic_sync_24dp.svg";
 import AppIcon from "../drawable/icon_foreground.png";
+import HelpIcon from "../drawable/ic_help_24dp.svg";
+import DnsIcon from "../drawable/ic_outline_rule_24.svg";
+import FavoriteIcon from "../drawable/baseline_favorite_24.svg";
+import BlockedIcon from "../drawable/baseline_block_24.svg";
+import AllowedIcon from "../drawable/baseline_check_24.svg";
+import RedirectedIcon from "../drawable/baseline_compare_arrows_24.svg";
 import "./StartPage.scss";
-const shell = window.require("electron").shell
+// const shell = window.require("electron").shell
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const StartPage: React.FC<Props> = ({ active, hosts, isElevated }) => {
   // isElevated().then(v => setIsElevated(v));
+  let [updatesAvailable, setUpdatesAvailable] = useState(false);
+  let [loading, setLoading] = useState(false);
   let navigate = useNavigate();
   let [notImplemented, setNotImplemented] = useState(false);
   let hideNotImplemented = () => {
     setNotImplemented(false);
   };
 
-  let updateSources = () => {
+  let updateSources = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setNotImplemented(true);
+    setLoading(true);
+    setUpdatesAvailable(false);
+    setTimeout(() => {
+      setLoading(false);
+      setUpdatesAvailable(true);
+    }, 2000);
   };
-  let upgradeSources = () => {
+  let upgradeSources = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setNotImplemented(true);
+    setUpdatesAvailable(false);
   };
   let openFolder = () => {
-    shell.openPath(user_folder);
+    // shell.openPath(user_folder);
   };
   let checkHostFile = () => {
     checkBackendService().then((v) => console.log(v));
@@ -50,72 +67,81 @@ const StartPage: React.FC<Props> = ({ active, hosts, isElevated }) => {
           </div>
         </div>
       )}
-      <div>
-        <StartHeader
-          active={active}
-          blocked={sorted.blocked.length}
-          redirected={sorted.redirected.length}
-          allowed={sorted.allowed.length}
-        />
-        <div className="content">
-          <div
-            className="button mainbutton"
-            onClick={() => navigate("sources")}
-          >
-            <div className="buttonbar">
-              <div className="mainleft">
-                <BookMarkIcon />
-              </div>
+      <StartHeader
+        active={active}
+        blocked={sorted.blocked.length}
+        redirected={sorted.redirected.length}
+        allowed={sorted.allowed.length}
+      />
+      <div className="content">
+        <div className="button mainbutton" onClick={() => navigate("/sources")}>
+          <div className="buttonbar">
+            <div className="mainleft">
+              <img src={BookMarkIcon} />
+            </div>
 
-              <div className="maincenter">
-                <div>{hosts.categories.length + " aktuelle Quellen"}</div>
-                <div>{"0 veraltete Quellen"}</div>
+            <div className="maincenter">
+              <div>{hosts.categories.length + " aktuelle Quellen"}</div>
+              <div>{"0 veraltete Quellen"}</div>
+            </div>
+            <div className="mainright">
+              <div
+                className="button"
+                style={{ margin: 5 }}
+                onClick={updateSources}
+              >
+                <img src={SyncIcon} />
               </div>
-              <div className="mainright">
-                <div
-                  className="button"
-                  style={{ margin: 5 }}
-                  onClick={updateSources}
-                >
-                  <SyncIcon />
-                </div>
-                <div
-                  className="button"
-                  style={{ margin: 5 }}
-                  onClick={upgradeSources}
-                >
-                  <AddIcon />
-                </div>
+              <div
+                className="button"
+                style={{ margin: 5 }}
+                onClick={upgradeSources}
+              >
+                <img src={AddIcon} />
               </div>
+            </div>
+          </div>
+          <div className="update-bar">
+            <div
+              className={
+                "updates-available" + (updatesAvailable ? " visible" : "")
+              }
+            >
+              Updates available
+            </div>
+            <div className={"progress-bar" + (loading ? " visible" : "")}>
+              <div className="border-overlay"></div>
+              <div className="gradient-overlay"></div>
+              <div className="bar"></div>
             </div>
           </div>
         </div>
         <div className="buttonbar">
           <HeaderButton
             subtitle="Show DNS-Request-Protocol"
-            icon={require("../drawable/ic_outline_rule_24.svg")}
-            onClick={() => navigate("dns")}
+            icon={DnsIcon}
+            onClick={() => navigate("/dns")}
           />
           <HeaderButton
             subtitle="Show Tips and Help"
-            icon={require("../drawable/ic_help_24dp.svg")}
-            onClick={() => navigate("help")}
+            icon={HelpIcon}
+            onClick={() => navigate("/help")}
           />
           <HeaderButton
             subtitle="Support"
-            icon={require("../drawable/baseline_favorite_24.svg")}
-            onClick={() => navigate("support")}
+            icon={FavoriteIcon}
+            onClick={() => navigate("/support")}
           />
         </div>
         <div
-          className="button"
+          className="button simple"
           onClick={() => {
             saveHostsFile(hosts);
           }}
         >
           Export hosts
         </div>
-        <div className="button" onClick={checkHostFile}>
+        <div className="button simple" onClick={checkHostFile}>
           Check backend
         </div>
       </div>
@@ -148,13 +174,13 @@ export const StartHeader: React.FC<HProps> = ({
 }) => {
   let navigate = useNavigate();
   const goToVersion = () => {
-    navigate("version");
+    navigate("/version");
   };
   return (
     <>
-      <div className={"header-background " + active ? "active" : "inactive"}>
+      <div className={"start-header " + (active ? "active" : "inactive")}>
         <div className="iconwrapper">
-          <AppIcon />
+          <img src={AppIcon} />
         </div>
         <div className="textWrapper">
           <div className="title">AdAway</div>
@@ -167,20 +193,20 @@ export const StartHeader: React.FC<HProps> = ({
           <HeaderButton
             title={blocked + ""}
             subtitle="Blocked"
-            icon="../drawable/baseline_block_24.svg"
-            onClick={() => navigate("list")}
+            icon={BlockedIcon}
+            onClick={() => navigate("/list/blocked")}
           />
           <HeaderButton
             title={allowed + ""}
             subtitle="Allowed"
-            icon="../drawable/baseline_check_24.svg"
-            onClick={() => navigate("list")}
+            icon={AllowedIcon}
+            onClick={() => navigate("/list/allowed")}
           />
           <HeaderButton
             title={redirected + ""}
             subtitle="Redirected"
-            icon="../drawable/baseline_compare_arrows_24.svg"
-            onClick={() => navigate("list")}
+            icon={RedirectedIcon}
+            onClick={() => navigate("/list/redirected")}
           />
         </div>
       </div>

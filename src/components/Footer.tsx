@@ -26,35 +26,35 @@ const Footer: React.FC<Props> = ({ active, setActive, isElevated }) => {
     }
   };
   return (
-    <>
-      <div className={"menu " + menuVisible ? "visible" : "invisible"}>
-        <div className="button menuEntry" onClick={() => navigate("start")}>
-          <HomeIcon />
+    <div className="footer">
+      <div className={"menu " + (menuVisible ? "visible" : "hidden")}>
+        <div className="button menuEntry" onClick={() => navigate("/start")}>
+          <img src={HomeIcon} />
           <div>Home</div>
         </div>
-        <div className="button menuEntry" onClick={() => navigate("support")}>
-          <GithubIcon />
+        <div className="button menuEntry" onClick={() => navigate("/support")}>
+          <img src={GithubIcon} />
           <div>Github project</div>
         </div>
-        <div className="button menuEntry" onClick={() => navigate("settings")}>
-          <SettingsIcon />
+        <div className="button menuEntry" onClick={() => navigate("/settings")}>
+          <img src={SettingsIcon} />
           <div>Options</div>
         </div>
       </div>
       <div className="wrapper">
         <div className="button" style={{ marginLeft: 10 }} onClick={onClick}>
-          <MenuIcon />
+          <img src={MenuIcon} />
         </div>
         <div className="center">
           <div
-            className={"button statebutton " + active ? "active" : "inactive"}
+            className={"button statebutton " + (active ? "active" : "inactive")}
             onClick={toggleActive}
           >
-            {active ? <PauseIcon /> : <LogoIcon />}
+            {active ? <img src={PauseIcon} /> : <img src={LogoIcon} />}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 const mapDispatchToProps = { setActive: actions.setActive };

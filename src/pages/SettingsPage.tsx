@@ -17,6 +17,7 @@ import DiagnosticsIcon from "../drawable/outline_cloud_upload_24.svg";
 import LoggingIcon from "../drawable/ic_bug_report_24dp.svg";
 
 import "./SettingsPage.scss";
+import { CheckBox } from "../components/Inputs";
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
@@ -31,7 +32,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
     setNotImplemented(true);
   };
   let _setSettings = (settings: Settings) => {
-    saveConfig(settings);
+    // saveConfig(settings);
     setSettings(settings);
   };
   let toggleLogging = () =>
@@ -51,84 +52,77 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
     <div className="page settings">
       <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
       <SettingsHeader />
-      <div className="group">
-        <div className="groupHeader">General</div>
-        <div className="button element" onClick={toggleDarkMode}>
-          <BrightnessIcon />
-          <div className="elementContent">Activate dark-mode</div>
-          <input
-            type="checkbox"
-            value={settings.darkMode + ""}
-            onChange={toggleDarkMode}
-          />
+      <div className="content">
+        <div className="group">
+          <div className="groupHeader">General</div>
+          <div className="button element" onClick={toggleDarkMode}>
+            <img src={BrightnessIcon} />
+            <div className="elementContent">Activate dark-mode</div>
+            <CheckBox
+              value={settings.darkMode}
+              onChange={toggleDarkMode}
+            />
+          </div>
+          <div className="button element" onClick={toggleAutoUpdates}>
+            <img src={SyncIcon} />
+            <div className="elementContent">Automatic updates</div>
+            <CheckBox
+              value={settings.autoUpdates}
+              onChange={toggleAutoUpdates}
+            />
+          </div>
         </div>
-        <div className="button element" onClick={toggleAutoUpdates}>
-          <SyncIcon />
-          <div className="elementContent">Automatic updates</div>
-          <input
-            type="checkbox"
-            value={settings.autoUpdates + ""}
-            onChange={toggleAutoUpdates}
-          />
+        <div className="group">
+          <div className="groupHeader">Block ADs</div>
+          <div
+            className={
+              "button element " +
+              (settings.blockMode !== "admin"
+                ? "elementDisabled"
+                : "elementEnabled")
+            }
+            onClick={setAdminBasedAdblock}
+          >
+            <img src={RootIcon} />
+            <div className="elementContent">Admin based AD-blocker</div>
+          </div>
+          <div
+            className={
+              "button element " +
+              (settings.blockMode === "admin"
+                ? "elementDisabled"
+                : "elementEnabled")
+            }
+            onClick={setVPNBasedAdblock}
+          >
+            <img src={VPNIcon} />
+            <div className="elementContent">VPN based AD-blocker</div>
+          </div>
+          <div className="button element" onClick={toggleIpv4}>
+            <img src={IPv6Icon} />
+            <div className="elementContent">Activate IPv6</div>
+            <CheckBox value={settings.ipv6} onChange={toggleIpv4} />
+          </div>
+          <div className="button element" onClick={startBackup}>
+            <img src={BackupIcon} />
+            <div className="elementContent">Backup/Recover your lists</div>
+          </div>
         </div>
-      </div>
-      <div className="group">
-        <div className="groupHeader">Block ADs</div>
-        <div
-          className={
-            "button element " + settings.blockMode !== "admin"
-              ? "elementDisabled"
-              : "elementEnabled"
-          }
-          onClick={setAdminBasedAdblock}
-        >
-          <RootIcon />
-          <div className="elementContent">Admin based AD-blocker</div>
-        </div>
-        <div
-          className={
-            "button element " + settings.blockMode === "admin"
-              ? "elementDisabled"
-              : "elementEnabled"
-          }
-          onClick={setVPNBasedAdblock}
-        >
-          <VPNIcon />
-          <div className="elementContent">VPN based AD-blocker</div>
-        </div>
-        <div className="button element" onClick={toggleIpv4}>
-          <IPv6Icon />
-          <div className="elementContent">Activate IPv6</div>
-          <input
-            type="checkbox"
-            value={settings.ipv6 + ""}
-            onChange={toggleIpv4}
-          />
-        </div>
-        <div className="button element" onClick={startBackup}>
-          <BackupIcon />
-          <div className="elementContent">Backup/Recover your lists</div>
-        </div>
-      </div>
-      <div className="group">
-        <div className="groupHeader">Diagnoses</div>
-        <div className="button element" onClick={toggleDiagnostics}>
-          <DiagnosticsIcon />
-          <div className="elementContent">Send error reports</div>
-          <input
-            type="checkbox"
-            value={settings.diagnostics + ""}
-            onChange={toggleDiagnostics}
-          />
-        </div>
-        <div className="button element" onClick={toggleLogging}>
-          <LoggingIcon />
-          <div className="elementContent">Activate extended logging</div>
-          <input
-            type="checkbox"
-            value={settings.logging + ""}
-            onChange={toggleLogging}
-          />
+        <div className="group">
+          <div className="groupHeader">Diagnoses</div>
+          <div className="button element" onClick={toggleDiagnostics}>
+            <img src={DiagnosticsIcon} />
+            <div className="elementContent">Send error reports</div>
+            <CheckBox
+              value={settings.diagnostics}
+              onChange={toggleDiagnostics}
+            />
+          </div>
+          <div className="button element" onClick={toggleLogging}>
+            <img src={LoggingIcon} />
+            <div className="elementContent">Activate extended logging</div>
+            <CheckBox value={settings.logging} onChange={toggleLogging} />
+          </div>
         </div>
       </div>
     </div>
@@ -141,7 +135,8 @@ type HProps = {
 let SettingsHeader: React.FC<HProps> = ({}) => {
   return (
     <Header>
-      <div>Settings</div>
+      <div className="page-title">Settings</div>
+      <div style={{width:"100%"}}></div>
     </Header>
   );
 };

@@ -47,14 +47,14 @@ let HostLineEditor: React.FC<Props> = ({
     <div className="hostline-editor">
       <div className="buttonbar">
         <div className="button iconWrapper" onClick={onDismiss}>
-          <BackIcon />
+          <img src={BackIcon} />
         </div>
         <div className="buttonbar2">
           <div className="button iconWrapper" onClick={_onRemove}>
-            <DeleteIcon />
+            <img src={DeleteIcon} />
           </div>
           <div className="button iconWrapper" onClick={_onSave}>
-            <SaveIcon />
+            <img src={SaveIcon} />
           </div>
         </div>
       </div>

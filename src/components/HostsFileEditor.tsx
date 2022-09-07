@@ -49,7 +49,7 @@ let HostsFileEditor: React.FC<Props> = ({
       </AutoSizer>
       {showAddButton && (
         <div className="button addbutton">
-          <AddIcon />
+          <img src={AddIcon} />
         </div>
       )}
     </div>

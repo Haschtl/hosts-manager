@@ -35,11 +35,11 @@ const SourceEditor: React.FC<Props> = ({
     } else {
       setHostCategory(idx, category);
     }
-    navigate("sources");
+    navigate("/sources");
   };
   let onRemove = () => {
     rmHostCategory(idx);
-    navigate("sources");
+    navigate("/sources");
   };
   let onLabelChange = (value: string) => {
     setCategory({ ...category, label: value });
@@ -115,14 +115,14 @@ type HProps = {
 };
 let SourceEditorHeader: React.FC<HProps> = ({ onSave, onRemove }) => {
   return (
-    <Header backPage={"sources"}>
+    <Header backPage={"/sources"}>
       <div className="text">Edit source</div>
       <div className="buttonwrapper">
         <div className="button" onClick={onRemove}>
-          <DeleteIcon />
+          <img src={DeleteIcon} />
         </div>
         <div className="button" onClick={onSave}>
-          <SaveIcon />
+          <img src={SaveIcon} />
         </div>
       </div>
     </Header>

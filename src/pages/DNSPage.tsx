@@ -11,18 +11,20 @@ import "./DNSPage.scss";
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const DNSPage: React.FC<Props> = ({}) => {
   return (
-    <div className="page">
+    <div className="page dns">
       <DNSHeader />
-      <div>
-        Press record to start logging requests, browse the Web or use apps, then
-        go back or swipe to refresh the logs.
-      </div>
-      <div>
-        Blocked requests will not be logged. Disable ad-blocking first if you
-        want to log them too.
-      </div>
-      <div className="floating-button">
-        <RecordIcon />
+      <div className="content">
+        <div>
+          Press record to start logging requests, browse the Web or use apps,
+          then go back or swipe to refresh the logs.
+        </div>
+        <div>
+          Blocked requests will not be logged. Disable ad-blocking first if you
+          want to log them too.
+        </div>
+        <div className="floating-button">
+          <img src={RecordIcon} />
+        </div>
       </div>
     </div>
   );
@@ -37,10 +39,10 @@ let DNSHeader: React.FC<HProps> = ({}) => {
       <div>DNS-Requests</div>
       <div className="buttonwrapper">
         <div className="button">
-          <SortIcon />
+          <img src={SortIcon} />
         </div>
         <div className="button">
-          <DeleteIcon />
+          <img src={DeleteIcon} />
         </div>
       </div>
     </Header>

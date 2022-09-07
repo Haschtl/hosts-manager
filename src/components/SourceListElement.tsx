@@ -17,10 +17,12 @@ type OwnProps = {
 let SourceListElement: React.FC<Props> = ({ source, idx, setHostCategory }) => {
   let navigate = useNavigate();
   let onClick = () => {
-    navigate("editsource", {state:{
-      source,
-      idx,
-    }});
+    navigate("/editsource", {
+      state: {
+        source,
+        idx,
+      },
+    });
   };
   let toggleCategory = () => {
     setHostCategory(idx, { ...source, enabled: !source.enabled });

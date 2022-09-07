@@ -11,17 +11,7 @@ export let NotImplemented: React.FC<Props> = ({isOpen, onDismiss}) => {
         onDismiss();
       }}>
       <div
-        style={{
-          backgroundColor: '#322',
-          flex: 1,
-          padding: 50,
-          paddingBottom: 0,
-          borderRadius: 20,
-          display: 'flex',
-          justifyContent: 'space-evenly',
-          alignContent: 'space-between',
-          alignItems: 'center',
-        }}>
+        className='not-implemented'>
         <div>This feature is not implemented</div>
         <div className="button"
           onClick={() => {

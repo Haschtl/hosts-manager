@@ -1,27 +1,27 @@
 .list-view-element {
-  padding: 10;
+  padding: 10px;
   display: flex;
   flex-direction: row;
   width: 100%;
   align-items: center;
   align-content: center;
-  .popup {
-    // width: 50%;
-    // height: 50%;
-    background-color: var(--dark);
-  }
+  // .popup {
+  //   // width: 50%;
+  //   // height: 50%;
+  //   background-color: var(--dark);
+  // }
   .text {
-    font-size: 20;
-    height: 30;
+    font-size: 20px;
+    height: 30px;
     font-weight: 300;
     text-align: center;
   }
   .host {
     position: absolute;
     right: 8;
-    bottom: 0;
+    bottom: 0px;
     font-size: 12;
-    height: 30;
+    height: 30px;
     color: var(--text);
     font-weight: 200;
     text-align: center;

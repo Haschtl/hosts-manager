@@ -47,14 +47,14 @@ export let SwitchStyled: React.FC<SProps> = ({
         <div
           onClick={() => onChange && onChange(true)}
           className={
-            "button buttonLeft " + value ? "buttonActive" : "buttonInactive"
+            "button buttonLeft " + (value ? "buttonActive" : "buttonInactive")
           }
         >
           <div>{trueLabel}</div>
         </div>
         <div
           className={
-            "button buttonRight " + value ? "buttonInactive" : "buttonActive"
+            "button buttonRight " + (value ? "buttonInactive" : "buttonActive")
           }
           onClick={() => onChange && onChange(false)}
         >
@@ -62,5 +62,25 @@ export let SwitchStyled: React.FC<SProps> = ({
         </div>
       </div>
     </div>
+  );
+};
+
+
+
+type CProps = {
+  value?: boolean;
+  onChange?: (value: boolean) => void;
+};
+export let CheckBox: React.FC<CProps> = ({ value=false, onChange }) => {
+  let onChangeValue = React.useCallback(
+    () => {
+      onChange && onChange(!value);
+    },
+    [onChange]
+  );
+  return (
+    <input type="checkbox" onChange={onChangeValue} checked={value}/>
+    // <div className={"checkbox"+(value?" active":" inactive")} onClick={onChangeValue}>
+    // </div>
   );
 };

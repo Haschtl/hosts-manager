@@ -1,6 +1,6 @@
 .support {
   .background {
-    // padding-top: 40;
+    // padding-top: 40px;
     background-color: var(--primary);
     display: flex;
     flex: 1;
@@ -16,25 +16,37 @@
     // align-content: 'flex-start';
     align-items: center;
     // justify-content: 'flex-start';
+    img {
+      padding-top: 50px;
+      padding-bottom: 20px;
+      height: 120px;
+
+      animation-name: stretch;
+      animation-duration: 2s;
+      animation-timing-function: ease-in-out;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-play-state: running;
+    }
   }
   .title {
-    font-size: 30;
+    font-size: 30px;
     font-weight: 400;
     text-align: left;
-    // height: 40;
+    // height: 40px;
     color: var(--text);
   }
   .subtitle {
-    font-size: 20;
+    font-size: 20px;
     font-weight: 300;
     text-align: left;
-    height: 35;
+    height: 35px;
   }
   .text {
-    font-size: 17;
+    font-size: 17px;
     font-weight: 200;
     color: var(--text);
-    margin-bottom: 40;
+    margin-bottom: 40px;
     text-align: center;
   }
 
@@ -44,8 +56,8 @@
     aspect-ratio: 1;
   }
   .changelog {
-    margin-left: 25;
-    margin-right: 25;
+    margin-left: 25px;
+    margin-right: 25px;
     display: flex;
     align-items: flex-start;
     align-content: flex-start;
@@ -54,23 +66,40 @@
     height: 100%;
   }
   .buttonbar {
-    margin: 5;
+    margin: 5px;
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
+    .supportButton {
+      height: 40px;
+      padding: 5px;
+      margin: 10px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      width: 180px;
+      border-color: var(--white);
+      background-color: var(--darker);
+      border-radius: 30px;
+      img {
+        height: 80%;
+      }
+    }
   }
-  .supportButton {
-    padding: 5;
-    margin: 10;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 120;
-    border-color: var(--white);
-    border-radius: 3;
-    border-width: 2;
+}
+
+@keyframes stretch {
+  0% {
+    transform: scale(0.8);
+  }
+
+  50% {
+  }
+
+  100% {
+    transform: scale(1.2);
   }
 }

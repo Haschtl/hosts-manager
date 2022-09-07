@@ -16,7 +16,7 @@ type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const SourcesPage: React.FC<Props> = ({ hosts }) => {
   let navigate = useNavigate();
   let addSource = () => {
-    navigate("editsource", {
+    navigate("/editsource", {
       state: {
         source: {
           enabled: true,
@@ -39,7 +39,7 @@ const SourcesPage: React.FC<Props> = ({ hosts }) => {
         ))}
       </div>
       <div className="floating-button" onClick={addSource}>
-        <AddIcon />
+        <img src={AddIcon} />
       </div>
     </div>
   );

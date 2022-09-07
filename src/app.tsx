@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { loadState } from "./store/reducer";
 import * as actions from "./store/actions";
 import { State } from "./store/types";
-
+import Routes from "./Routes";
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 
 let App: React.FC<Props> = ({ setState, darkMode }) => {
@@ -15,8 +15,8 @@ let App: React.FC<Props> = ({ setState, darkMode }) => {
     setState(loadState());
   }, [setState]);
   return (
-    <div className={"root " + darkMode ? " dark-mode" : " light-mode"}>
-      {/* <Routes /> */}
+    <div className={"root " + (darkMode ? " dark-mode" : " light-mode")}>
+      <Routes />
     </div>
   );
 };

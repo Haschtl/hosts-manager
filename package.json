@@ -7,10 +7,11 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "react-start": "SET BROWSER=none && react-scripts start",
+    "react-start2": "react-scripts start",
     "react-build": "react-scripts build",
     "start": "concurrently \"SET BROWSER=none && npm run react-start\" \"wait-on http://localhost:3000 && electron .\"",
     "build": "react-scripts build",
-    "electron":"electron ./public/electron.js"
+    "electron": "electron ./public/electron.js"
   },
   "dependencies": {
     "@types/react-virtualized": "^9.21.21",
@@ -20,6 +21,8 @@
     "electron-is-dev": "^2.0.0",
     "execa": "^6.1.0",
     "express": "^4.18.1",
+    "framer-motion": "^7.2.1",
+    "motion": "^10.14.2",
     "nedb": "^1.8.0",
     "node-notifier": "^10.0.1",
     "nodemon": "^2.0.19",
