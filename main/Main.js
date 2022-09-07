@@ -92,11 +92,11 @@ var Main = /** @class */ (function () {
         electron_1.ipcMain.handle("app:backup-exists", function () {
             return io.backupExists();
         });
-        electron_1.ipcMain.handle("app:load-hosts-file", function (e, path) {
-            return io.loadHostsFile(path);
+        electron_1.ipcMain.handle("app:load-hosts-file", function (e, system) {
+            return io.loadHostsFile(system);
         });
-        electron_1.ipcMain.handle("app:save-hosts-file", function (e, hosts, path) {
-            return io.saveHostsFile(hosts, path);
+        electron_1.ipcMain.handle("app:save-hosts-file", function (e, hosts, system) {
+            return io.saveHostsFile(hosts, system);
         });
         electron_1.ipcMain.handle("app:download-file", function (e, url) {
             return io.downloadFile(url);

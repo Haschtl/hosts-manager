@@ -200,8 +200,16 @@ function backupExists() {
     return fs_1.statSync(backup_path).isFile();
 }
 exports.backupExists = backupExists;
-function loadHostsFile(path) {
-    if (path === void 0) { path = hosts_path; }
+function loadHostsFile(system) {
+    var path = hosts_path;
+    if (typeof system === "string") {
+        path = system;
+    }
+    else {
+        if (!system) {
+            path = pre_hosts_path;
+        }
+    }
     console.log("Loading hosts-file from " + path);
     try {
         fs_1.accessSync(path);
@@ -211,8 +219,15 @@ function loadHostsFile(path) {
     catch (_a) { }
 }
 exports.loadHostsFile = loadHostsFile;
-var saveHostsFile = function (hosts, path) {
-    if (path === void 0) { path = hosts_path; }
+var saveHostsFile = function (hosts, system) {
+    if (system === void 0) { system = true; }
+    var path = hosts_path;
+    if (typeof system === "string") {
+        path = system;
+    }
+    else if (!system) {
+        path = pre_hosts_path;
+    }
     console.log("Saving hosts-file to " + path);
     var h = (0, hosts_manager_1.formatHosts)(hosts);
     return fs_1.writeFileSync(path, h);
