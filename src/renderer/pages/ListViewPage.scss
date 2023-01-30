@@ -1,0 +1,40 @@
+.list {
+  .content {
+    height: calc(100% - 100px);
+  }
+  .tab-bar {
+    position: absolute;
+    bottom: 0px;
+    height: 50px;
+    width: 100%;
+    display: flex;
+    border-top: 1px solid var(--darker);
+
+    .tab-button {
+      //   height: 49px;
+      width: 100%;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+      justify-content: center;
+      align-items: center;
+      transition: background-color 0.2s, filter 0.2s;
+      cursor: pointer;
+      img {
+        height: 50%;
+      }
+      &.active {
+        background-color: var(--darker);
+      }
+      &:hover {
+        background-color: var(--darker);
+        filter: brightness(0.5);
+      }
+      &:active {
+        background-color: var(--darker);
+        filter: brightness(0.2);
+      }
+    }
+  }
+}
