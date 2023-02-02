@@ -1,0 +1,16 @@
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  .breadcrumb {
+    cursor: pointer;
+    transition: color 0.2s;
+    &:hover {
+      color: grey;
+    }
+  }
+  .breadcrumb-separator {
+    font-size: 20px;
+  }
+}

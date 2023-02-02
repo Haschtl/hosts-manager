@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Button, InputText, Checkbox } from 'react-windows-ui';
 
 import { State } from '../store/types';
 import { HostsLine } from '../../shared/types';
-import { CheckBox, TextInputStyled } from './Inputs';
 import './HostLineEditor.scss';
-import BackIcon from '../../../assets/drawable/baseline_arrow_left.svg';
-import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
-import SaveIcon from '../../../assets/drawable/baseline_check_24.svg';
+// import BackIcon from '../../../assets/drawable/baseline_arrow_left.svg';
+// import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
+// import SaveIcon from '../../../assets/drawable/baseline_check_24.svg';
+import ListItem from './ListItem';
 
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
@@ -56,41 +57,64 @@ const HostLineEditor: React.FC<Props> = ({
   };
   return (
     <div className="hostline-editor">
-      <div className="buttonbar">
-        <button
-          type="button"
-          className="button iconWrapper"
-          onClick={onDismiss}
-        >
-          <img src={BackIcon} alt="back" />
-        </button>
-        <div className="buttonbar2">
-          <button type="button" className="button iconWrapper" onClick={remove}>
-            <img src={DeleteIcon} alt="delete" />
-          </button>
-          <button type="button" className="button iconWrapper" onClick={save}>
-            <img src={SaveIcon} alt="save" />
-          </button>
-        </div>
-      </div>
-      <TextInputStyled
-        label="Domain"
-        value={current.domain}
-        onChange={onDomainChange}
+      <ListItem
+        title="Domain"
+        // subtitle=""
+        ItemEndComponent={
+          <InputText
+            placeholder="example.com"
+            width="300px"
+            value={current.domain}
+            onChange={onDomainChange}
+          />
+        }
       />
-      <TextInputStyled
-        label="Host"
-        value={current.host}
-        onChange={onHostChange}
+      <ListItem
+        title="Host"
+        // subtitle="Target IP-address"
+        ItemEndComponent={
+          <InputText
+            width="300px"
+            placeholder="0.0.0.0"
+            value={current.host}
+            onChange={onHostChange}
+          />
+        }
       />
-      <TextInputStyled
-        label="Comment"
-        value={current.comment}
-        onChange={onCommentChange}
+      <ListItem
+        title="Comment"
+        // subtitle="Target IP-address"
+        ItemEndComponent={
+          <InputText
+            width="300px"
+            placeholder="Comment"
+            value={current.comment}
+            onChange={onCommentChange}
+          />
+        }
       />
-      <div className="element">
-        <CheckBox value={current.enabled} onChange={toggleEnabled} />
-        <div className="text">Enabled</div>
+      <ListItem
+        title="Enabled"
+        // subtitle="Target IP-address"
+        ItemEndComponent={
+          <Checkbox value={current.enabled} onChange={toggleEnabled} />
+        }
+      />
+
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Button
+          style={{ flex: 'auto' }}
+          value="Save"
+          type="success-outline"
+          onClick={onSave}
+        />
+        &nbsp;
+        <Button
+          style={{ flex: 'auto' }}
+          value="Remove"
+          type="danger-outline"
+          onClick={onRemove}
+        />
       </div>
     </div>
   );

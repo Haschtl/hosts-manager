@@ -1,6 +1,6 @@
-.App {
-  text-align: center;
-}
+// .App {
+//   text-align: center;
+// }
 
 .App-logo {
   height: 40vmin;
@@ -10,6 +10,14 @@
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+nav {
+  -webkit-app-region: drag;
+  .app-navbar-list,
+  div {
+    -webkit-app-region: none;
   }
 }
 
@@ -24,9 +32,9 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
+// .App-link {
+//   color: #61dafb;
+// }
 
 @keyframes App-logo-spin {
   from {
@@ -41,25 +49,25 @@
  * @NOTE: Prepend a `~` to css file paths that are in your node_modules
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
-body {
-  position: relative;
-  color: white;
-  height: 100vh;
-  background:black;
-  // background: linear-gradient(
-  //   200.96deg,
-  //   #fedc2a -29.09%,
-  //   #dd5789 51.77%,
-  //   #7a2c9e 129.35%
-  // );
-  font-family: sans-serif;
-  // overflow-y: hidden;
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
-}
+// body {
+//   position: relative;
+//   color: white;
+//   height: 100vh;
+//   background:black;
+//   // background: linear-gradient(
+//   //   200.96deg,
+//   //   #fedc2a -29.09%,
+//   //   #dd5789 51.77%,
+//   //   #7a2c9e 129.35%
+//   // );
+//   // font-family: sans-serif;
+//   // overflow-y: hidden;
+//   // display: flex;
+//   // justify-content: center;
+//   // align-items: center;
+// }
 
-button {
+button.flat {
   background-color: transparent;
   // padding: 10px 20px;
   // border-radius: 10px;
@@ -72,25 +80,132 @@ button {
   cursor: pointer;
   // opacity: 0.9;
 }
+.abs_version {
+  -webkit-app-region: none;
+  z-index: 1;
+
+  position: absolute;
+  color: var(--text);
+  bottom: 12px;
+  margin: auto;
+  margin-bottom: 0px;
+  padding: 0;
+  width: 100%;
+  left: 0px;
+  margin-top: 10px;
+  font-size: 14px;
+  // font-weight: 250;
+  cursor: pointer;
+  transition: filter 0.2s;
+  &:hover {
+    filter: brightness(1.2);
+  }
+  &:active {
+    filter: brightness(0.8);
+  }
+}
+.app-navbar-list-item {
+  z-index: 5;
+}
 
 // button:hover {
 //   transform: scale(1.05);
 //   opacity: 1;
 // }
 
-li {
-  list-style: none;
+// li {
+//   list-style: none;
+// }
+
+// a {
+//   text-decoration: none;
+//   height: fit-content;
+//   width: fit-content;
+//   margin: 10px;
+// }
+
+// a:hover {
+//   opacity: 1;
+//   text-decoration: none;
+// }
+
+.app-navbar-list {
+  // height:100%;
+  // max-height: calc(100vh - 300px);
+  // display: flex;
+  /* move flex-items in column */
+  flex-direction: column;
+}
+.app-navbar-list > :nth-last-child(2) {
+  // margin-top: auto;
+  // position:absolute;
+  // bottom:35px;
+  // z-index: 10;
 }
 
-a {
-  text-decoration: none;
-  height: fit-content;
-  width: fit-content;
-  margin: 10px;
+#close-button {
+  position: sticky;
+  z-index: 10000000;
+  top: 0px;
+  left: 100%;
+  right: 0px;
+  width: 50px;
+  height: 30px;
+  margin-left: auto;
+  text-align: center;
+  background-color: #44444455;
+  // -webkit-app-region: drag;
+  transition: filter 0.2s;
+  cursor: pointer;
+  &:hover {
+    // opacity: 0.8;
+    filter: brightness(1.5);
+    // -webkit-app-region: drag;
+  }
+  div {
+    border-bottom: 2px solid white;
+    height: 50%;
+    width: 10px;
+    margin: auto;
+    pointer-events: none;
+    // -webkit-app-region: drag;
+    // margin-top: 50%;
+  }
 }
 
-a:hover {
-  opacity: 1;
-  text-decoration: none;
+#extra-drag-area {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 30px;
+  -webkit-app-region: drag;
 }
 
+.app-search-dialog {
+  -webkit-app-region: none;
+}
+
+.app-navbar-wrap .app-navbar-list .app-navbar-list-item img {
+  width: 22px;
+  height: 22px;
+  background-color: transparent;
+}
+
+.app-section-container-fg.item-container {
+  background-color: var(--color-button-default);
+  border-radius: 3px;
+
+  transition: all 0.2s;
+  &:hover {
+    background-color: var(--color-button-default-hover);
+    border-radius: 5px;
+    // transform: scale(1.005);
+  }
+  &:active {
+    background-color: var(--color-button-default-active);
+  }
+}
+
+.app-loader-bar {
+  width: 100%;
+}

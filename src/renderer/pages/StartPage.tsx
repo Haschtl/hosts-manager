@@ -1,17 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router';
+import { NavPageContainer, Button, LoaderBar } from 'react-windows-ui';
 
-import Footer from '../components/Footer';
 import { State } from '../store/types';
 import { NotImplemented } from '../components/NotImplemented';
 import { sortHosts } from '../store/selectors';
-import {
-  saveHostsFile,
-  openUserFolder,
-  notify,
-  isElevated,
-} from '../ipc/files';
 import * as actions from '../store/actions';
 import BookMarkIcon from '../../../assets/drawable/ic_collections_bookmark_24dp.svg';
 import AddIcon from '../../../assets/drawable/ic_get_app_24dp.svg';
@@ -24,6 +18,7 @@ import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
 import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
 import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
 import './StartPage.scss';
+import { annotateSources } from '../../shared/helper';
 
 interface HBProps {
   title?: string;
@@ -67,9 +62,6 @@ export const StartHeader: React.FC<HProps> = ({
   redirected,
 }) => {
   const navigate = useNavigate();
-  const navigateVersion = () => {
-    navigate('/version');
-  };
 
   const navigateBlocked = useCallback(
     () => navigate('/list/blocked'),
@@ -93,9 +85,6 @@ export const StartHeader: React.FC<HProps> = ({
           <div className="title">AdAway</div>
           <div className="subtitle">Open Source ad blocker</div>
         </div>
-        <button type="button" className="abs_version" onClick={navigateVersion}>
-          1.0.0
-        </button>
         <div className="abs_buttonbar">
           <HeaderButton
             title={String(blocked)}
@@ -124,15 +113,18 @@ export const StartHeader: React.FC<HProps> = ({
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const StartPage: React.FC<Props> = ({
   active,
-  hosts,
+  sources,
+  sourcesConfig,
   stateIsElevated,
   setElevated,
 }) => {
-  isElevated()
-    .then((v) => {
-      return setElevated(v);
-    })
-    .catch((r) => console.log(r));
+  // window.files
+  //   .isElevated()
+  //   .then((v) => {
+  //     console.log(`Has admin rights: ${v}`);
+  //     return setElevated(v);
+  //   })
+  //   .catch((r) => console.log(r));
   const [updatesAvailable, setUpdatesAvailable] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -147,7 +139,7 @@ const StartPage: React.FC<Props> = ({
       setLoading(false);
       setUpdatesAvailable(true);
     }, 2000);
-    notify('Updating sources');
+    window.files.notify('Updating sources');
   };
   const upgradeSources = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -155,7 +147,7 @@ const StartPage: React.FC<Props> = ({
     setUpdatesAvailable(false);
   };
   const openFolder = () => {
-    openUserFolder();
+    window.files.openUserFolder();
   };
   // const checkHostFile = () => {
   //   // checkBackendService().then((v) => console.log(v));
@@ -168,105 +160,104 @@ const StartPage: React.FC<Props> = ({
   const navigateHelp = useCallback(() => navigate('/help'), [navigate]);
   const navigateSupport = useCallback(() => navigate('/support'), [navigate]);
 
-  const sorted = sortHosts(hosts);
+  const sorted = sortHosts(annotateSources(sources, sourcesConfig));
   return (
-    <div className="page start">
-      <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
-      {!stateIsElevated && (
-        <button
-          type="button"
-          className="button adminWarning"
-          onClick={openFolder}
-        >
-          <div className="adminWarningText">
-            AdAway not running as Admin. Can not write hosts file directly
-          </div>
-        </button>
-      )}
-      <StartHeader
-        active={active}
-        blocked={sorted.blocked.length}
-        redirected={sorted.redirected.length}
-        allowed={sorted.allowed.length}
-      />
-      <div className="content">
-        <button
-          type="button"
-          className="button mainbutton"
-          onClick={() => navigate('/sources')}
-        >
-          <div className="buttonbar">
-            <div className="mainleft">
-              <img src={BookMarkIcon} alt="favorites" />
+    <NavPageContainer animateTransition>
+      <div className="page full start">
+        <NotImplemented
+          onDismiss={hideNotImplemented}
+          isOpen={notImplemented}
+        />
+        {!stateIsElevated && (
+          <button
+            type="button"
+            className="button adminWarning"
+            onClick={openFolder}
+          >
+            <div className="adminWarningText">
+              AdAway not running as Admin. Can not write hosts file directly
             </div>
+          </button>
+        )}
+        <StartHeader
+          active={active}
+          blocked={sorted.blocked.length}
+          redirected={sorted.redirected.length}
+          allowed={sorted.allowed.length}
+        />
+        <div className="page-content">
+          <button
+            type="button"
+            className="button mainbutton"
+            onClick={() => navigate('/sources')}
+          >
+            <div className="buttonbar">
+              <div className="mainleft">
+                <img src={BookMarkIcon} alt="favorites" />
+              </div>
 
-            <div className="maincenter">
-              <div>{`${hosts.categories.length} aktuelle Quellen`}</div>
-              <div>0 veraltete Quellen</div>
+              <div className="maincenter">
+                <div>{`${sourcesConfig.sources.length} aktuelle Quellen`}</div>
+                <div>0 veraltete Quellen</div>
+              </div>
+              <div className="mainright">
+                <Button
+                  icon={<img src={SyncIcon} height="20px" alt="sync" />}
+                  style={{ margin: 1, height: '40px', width: '40px' }}
+                  onClick={updateSources}
+                  value=""
+                  tooltip="Fetch online sources"
+                />
+                <Button
+                  icon={<img src={AddIcon} height="20px" alt="update" />}
+                  style={{ margin: 1, height: '40px', width: '40px' }}
+                  onClick={upgradeSources}
+                  value=""
+                  tooltip="Download updated sources"
+                />
+              </div>
             </div>
-            <div className="mainright">
-              <button
-                type="button"
-                className="button"
-                style={{ margin: 5 }}
-                onClick={updateSources}
+            <div className="update-bar">
+              <div
+                className={`updates-available ${
+                  updatesAvailable ? ' visible' : ''
+                }`}
               >
-                <img src={SyncIcon} alt="sync" />
-              </button>
-              <button
-                type="button"
-                className="button"
-                style={{ margin: 5 }}
-                onClick={upgradeSources}
-              >
-                <img src={AddIcon} alt="add" />
-              </button>
+                Updates available
+              </div>
+              <LoaderBar isLoading={loading} />
             </div>
-          </div>
-          <div className="update-bar">
-            <div
-              className={`updates-available ${
-                updatesAvailable ? ' visible' : ''
-              }`}
-            >
-              Updates available
-            </div>
-            <div className={`progress-bar ${loading ? 'visible' : ''}`}>
-              <div className="border-overlay" />
-              <div className="gradient-overlay" />
-              <div className="bar" />
-            </div>
-          </div>
-        </button>
-        <div className="buttonbar">
-          <HeaderButton
-            subtitle="Show DNS-Request-Protocol"
-            icon={DnsIcon}
-            onClick={navigateDNS}
+          </button>
+          {/* <div className="buttonbar">
+            <HeaderButton
+              subtitle="Show DNS-Request-Protocol"
+              icon={DnsIcon}
+              onClick={navigateDNS}
+            />
+            <HeaderButton
+              subtitle="Show Tips and Help"
+              icon={HelpIcon}
+              onClick={navigateHelp}
+            />
+            <HeaderButton
+              subtitle="Support"
+              icon={FavoriteIcon}
+              onClick={navigateSupport}
+            />
+          </div> */}
+          <Button
+            onClick={() => {
+              window.files.saveHostsFile(sources, sourcesConfig, false);
+            }}
+            value="Export hosts"
           />
-          <HeaderButton
-            subtitle="Show Tips and Help"
-            icon={HelpIcon}
-            onClick={navigateHelp}
-          />
-          <HeaderButton
-            subtitle="Support"
-            icon={FavoriteIcon}
-            onClick={navigateSupport}
-          />
+          <Button onClick={() => {}} value="Reload system hosts" />
+          <Button onClick={() => {}} value="Write system hosts" />
+          <Button onClick={() => {}} value="Toggle AdAway" />
         </div>
-        <button
-          type="button"
-          className="button simple"
-          onClick={() => {
-            saveHostsFile(hosts, false);
-          }}
-        >
-          Export hosts
-        </button>
+        {/* <Footer /> */}
       </div>
-      <Footer />
-    </div>
+    </NavPageContainer>
   );
 };
 const mapDispatchToProps = {
@@ -276,7 +267,8 @@ const mapDispatchToProps = {
 const mapStateToProps = (state: State) => {
   return {
     active: state.app.active,
-    hosts: state.app.hosts,
+    sources: state.app.sources,
+    sourcesConfig: state.app.sourcesConfig,
     stateIsElevated: state.app.isElevated,
   };
 };

@@ -1,12 +1,6 @@
 import { combineReducers } from 'redux';
-import {
-  loadConfig,
-  loadHostsFile,
-  loadSources,
-  saveSources,
-  sourcesExist,
-} from '../ipc/files';
-import { Hosts, Settings } from '../../shared/types';
+import { getUniqueID } from 'shared/helper';
+import { SourceFiles, Settings } from '../../shared/types';
 import { AppState } from './types';
 
 const VERSION = '1.0.0';
@@ -23,26 +17,58 @@ export const initialState: AppState = {
   isElevated: true,
   version: VERSION,
   settings: initialSettings,
-  hosts: { categories: [] },
+  systemHosts: { path: '', lines: [] },
+  sourcesConfig: { sources: [] },
+  sources: { files: [] },
+  firewall: { rules: [] },
+  searchText: '',
 };
 export const loadState = async () => {
-  const config = await loadConfig();
-  const exists = await sourcesExist();
-  let sources: Hosts | undefined;
+  const config = await window.files.loadConfig();
+  const exists = await window.files.sourcesExist();
+  let sources: SourceFiles | undefined;
+  const systemHosts = await window.files.loadHostsFile();
   if (exists) {
-    sources = await loadSources();
-    if (sources) {
-      saveSources(sources);
-    }
-  } else {
-    sources = await loadHostsFile();
+    sources = await window.files.loadSources();
+    // if (sources) {
+    //   window.files.saveSources(sources);
+    // }
   }
+  const sourcesConfig = await window.files.loadSourcesConfig();
+  sources?.files.forEach((f) => {
+    const c = sourcesConfig?.sources.find((s) => s.location === f.path);
+    if (c === undefined) {
+      sourcesConfig?.sources.push({
+        applyRedirects: false,
+        comment: 'Auto-imported',
+        enabled: true,
+        format: 'block',
+        label: f.path,
+        lastChange: new Date(Date.now()).toString(),
+        location: f.path,
+        type: 'file',
+        url: undefined,
+        id: getUniqueID(sourcesConfig),
+      });
+    }
+  });
+  sourcesConfig?.sources.forEach((sc) => {
+    const f = sources?.files.find((s) => s.path === sc.location);
+    if (f === undefined) {
+      const id = sc.label;
+      sources?.files.push({ path: `./sources/${id}.hosts`, lines: [] });
+    }
+  });
+  const rules = await window.firewall.rules.get();
   return {
     active: false,
     version: VERSION,
     settings: { ...config, ...initialSettings },
-    hosts: sources !== undefined ? sources : { categories: [] },
-  } as AppState;
+    firewall: { rules },
+    sources,
+    systemHosts,
+    sourcesConfig,
+  } as Partial<AppState>;
 };
 
 const appReducer = (
@@ -55,6 +81,8 @@ const appReducer = (
       return { ...state, ...action.payload.state };
     case 'setActive':
       return { ...state, active: action.payload.value };
+    case 'setSearchText':
+      return { ...state, searchText: action.payload.text };
     case 'setElevated':
       return { ...state, isElevated: action.payload.value };
     case 'setSettings':
@@ -65,58 +93,88 @@ const appReducer = (
     case 'resetSettings':
       return { ...state, settings: initialSettings };
 
-    case 'setHostCategory':
-      state.hosts.categories[action.payload.idx] = action.payload.category;
-      return { ...state, hosts: { categories: state.hosts.categories } };
-    case 'rmHostCategory':
-      state.hosts.categories.splice(action.payload.idx, 1);
+    case 'setHostsFile':
+      idx = state.sources.files.findIndex(
+        (f) => f.path === action.payload.file.path
+      );
+      if (idx === -1) {
+        state.sources.files.push(action.payload.file);
+      } else {
+        state.sources.files[idx] = action.payload.file;
+      }
+      return { ...state, sources: { files: state.sources.files } };
+    case 'setSourceConfig':
+      idx = state.sourcesConfig.sources.findIndex(
+        (sc) => sc.id === action.payload.config.id
+      );
+      if (idx === -1) {
+        state.sourcesConfig.sources.push(action.payload.config);
+      } else {
+        state.sourcesConfig.sources[idx] = action.payload.config;
+      }
       return {
         ...state,
-        hosts: {
-          categories: state.hosts.categories,
+        sourcesConfig: { sources: state.sourcesConfig.sources },
+      };
+
+    case 'rmSource':
+      idx = state.sourcesConfig.sources.findIndex(
+        (sc) => sc.id === action.payload.id
+      );
+      if (idx !== -1) {
+        const fileIdx = state.sources.files.findIndex(
+          (f) => f.path === state.sourcesConfig.sources[idx].location
+        );
+        state.sourcesConfig.sources.splice(idx, 1);
+      }
+      return {
+        ...state,
+        sources: {
+          files: state.sources.files,
         },
       };
-    case 'addHostCategory':
-      state.hosts.categories.push(action.payload.category);
+    case 'addSource':
+      state.sourcesConfig.sources.push(action.payload.config);
       return {
         ...state,
-        hosts: { categories: state.hosts.categories },
+        sources: { files: state.sources.files },
       };
 
     case 'setHostsLine':
-      idx = state.hosts.categories.indexOf(action.payload.category);
-      state.hosts.categories[idx].content.push(action.payload.line);
-      state.hosts.categories[idx].content[action.payload.idx] =
-        action.payload.line;
-      state.hosts.categories[idx].content = [
-        ...state.hosts.categories[idx].content,
-      ];
-      // _category.content = [..._category.content];
-      state.hosts.categories[idx] = { ...state.hosts.categories[idx] };
-      console.log(state.hosts.categories);
+      idx = state.sources.files.findIndex(
+        (f) => f.path === action.payload.file.path
+      );
+      // state.sources.files[idx].lines.push(action.payload.line);
+      state.sources.files[idx].lines[action.payload.idx] = action.payload.line;
+      state.sources.files[idx].lines = [...state.sources.files[idx].lines];
+      state.sources.files[idx] = { ...state.sources.files[idx] };
+      console.log(state.sources.files);
       return {
         ...state,
-        hosts: {
-          categories: state.hosts.categories,
+        sources: {
+          files: state.sources.files,
         },
       };
     case 'rmHostsLine':
-      idx = state.hosts.categories.indexOf(action.payload.category);
-      state.hosts.categories[idx].content.push(action.payload.line);
-      state.hosts.categories[idx].content.splice(action.payload.idx, 1);
-      state.hosts.categories[idx] = { ...state.hosts.categories[idx] };
+      idx = state.sources.files.findIndex(
+        (f) => f.path === action.payload.file.path
+      );
+      state.sources.files[idx].lines.splice(action.payload.idx, 1);
+      state.sources.files[idx] = { ...state.sources.files[idx] };
       return {
         ...state,
-        hosts: {
-          categories: state.hosts.categories,
+        sources: {
+          files: state.sources.files,
         },
       };
     case 'addHostsLine':
-      idx = state.hosts.categories.findIndex(action.payload.category);
-      state.hosts.categories[idx].content.push(action.payload.line);
+      idx = state.sources.files.findIndex(
+        (f) => f.path === action.payload.file.path
+      );
+      state.sources.files[idx].lines.push(action.payload.line);
       return {
         ...state,
-        hosts: { categories: state.hosts.categories },
+        sources: { files: state.sources.files },
       };
 
     default:

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { NavPageContainer } from 'react-windows-ui';
 
-import Footer from '../components/Footer';
 import { State } from '../store/types';
 import AppIcon from '../../../assets/drawable/icon_foreground.png';
 import PayPalIcon from '../../../assets/drawable/paypal.svg';
@@ -20,47 +20,39 @@ export const openPaypal = () => {
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const VersionPage: React.FC<Props> = () => {
   return (
-    <div className="page version">
-      <div className="background">
-        <div className="textWrapper">
-          <img src={AppIcon} alt="app-icon" />
-          <div className="title">You are up to date</div>
-        </div>
-        <div className="changelog">
-          <div
-            className="subtitle"
-            style={{
-              color: 'var(--white)',
-            }}
-          >
-            Latest changes
+    <NavPageContainer animateTransition>
+      <div className="page full version">
+        <div className="background">
+          <div className="textWrapper">
+            <img src={AppIcon} alt="app-icon" />
+            <div className="title">You are up to date</div>
           </div>
-          <div className="change">- Fix hosts file install</div>
-          <div className="subtitle" style={{ marginTop: 20 }}>
-            Support development
-          </div>
-          <div className="buttonbar">
-            <button
-              type="button"
-              className="button supportButton"
-              onClick={openPaypal}
+          <div className="changelog">
+            <div
+              className="subtitle"
+              style={{
+                color: 'var(--white)',
+              }}
             >
-              <img src={PayPalIcon} alt="paypal" />
-              <div style={{ marginLeft: 5 }}>Spenden</div>
-            </button>
-            <button
-              type="button"
-              className="button supportButton"
-              onClick={openSupportWebsite}
-            >
-              <img src={GithubIcon} alt="github" />
-              <div style={{ marginLeft: 5 }}>Sponsor</div>
-            </button>
+              Latest changes
+            </div>
+            <div className="change">- Fix hosts file install</div>
           </div>
         </div>
+        {/* <Footer /> */}
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href="https://icons8.com/icon/zvzyoB3xqw1m/firewall"
+        >
+          Firewall
+        </a>{' '}
+        icon by{' '}
+        <a target="_blank" rel="noreferrer" href="https://icons8.com">
+          Icons8
+        </a>
       </div>
-      <Footer />
-    </div>
+    </NavPageContainer>
   );
 };
 const mapDispatchToProps = {};

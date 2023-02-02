@@ -1,12 +1,14 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { ListItem, Switch, Dialog } from 'react-windows-ui';
 
 import { State } from '../store/types';
-import { HostsCategory, HostsLine } from '../../shared/types';
+import { HostsFile, HostsLine } from '../../shared/types';
 import HostLineEditor from './HostLineEditor';
 import './ListViewElement.scss';
-import Popup from './Popup';
-import { CheckBox } from './Inputs';
 
 // const portalRoot = document.querySelector('.page');
 type Props = typeof mapDispatchToProps &
@@ -16,15 +18,15 @@ type Props = typeof mapDispatchToProps &
 type OwnProps = {
   idx: number;
   line: HostsLine;
-  category: HostsCategory;
+  file: HostsFile;
   editable?: boolean;
-  setHostsLine(category: HostsCategory, idx: number, line: HostsLine): void;
-  rmHostsLine(category: HostsCategory, idx: number): void;
+  setHostsLine(file: HostsFile, idx: number, line: HostsLine): void;
+  rmHostsLine(file: HostsFile, idx: number): void;
 };
 const ListViewElement: React.FC<Props> = ({
   line,
   idx,
-  category,
+  file,
   rmHostsLine,
   setHostsLine,
   editable,
@@ -36,20 +38,20 @@ const ListViewElement: React.FC<Props> = ({
     }
   };
   const toggleCheckbox = React.useCallback(() => {
-    setHostsLine(category, idx, { ...line, enabled: !line.enabled });
-  }, [category, idx, line, setHostsLine]);
+    setHostsLine(file, idx, { ...line, enabled: !line.enabled });
+  }, [file, idx, line, setHostsLine]);
   const onSave = React.useCallback(
     (_line: HostsLine) => {
       console.log('list-element', _line, idx);
       setIsOpen(false);
-      setHostsLine(category, idx, _line);
+      setHostsLine(file, idx, _line);
     },
-    [setIsOpen, setHostsLine, category, idx]
+    [setIsOpen, setHostsLine, file, idx]
   );
   const onRemove = React.useCallback(() => {
     setIsOpen(false);
-    rmHostsLine(category, idx);
-  }, [rmHostsLine, setIsOpen, category, idx]);
+    rmHostsLine(file, idx);
+  }, [rmHostsLine, setIsOpen, file, idx]);
 
   const onDismiss = React.useCallback(() => {
     setIsOpen(false);
@@ -57,39 +59,47 @@ const ListViewElement: React.FC<Props> = ({
   return (
     <>
       {isOpen === true && (
-        <Popup isOpen={isOpen} onDismiss={onDismiss}>
+        <Dialog
+          isVisible={isOpen}
+          // @ts-ignore
+          style={{ padding: 20 }}
+          onBackdropPress={onDismiss}
+        >
+          <h2 className="app-m-0">Edit</h2>
+          <p>Edit this line</p>
           <HostLineEditor
             line={line}
             onDismiss={onDismiss}
             onSave={onSave}
             onRemove={onRemove}
           />
-        </Popup>
+        </Dialog>
       )}
-      <div className="button list-view-element">
-        {/* // ReactDOM.createPortal(popup, portalRoot || document.body)} */}
-        {/* <Popup
-        isOpen={isOpen}
-        onDismiss={() => {
-          onDismiss();
-        }}
-      >
-        <HostLineEditor
-          line={line}
-          onDismiss={onDismiss}
-          onSave={onSave}
-          onRemove={onRemove}
+      <div onClick={openPopup}>
+        <ListItem
+          ItemEndComponent={
+            editable ? (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{ display: 'flex', height: '100%' }}
+              >
+                <Switch
+                  disabled={!editable}
+                  labelOn="On"
+                  labelOff="Off"
+                  onChange={toggleCheckbox}
+                  defaultChecked={line.enabled}
+                  labelPosition="start"
+                />
+              </div>
+            ) : (
+              <></>
+            )
+          }
+          title={line.domain}
+          subtitle={line.host}
+          info={line.comment}
         />
-      </Popup> */}
-        {editable && (
-          <CheckBox value={line.enabled} onChange={toggleCheckbox} />
-        )}
-        <button type="button" className="list-view-content" onClick={openPopup}>
-          <div className="text">
-            {line.domain ? line.domain : 'example.com'}
-          </div>
-          <div className="host">{line.host ? line.host : '0.0.0.0'}</div>
-        </button>
       </div>
     </>
   );

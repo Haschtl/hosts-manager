@@ -1,13 +1,20 @@
 /* eslint no-console: off */
 
 import {
-  Hosts,
-  HostsCategory,
   HostsFile,
   HostsLine,
+  Source,
   SourceConfig,
+  Sources,
 } from '../../shared/types';
 
+function splitMax(text: string, splitter: string, max: number) {
+  let parts = text.split(splitter).filter((v) => v !== '');
+  if (parts.length > max) {
+    parts = [...parts.slice(0, max - 1), parts.slice(max, -1).join(splitter)];
+  }
+  return parts;
+}
 export function parseLine(line: string, enabled = true): HostsLine {
   if (line.trim().startsWith('#')) {
     if (enabled === true) {
@@ -15,8 +22,8 @@ export function parseLine(line: string, enabled = true): HostsLine {
     }
     return { comment: line, enabled };
   }
-  const split = line.split(' ');
-  if (split.length >= 2 && split.length <= 3 && split[0].includes('.')) {
+  const split = splitMax(line.trim().replace('\t', ' '), ' ', 3);
+  if (split.length >= 2) {
     const host = split[0];
     const domain = split[1];
     let comment: string | undefined;
@@ -30,18 +37,8 @@ export function parseLine(line: string, enabled = true): HostsLine {
 
 export function formatLine(
   line: HostsLine,
-  whitelist: string[],
-  category: SourceConfig
+  whitelist: string[]
 ): string | undefined {
-  // let appendix = {
-  //   // enabled: category.enabled,
-  //   label: category.label,
-  //   format: category.format,
-  //   // type: category.type,
-  //   location: category.location,
-  //   applyRedirects: category.applyRedirects,
-  //   comment: line.comment,
-  // };
   if (line.domain === undefined && line.host === undefined) {
     if (line.comment) {
       return `# ${line.comment}`;
@@ -61,33 +58,10 @@ export function formatLine(
   return text;
 }
 
-export function hostsCategoryToString(
-  category: HostsCategory,
-  whitelist: string[]
-) {
-  // let text = `${annotation_start} <group`;
-  // if (category.label !== undefined) {
-  //   text += ` label="${category.label}"`;
-  // }
-  // if (category.location !== undefined) {
-  //   text += ` location="${category.location}"`;
-  // }
-  // if (category.enabled !== undefined) {
-  //   text += ` enabled="${category.enabled}"`;
-  // }
-  // if (category.format !== undefined) {
-  //   text += ` format="${category.format}"`;
-  // }
-  // if (category.applyRedirects !== undefined) {
-  //   text += ` applyRedirects="${category.applyRedirects}"`;
-  // }
-  // if (category.type !== undefined) {
-  //   text += ` type="${category.type}"`;
-  // }
-  // text += '>\n';
+export function hostsFileToString(source: HostsFile, whitelist: string[]) {
   let text = '';
-  category.content.forEach((l) => {
-    const l2 = formatLine(l, whitelist, category);
+  source.lines.forEach((l) => {
+    const l2 = formatLine(l, whitelist);
     if (l2 !== undefined) {
       text += `${l2}\n`;
     }
@@ -96,13 +70,13 @@ export function hostsCategoryToString(
   return text;
 }
 
-export function formatHosts(hosts: Hosts, ignoreWhitelist = false) {
+export function formatHosts(sources: Sources, ignoreWhitelist = false) {
   let text = '';
   const whitelist: string[] = [];
   if (ignoreWhitelist === false) {
-    hosts.categories.forEach((c) => {
+    sources.forEach((c) => {
       if (c.format === 'allow' && c.enabled) {
-        c.content.forEach((l) => {
+        c.lines.forEach((l) => {
           if (l.enabled && l.domain) {
             whitelist.push(l.domain);
           }
@@ -110,21 +84,21 @@ export function formatHosts(hosts: Hosts, ignoreWhitelist = false) {
       }
     });
   }
-  hosts.categories.forEach((c) => {
+  sources.forEach((c) => {
     if (c.enabled || ignoreWhitelist) {
-      text += `${hostsCategoryToString(c, whitelist)}\n`;
+      text += `${hostsFileToString(c, whitelist)}\n`;
     }
   });
   return text;
 }
 
 export function parseHostsFile(file: string) {
-  const hosts: HostsFile = { lines: [] };
+  const lines: HostsLine[] = [];
   file.split('\n').forEach((line) => {
     if (line.trim() !== '') {
       const hostsLine = parseLine(line);
-      hosts.lines.push(hostsLine);
+      lines.push(hostsLine);
     }
   });
-  return hosts;
+  return lines;
 }

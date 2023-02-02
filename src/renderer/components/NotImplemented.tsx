@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 
+import { Dialog, Button, Alert } from 'react-windows-ui';
 import './NotImplemented.scss';
-import Popup from './Popup';
 
 type Props = { isOpen?: boolean; onDismiss(): void };
 
@@ -10,25 +11,23 @@ export const NotImplemented: React.FC<Props> = ({ isOpen, onDismiss }) => {
     onDismiss();
   }, [onDismiss]);
   return (
-    <Popup isOpen={isOpen} onDismiss={dismiss}>
-      <div className="not-implemented">
-        <div>This feature is not implemented</div>
-        <button
-          type="button"
-          className="button"
+    <Alert
+      isVisible={isOpen}
+      // @ts-ignore
+      style={{ padding: 20 }}
+      onBackdropPress={dismiss}
+      title="Not implemented"
+      message="This feature is currently not implemented"
+    >
+      <Alert.Footer>
+        <Button
+          style={{ flex: 'auto' }}
+          value="Confirm"
+          type="primary"
           onClick={dismiss}
-          style={{
-            width: 80,
-            height: 30,
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: 50,
-          }}
-        >
-          <div>Close</div>
-        </button>
-      </div>
-    </Popup>
+        />
+      </Alert.Footer>
+    </Alert>
   );
 };
 

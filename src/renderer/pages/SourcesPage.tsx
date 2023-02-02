@@ -1,55 +1,55 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router';
+import { NavPageContainer, CommandBar } from 'react-windows-ui';
 
-import { Header } from '../components/Header';
 import { State } from '../store/types';
 import * as actions from '../store/actions';
 import SourceListElement from '../components/SourceListElement';
-import AddIcon from '../../../assets/drawable/ic_add_black_24px.svg';
 import './SourcesPage.scss';
-
-type HProps = {
-  children?: React.ReactNode;
-};
-const SourcesHeader: React.FC<HProps> = () => {
-  return (
-    <Header>
-      <div className="text">Hosts-Sources</div>
-      <div className="buttonwrapper" />
-    </Header>
-  );
-};
+import { getSource, getSourceConfig } from '../../shared/helper';
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 
-const SourcesPage: React.FC<Props> = ({ hosts }) => {
+const SourcesPage: React.FC<Props> = ({ sources, sourcesConfig }) => {
   const navigate = useNavigate();
-  const addSource = () => {
+  const addSource = React.useCallback(() => {
     navigate('/editsource', {
       state: {
         idx: -1,
       },
     });
-  };
+  }, [navigate]);
   return (
-    <div className="page sources-page">
-      <SourcesHeader />
-      <div className="content">
-        <div className="list">
-          {hosts.categories.map((s, idx) => (
-            <SourceListElement
-              source={s}
-              idx={idx}
-              key={`category${s.label}`}
-            />
-          ))}
+    <NavPageContainer animateTransition>
+      <div className="page sources-page">
+        <h1>Sources</h1>
+        <CommandBar>
+          {/* @ts-ignore */}
+          <CommandBar.Button
+            value="New"
+            onClick={addSource}
+            icon={<i className="icons10-plus color-primary" />}
+          />
+        </CommandBar>
+        <p>
+          Include hosts-files from multiple locations. Each hosts-file is one
+          group.
+        </p>
+        <div className="content">
+          <div className="list">
+            {sourcesConfig.sources.map((c) => (
+              <SourceListElement
+                source={getSource(c, sources)}
+                config={c}
+                key={`source${c.label}`}
+              />
+            ))}
+          </div>
         </div>
-        <button type="button" className="floating-button" onClick={addSource}>
-          <img src={AddIcon} alt="add" />
-        </button>
       </div>
-    </div>
+    </NavPageContainer>
   );
 };
 
@@ -60,6 +60,6 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state: State) => {
-  return { hosts: state.app.hosts };
+  return { sources: state.app.sources, sourcesConfig: state.app.sourcesConfig };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(SourcesPage);

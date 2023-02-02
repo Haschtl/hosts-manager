@@ -11,13 +11,13 @@
     }
   }
   .start-header {
-
     -webkit-app-region: drag;
 
     padding-bottom: 60px;
     padding-top: 50px;
     // background-color: var(--primary);
     display: flex;
+    max-height: 200px;
     flex-direction: row;
     align-items: center;
     // margin-bottom: 80px;
@@ -31,7 +31,6 @@
       background-color: var(--dark);
     }
     .textWrapper {
-
       display: flex;
       align-content: flex-start;
       justify-content: flex-start;
@@ -50,7 +49,6 @@
       }
     }
     .iconwrapper {
-
       max-width: 20%;
       width: 20%;
       aspect-ratio: 1;
@@ -63,46 +61,34 @@
         width: 100%;
         height: 100%;
       }
-    }
-    .abs_version {
-      -webkit-app-region: none;
-
-      position: absolute;
-      color: var(--text);
-      top: 10px;
-      right: 10px;
-      font-size: 17px;
-      // font-weight: 250;
-      cursor: pointer;
-      transition: filter 0.2s;
-      &:hover {
-        filter: brightness(1.2);
-      }
-      &:active {
-        filter: brightness(0.8);
-      }
+      max-height: 150px;
+      max-width: 150px;
     }
     .abs_buttonbar {
-
       -webkit-app-region: none;
       position: absolute;
       bottom: -50px;
-      width: 100%;
+      width: 80%;
+      transform: translateX(12%);
       display: flex;
       flex-direction: row;
       justify-content: space-evenly;
+      gap: 20px;
     }
   }
 
-  .content {
+  .page-content {
     // display: flex;
     // flex: 1;
     // align-content: center;
     // justify-content: center;
     // flex-direction: column;
-    margin-left: 2%;
+    width: 80%;
+    transform: translateX(12%);
+
+    // margin-left: 2%;
     margin-top: 80px;
-    margin-right: 2%;
+    // margin-right: 2%;
     // margin-bottom: 20px;
     .mainbutton {
       // height: 40px;
@@ -111,6 +97,7 @@
       // width: 99%;
       background-color: var(--darker);
       border-radius: 8px;
+      width: 100%;
       justify-content: center;
       align-items: center;
       display: flex;
@@ -155,7 +142,7 @@
       overflow: hidden;
       .update-bar {
         position: absolute;
-        bottom: 10px;
+        bottom: -10px;
         width: 100%;
         .updates-available {
           font-size: 12px;
@@ -237,7 +224,7 @@
   }
   .headerbutton {
     display: flex;
-    width: 150px;
+    width: 100%;
     margin-top: 20px;
     background: var(--darker);
     border-radius: 8px;
@@ -262,6 +249,7 @@
     .content {
       margin-top: 20px;
       margin-bottom: 10px;
+      // width:100%;
     }
   }
 }

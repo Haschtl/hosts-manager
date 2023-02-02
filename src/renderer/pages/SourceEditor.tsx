@@ -1,176 +1,296 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router';
+import {
+  NavPageContainer,
+  CommandBar,
+  InputText,
+  Select,
+  Button,
+  Switch,
+} from 'react-windows-ui';
 
-import { Header } from '../components/Header';
 import { State } from '../store/types';
-import { HostsCategory } from '../../shared/types';
 import * as actions from '../store/actions';
 import HostsFileEditor from '../components/HostsFileEditor';
-import { SwitchStyled, TextInputStyled } from '../components/Inputs';
 import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
 import SaveIcon from '../../../assets/drawable/baseline_check_24.svg';
+import Breadcrumbs from '../components/Breadcrumbs';
+import ListItem from '../components/ListItem';
 import './SourceEditor.scss';
-
-type HProps = {
-  onSave(): void;
-  onRemove(): void;
-};
-const SourceEditorHeader: React.FC<HProps> = ({ onSave, onRemove }) => {
-  return (
-    <Header backPage="/sources">
-      <div className="text">Edit source</div>
-      <div className="buttonwrapper">
-        <button type="button" className="button" onClick={onRemove}>
-          <img src={DeleteIcon} alt="delete" />
-        </button>
-        <button type="button" className="button" onClick={onSave}>
-          <img src={SaveIcon} alt="save" />
-        </button>
-      </div>
-    </Header>
-  );
-};
+import { HostsFile, SourceConfig } from '../../shared/types';
+import { getSource, getUniqueID } from '../../shared/helper';
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const SourceEditor: React.FC<Props> = ({
-  rmHostCategory,
-  setHostCategory,
-  addHostCategory,
-  hosts,
+  rmSource,
+  setHostsFile,
+  addSource,
+  sourcesConfig,
+  sources,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  let idx = -1;
-  let source: HostsCategory | undefined;
-  if (location.state?.idx !== undefined) {
-    idx = Number(location.state.idx);
-    source = hosts.categories[idx];
+  let id = -1;
+  let sourceConfig: SourceConfig | undefined;
+  let hosts: HostsFile | undefined;
+  if (location.state?.id !== undefined) {
+    id = Number(location.state.id);
+    sourceConfig = sourcesConfig.sources.find((s) => s.id === id);
+    if (sourceConfig) {
+      hosts = getSource(sourceConfig, sources);
+    }
   }
-  const [category, setCategory] = React.useState<HostsCategory>(
-    source || {
+  const [config, setConfig] = React.useState<SourceConfig>(
+    sourceConfig || {
       applyRedirects: false,
-      content: [],
       enabled: true,
       format: 'block',
       label: '',
       type: 'url',
+      location: '',
+      id: getUniqueID(sourcesConfig),
+    }
+  );
+  const [hostsFile, setHostsFile2] = React.useState<HostsFile>(
+    hosts || {
+      lines: [],
+      path: '',
     }
   );
 
-  const onSave = React.useCallback(() => {
-    if (idx < 0) {
-      addHostCategory(category);
-    } else {
-      setHostCategory(idx, category);
-    }
-    navigate('/sources');
-  }, [navigate, addHostCategory, idx, setHostCategory, category]);
+  // const onSave = React.useCallback(() => {
+  //   if (idx < 0) {
+  //     addSource(config);
+  //   } else {
+  //     setHostsFile(idx, config);
+  //   }
+  //   navigate('/sources');
+  // }, [navigate, addSource, idx, setHostsFile, config]);
   const onRemove = React.useCallback(() => {
-    rmHostCategory(idx);
+    rmSource(id);
     navigate('/sources');
-  }, [idx, navigate, rmHostCategory]);
+  }, [id, navigate, rmSource]);
   const onLabelChange = React.useCallback(
-    (value: string) => {
-      setCategory({ ...category, label: value });
+    (e: any) => {
+      setConfig({ ...config, label: e.target.value });
     },
-    [category]
+    [config]
   );
   const onTypeChange = React.useCallback(
-    (value: boolean) => {
-      setCategory({ ...category, type: !value ? 'file' : 'url' });
+    (value: 'url' | 'file') => {
+      setConfig({ ...config, type: value });
     },
-    [category]
+    [config]
   );
   const onFormatChange = React.useCallback(
-    (value: boolean) => {
-      setCategory({ ...category, format: !value ? 'allow' : 'block' });
+    (e: 'block' | 'allow') => {
+      setConfig({ ...config, format: e });
     },
-    [category]
+    [config]
   );
-  const onLocationChange = React.useCallback(
-    (value: string) => {
-      setCategory({ ...category, location: value });
+  const unURLChange = React.useCallback(
+    (e: any) => {
+      setConfig({ ...config, url: e.target.value });
     },
-    [category]
+    [config]
   );
   const onApplyRedirectsChange = () => {
-    setCategory({ ...category, applyRedirects: !category.applyRedirects });
+    setConfig({ ...config, applyRedirects: !config.applyRedirects });
   };
-  const editCategory = React.useCallback((c: HostsCategory) => {
-    setCategory({ ...c });
+  const editConfig = React.useCallback((c: SourceConfig) => {
+    setConfig({ ...c });
   }, []);
+  const editHostsFile = React.useCallback((c: HostsFile) => {
+    setHostsFile2({ ...c });
+  }, []);
+
+  const addLine = React.useCallback(() => {
+    hostsFile.lines = [
+      ...hostsFile.lines,
+      { enabled: true, host: '0.0.0.0', domain: 'example.com' },
+    ];
+    setHostsFile2(hostsFile);
+  }, [hostsFile]);
+  const [loading, setLoading] = React.useState(false);
+  const downloadSource = React.useCallback(() => {
+    if (config.url && config.url !== '') {
+      setLoading(true);
+      return window.files
+        .downloadFile(config.url, config.location)
+        .then((b) => {
+          if (b) {
+            setHostsFile(b);
+          }
+          console.log(b);
+          return b;
+        })
+        .catch((e) => console.log(e))
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+    return undefined;
+  }, [config.url, config.location, setHostsFile]);
   return (
-    <div className="page source-editor">
-      <SourceEditorHeader onSave={onSave} onRemove={onRemove} />
-      <div className="wrapper">
-        <TextInputStyled
-          label="Label"
-          value={category?.label}
-          onChange={onLabelChange}
+    <NavPageContainer animateTransition>
+      <div className="page source-editor">
+        <Breadcrumbs
+          title={
+            config.label !== undefined && config.label !== ''
+              ? config.label
+              : 'New'
+          }
+          history={[{ title: 'Sources', to: '/sources' }]}
         />
-        <SwitchStyled
-          label="List format"
-          value={category?.format === 'block'}
-          trueLabel="BLOCK"
-          falseLabel="ALLOW"
-          onChange={onFormatChange}
-        />
-        <SwitchStyled
-          label="Type"
-          value={category?.type === 'url'}
-          trueLabel="URL"
-          falseLabel="FILE"
-          onChange={onTypeChange}
-        />
-        {category?.type === 'url' ? (
-          <>
-            <TextInputStyled
-              label="Location"
-              value={category?.location}
-              onChange={onLocationChange}
+
+        <CommandBar>
+          {/* @ts-ignore */}
+          <CommandBar.Button
+            // onClick={onSave}
+            value="Save"
+            icon={<i className="icons10-checkmark color-success" />}
+          />
+
+          {/* @ts-ignore */}
+          <CommandBar.SplitDivider />
+          {/* @ts-ignore */}
+          <CommandBar.Button
+            onClick={onRemove}
+            value="Delete"
+            icon={<i className="icons10-cross color-danger" />}
+          />
+        </CommandBar>
+        <p>Modify or create a new source.</p>
+
+        <ListItem
+          // imgSrc={BrightnessIcon}
+          title="Label"
+          subtitle="Name of this source group."
+          ItemEndComponent={
+            <InputText
+              placeholder="Source label"
+              value={config?.label}
+              onChange={onLabelChange}
             />
-            <div className="checkBox">
-              <input type="checkbox" onChange={onApplyRedirectsChange} />
-              <div>Apply redirected hosts</div>
-            </div>
-            <div className="info">
-              Allowing redirected hosts may cause security issues. Only use this
-              on a trusted source as it could redirect some sensitive traffic to
-              whatever server it wants
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={{ color: 'var(--primary)' }}>Hosts</div>
-            <div
-              style={{
-                border: '1px solid var(--text)',
-                borderRadius: '5px',
-                height: '600px',
-              }}
-            >
-              <HostsFileEditor
-                category={category}
-                showAddButton
-                editable
-                onEdit={editCategory}
+          }
+        />
+        <ListItem
+          // imgSrc={BrightnessIcon}
+          title="Type"
+          subtitle="Specify if hosts in this list should be blocked or allowed (whitelisted)"
+          ItemEndComponent={
+            <Select
+              defaultValue={config.format} // Optional
+              // @ts-ignore
+              onChange={onFormatChange}
+              data={
+                [
+                  { label: 'Block', value: 'block' },
+                  { label: 'Allow', value: 'allow' },
+                ] as any
+              }
+            />
+          }
+        />
+        <ListItem
+          // imgSrc={BrightnessIcon}
+          title="Source-type"
+          subtitle="Specify the type of this source. Online sources or local files are available."
+          ItemEndComponent={
+            <Select
+              defaultValue={config?.type} // Optional
+              // @ts-ignore
+              onChange={onTypeChange}
+              data={
+                [
+                  { label: 'Online', value: 'url' },
+                  { label: 'Local', value: 'file' },
+                ] as any
+              }
+            />
+          }
+        />
+        <ListItem
+          // imgSrc={SyncIcon}
+          onClick={onApplyRedirectsChange}
+          title="Allow Redirects"
+          subtitle="Specify if redirects are allowed in this group. If not, all IPs will be redirected to 0.0.0.0.
+                Allowing redirected hosts may cause security issues. Only use
+                this on a trusted source as it could redirect some sensitive
+                traffic to whatever server it wants"
+          ItemEndComponent={
+            <Switch
+              disabled={config?.type !== 'url'}
+              labelOn="On"
+              labelOff="Off"
+              onChange={onApplyRedirectsChange}
+              defaultChecked={config.applyRedirects}
+              labelPosition="start"
+            />
+          }
+        />
+        <ListItem
+          // imgSrc={BrightnessIcon}
+          title="Location"
+          subtitle="URL of the online source."
+          ItemEndComponent={
+            <InputText
+              disabled={config?.type !== 'url'}
+              placeholder="URL"
+              value={config?.url}
+              onChange={unURLChange}
+            />
+          }
+        />
+        <ListItem
+          title="Entries"
+          subtitle="Hosts entries of this group"
+          ItemEndComponent={
+            config?.type !== 'url' ? (
+              <Button
+                value="Add"
+                onClick={addLine}
+                // disabled={config?.type === 'url'}
               />
-            </div>
-          </>
-        )}
+            ) : (
+              <Button
+                value="Reload"
+                onClick={downloadSource}
+                isLoading={loading}
+                // disabled={config?.type === 'url'}
+              />
+            )
+          }
+        >
+          <div
+            style={{
+              border: '1px solid var(--text)',
+              borderRadius: '5px',
+              height: '600px',
+            }}
+          >
+            <HostsFileEditor
+              file={hostsFile}
+              // showAddButton
+              editable
+              onEdit={editHostsFile}
+            />
+          </div>
+        </ListItem>
       </div>
-    </div>
+    </NavPageContainer>
   );
 };
 
 const mapDispatchToProps = {
-  rmHostCategory: actions.rmHostCategory,
-  addHostCategory: actions.addHostCategory,
-  setHostCategory: actions.setHostCategory,
+  rmSource: actions.rmSource,
+  addSource: actions.addSource,
+  setHostsFile: actions.setHostsFile,
 };
 
 const mapStateToProps = (state: State) => {
-  return { hosts: state.app.hosts };
+  return { sourcesConfig: state.app.sourcesConfig, sources: state.app.sources };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(SourceEditor);

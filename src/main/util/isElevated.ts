@@ -4,6 +4,7 @@ import process from 'process';
 import util from 'util';
 // import {execa} from 'execa';
 import { exec } from 'child_process';
+import { isAdminUser } from 'node-windows';
 
 const execPromise = util.promisify(exec);
 
@@ -52,4 +53,11 @@ export async function isElevated2() {
 export async function isElevated() {
   return process.platform === 'win32' ? isAdmin() : isRoot();
 }
+
+export async function isElevatedNodeWindows() {
+  return new Promise<boolean>((resolve, reject) => {
+    isAdminUser((_isAdmin) => resolve(_isAdmin));
+  });
+}
+
 export default isElevated2;

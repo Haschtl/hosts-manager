@@ -1,4 +1,14 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import path from 'path';
+
+import {
+  FirewallRule,
+  FirewallRuleO,
+  HostsFile,
+  Settings,
+  SourceConfigFile,
+  SourceFiles,
+} from '../shared/types';
 
 export type Channels =
   | 'ipc-example'
@@ -37,9 +47,152 @@ const electronHandler = {
     invoke(channel: Channels, ...args: unknown[]) {
       return ipcRenderer.invoke(channel, ...args);
     },
+    startDrag: (fileName: string) => {
+      ipcRenderer.send('ondragstart', path.join(process.cwd(), fileName));
+    },
+  },
+};
+
+const darkModeHandler = {
+  toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
+  system: () => ipcRenderer.invoke('dark-mode:system'),
+};
+
+const filesHandler = {
+  // getSystemHostsFile: async (): Promise<Response> => {
+  //   return ipcRenderer.invoke("app:get-system-hosts-file");
+  // };
+
+  // setSystemHostsFile: async (): Promise<Response> => {
+  //   return ipcRenderer.invoke("app:set-system-hosts-file");
+  // };
+  loadConfig: async (): Promise<Partial<Settings> | undefined> => {
+    return ipcRenderer.invoke('app:load-config');
+  },
+  saveConfig: async (config: Settings): Promise<void> => {
+    return ipcRenderer.invoke('app:save-config', config);
+  },
+  loadSourcesConfig: async (): Promise<SourceConfigFile | undefined> => {
+    return ipcRenderer.invoke('app:load-sources-config');
+  },
+  saveSourcesConfig: async (config: SourceConfigFile): Promise<void> => {
+    return ipcRenderer.invoke('app:save-sources-config', config);
+  },
+  loadSources: async (): Promise<SourceFiles | undefined> => {
+    return ipcRenderer.invoke('app:load-sources');
+  },
+  sourcesExist: async (): Promise<boolean> => {
+    return ipcRenderer.invoke('app:sources-exist');
+  },
+  saveSources: async (sources: SourceFiles): Promise<void> => {
+    return ipcRenderer.invoke('app:save-sources', sources);
+  },
+  deleteSources: async (filepath: string): Promise<void> => {
+    return ipcRenderer.invoke('app:delete-sources', filepath);
+  },
+  backupHostsFile: async (): Promise<void> => {
+    return ipcRenderer.invoke('app:backup-hosts-file');
+  },
+  // backupExists : async (): Promise<boolean> => {
+  //   return ipcRenderer.invoke('app:backup-exists');
+  // };
+  loadHostsFile: async (system = true): Promise<HostsFile | undefined> => {
+    return ipcRenderer.invoke('app:load-hosts-file', system);
+  },
+  saveHostsFile: async (
+    sources: SourceFiles,
+    config: SourceConfigFile,
+    system = true
+  ): Promise<void> => {
+    return ipcRenderer.invoke('app:save-hosts-file', sources, config, system);
+  },
+  downloadFile: async (
+    url: string,
+    filepath: string
+  ): Promise<HostsFile | undefined> => {
+    return ipcRenderer.invoke('app:download-file', url, filepath);
+  },
+  openUserFolder: async (): Promise<void> => {
+    return ipcRenderer.invoke('app:open-user-folder');
+  },
+  isElevated: async (): Promise<boolean> => {
+    return ipcRenderer.invoke('app:is-elevated');
+  },
+  notify: async (message: string): Promise<void> => {
+    return ipcRenderer.invoke('app:notify', message);
+  },
+  closeWindow: async (): Promise<void> => {
+    return ipcRenderer.invoke('app:close-window');
+  },
+};
+
+const taskbarHandler = {
+  flash: async (value: boolean) => {
+    if (value) {
+      return ipcRenderer.invoke('taskbar:flash:start');
+    }
+    return ipcRenderer.invoke('taskbar:flash:stop');
+  },
+  progress: async (value: number) => {
+    return ipcRenderer.invoke('taskbar:set-progress', value);
+  },
+  tray: {
+    tooltip: async (value: string) => {
+      return ipcRenderer.invoke('taskbar:tray:tooltip', value);
+    },
+  },
+};
+
+const dnsHandler = {
+  resolve: async (value: string): Promise<string[] | undefined> => {
+    return ipcRenderer.invoke('dns:resolve', value);
+  },
+  lookup: async (
+    value: string
+  ): Promise<{
+    address?: string;
+    family?: number;
+    error: NodeJS.ErrnoException | null;
+  }> => {
+    return ipcRenderer.invoke('dns:lookup', value);
+  },
+};
+const firewallHandler = {
+  rules: {
+    get: async (): Promise<FirewallRule[]> => {
+      return ipcRenderer.invoke('firewall:rules:get');
+    },
+    set: async (newRule: FirewallRuleO) => {
+      return ipcRenderer.invoke('firewall:rules:set', newRule);
+    },
+    new: async (newRule: FirewallRuleO) => {
+      return ipcRenderer.invoke('firewall:rules:new', newRule);
+    },
+    copy: async (newRule: FirewallRuleO) => {
+      return ipcRenderer.invoke('firewall:rules:copy', newRule);
+    },
+    remove: async (newRule: FirewallRuleO) => {
+      return ipcRenderer.invoke('firewall:rules:remove', newRule);
+    },
+    rename: async (newRule: FirewallRuleO) => {
+      return ipcRenderer.invoke('firewall:rules:rename', newRule);
+    },
+    toggle: async (newRule: FirewallRuleO, value: boolean) => {
+      return ipcRenderer.invoke('firewall:rules:toggle', newRule, value);
+    },
   },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
+contextBridge.exposeInMainWorld('darkMode', darkModeHandler);
+contextBridge.exposeInMainWorld('files', filesHandler);
+contextBridge.exposeInMainWorld('taskbar', taskbarHandler);
+contextBridge.exposeInMainWorld('dns', dnsHandler);
+contextBridge.exposeInMainWorld('firewall', firewallHandler);
 
 export type ElectronHandler = typeof electronHandler;
+export type FilesHandler = typeof filesHandler;
+export type TaskbarHandler = typeof taskbarHandler;
+export type DarkModeHandler = typeof darkModeHandler;
+export type DNSHandler = typeof dnsHandler;
+export type FirewallHandler = typeof firewallHandler;

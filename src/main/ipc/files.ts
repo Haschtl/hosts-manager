@@ -4,9 +4,20 @@ import fs from 'fs';
 import http from 'http';
 import { dirname } from 'path';
 import { app } from 'electron';
+import { elevate } from 'node-windows';
 
-import { formatHosts, parseHostsFile } from './hosts_manager';
-import { Hosts, Settings } from '../../shared/types';
+import {
+  formatHosts,
+  hostsFileToString,
+  parseHostsFile,
+} from './hosts_manager';
+import {
+  HostsFile,
+  Settings,
+  SourceConfigFile,
+  SourceFiles,
+} from '../../shared/types';
+import { annotateSources } from '../../shared/helper';
 
 export const userFolder = `${app.getPath('home')}/.adaway`;
 const hostsPath = 'C://windows/system32/drivers/etc/hosts';
@@ -23,6 +34,12 @@ function extendPath(path: string) {
   }
   return path;
 }
+function shortenPath(path: string) {
+  if (path.startsWith(userFolder)) {
+    return path.replace(`${userFolder}/`, './');
+  }
+  return path;
+}
 
 export const downloadFile = (url: string, path = sourcesFolder) => {
   const absPath = extendPath(path);
@@ -31,19 +48,26 @@ export const downloadFile = (url: string, path = sourcesFolder) => {
   } catch {
     fs.mkdirSync(absPath);
   }
+  try {
+    const file = fs.createWriteStream(absPath);
+    http.get(url, (response: any) => {
+      response.pipe(file);
 
-  const file = fs.createWriteStream(absPath);
-  http.get(url, (response: any) => {
-    response.pipe(file);
-
-    // after download completed close filestream
-    file.on('finish', () => {
-      file.close();
-      console.log('Download Completed');
+      // after download completed close filestream
+      file.on('finish', () => {
+        file.close();
+        console.log('Download Completed');
+      });
     });
-  });
-  file.close();
-  return fs.readFileSync(absPath);
+    file.close();
+    return {
+      path: shortenPath(path),
+      lines: parseHostsFile(fs.readFileSync(absPath).toString()),
+    } as HostsFile;
+  } catch (e) {
+    console.log(e);
+    return undefined;
+  }
 };
 
 export const urlToFilename = (url: string) => {
@@ -71,6 +95,28 @@ export const saveConfig = (config: Settings, path = configPath) => {
   console.log(`Saving settings to ${absPath}`);
   return fs.writeFileSync(absPath, JSON.stringify(config));
 };
+export const loadSourceConfig = (path = sourcesPath) => {
+  const absPath = extendPath(path);
+  console.log(`Loading sources config from ${absPath}`);
+
+  try {
+    fs.accessSync(absPath);
+    return {
+      ...JSON.parse(fs.readFileSync(absPath).toString()),
+    } as SourceConfigFile;
+  } catch {
+    fs.mkdirSync(dirname(absPath));
+    return undefined;
+  }
+};
+export const saveSourceConfig = (
+  config: SourceConfigFile,
+  path = sourcesPath
+) => {
+  const absPath = extendPath(path);
+  console.log(`Saving source config to ${absPath}`);
+  return fs.writeFileSync(absPath, JSON.stringify(config));
+};
 
 export const sourcesExist = (path = sourcesFolder) => {
   const absPath = extendPath(path);
@@ -83,14 +129,15 @@ export const sourcesExist = (path = sourcesFolder) => {
   }
 };
 
-export const saveSourcesInner = (hosts: Hosts, path = sourcesFolder) => {
-  const absPath = extendPath(path);
-  hosts.categories.forEach((h) => {
-    const fpath = `${absPath}${h.label}.host`;
-    fs.writeFileSync(fpath, formatHosts({ categories: [h] }, true));
+export const saveSourcesInner = (hosts: SourceFiles, path = sourcesFolder) => {
+  // const absPath = extendPath(path);
+  hosts.files.forEach((h) => {
+    const fpath = h.path;
+    // const fpath = `${absPath}${h.label}.host`;
+    fs.writeFileSync(fpath, hostsFileToString(h, []));
   });
 };
-export const saveSources = (hosts: Hosts, path = sourcesFolder) => {
+export const saveSources = (hosts: SourceFiles, path = sourcesFolder) => {
   const absPath = extendPath(path);
   console.log(`Saving sources to ${absPath}`);
 
@@ -129,9 +176,12 @@ export function loadHostsFile(system?: boolean | string) {
   try {
     fs.accessSync(path);
     const hostsFile = fs.readFileSync(path);
-    return parseHostsFile(hostsFile.toString());
-  } catch {
-    console.log('error');
+    return {
+      path: shortenPath(path),
+      lines: parseHostsFile(hostsFile.toString()),
+    } as HostsFile;
+  } catch (e) {
+    console.log(e);
     return undefined;
   }
 }
@@ -146,21 +196,23 @@ export const loadSources = (path = sourcesFolder) => {
     const promises = files.map((file: string) => {
       return loadHostsFile(absPath + file);
     });
-    const sources: Hosts = { categories: [] };
-    promises.forEach((h: any) => {
+    const sources: SourceFiles = { files: [] };
+    promises.forEach((h) => {
       if (h) {
-        sources.categories = [...sources.categories, ...h.categories];
+        // console.log(h);
+        sources.files = [...sources.files, h];
       }
     });
     return sources;
-  } catch {
-    console.log('error');
+  } catch (e) {
+    console.log(e);
     return undefined;
   }
 };
 
 export const saveHostsFile = (
-  hosts: Hosts,
+  sources: SourceFiles,
+  config: SourceConfigFile,
   system: boolean | string = true
 ) => {
   let path = hostsPath;
@@ -168,8 +220,12 @@ export const saveHostsFile = (
     path = extendPath(system);
   } else if (!system) {
     path = preHostsPath;
+  } else {
+    elevate('ls', undefined, () => {
+      console.log('wow');
+    });
   }
   console.log(`Saving hosts-file to ${path}`);
-  const h = formatHosts(hosts);
+  const h = formatHosts(annotateSources(sources, config));
   return fs.writeFileSync(path, h);
 };

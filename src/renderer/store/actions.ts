@@ -1,7 +1,12 @@
-import { HostsCategory, HostsLine, Settings } from '../../shared/types';
+import {
+  HostsFile,
+  HostsLine,
+  Settings,
+  SourceConfig,
+} from '../../shared/types';
 import { AppState } from './types';
 
-export const setState = (state: AppState) => ({
+export const setState = (state: Partial<AppState>) => ({
   type: 'setState',
   payload: { state },
 });
@@ -22,34 +27,42 @@ export const resetSettings = () => ({
   payload: {},
 });
 
-export const setHostCategory = (idx: number, category: HostsCategory) => ({
-  type: 'setHostCategory',
-  payload: { idx, category },
+export const setSearchText = (text: string) => ({
+  type: 'setSearchText',
+  payload: { text },
+});
+export const setHostsFile = (file: HostsFile) => ({
+  type: 'setHostsFile',
+  payload: { file },
+});
+export const setSourceConfig = (config: SourceConfig) => ({
+  type: 'setSourceConfig',
+  payload: { config },
 });
 export const setHostsLine = (
-  category: HostsCategory,
+  file: HostsFile,
   idx: number,
   line: HostsLine
 ) => ({
   type: 'setHostsLine',
-  payload: { category, idx, line },
+  payload: { file, idx, line },
 });
 
-export const rmHostsLine = (category: HostsCategory, idx: number) => ({
+export const rmHostsLine = (file: HostsFile, idx: number) => ({
   type: 'setHostsLine',
-  payload: { category, idx },
+  payload: { file, idx },
 });
 
-export const rmHostCategory = (idx: number) => ({
-  type: 'rmHostCategory',
-  payload: { idx },
+export const rmSource = (id: number) => ({
+  type: 'rmSource',
+  payload: { id },
 });
 
-export const addHostCategory = (category: HostsCategory) => ({
-  type: 'addHostCategory',
-  payload: { category },
+export const addSource = (config: SourceConfig) => ({
+  type: 'addSource',
+  payload: { config },
 });
-export const addHostsLine = (category: HostsCategory, line: HostsLine) => ({
+export const addHostsLine = (file: HostsFile, line: HostsLine) => ({
   type: 'setHostsLine',
-  payload: { category, line },
+  payload: { file, line },
 });
