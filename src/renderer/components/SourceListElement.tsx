@@ -16,6 +16,34 @@ const numFormatter = (num: number) => {
   return `${(num / 1000).toFixed(0)}k`;
 };
 
+export function timeSince(date: Date) {
+  const dt = Date.now() - date.getTime();
+  const seconds = Math.floor(dt / 1000);
+
+  let interval = seconds / 31536000;
+
+  if (interval > 1) {
+    return `${Math.floor(interval)} years`;
+  }
+  interval = seconds / 2592000;
+  if (interval > 1) {
+    return `${Math.floor(interval)} months`;
+  }
+  interval = seconds / 86400;
+  if (interval > 1) {
+    return `${Math.floor(interval)} days`;
+  }
+  interval = seconds / 3600;
+  if (interval > 1) {
+    return `${Math.floor(interval)} hours`;
+  }
+  interval = seconds / 60;
+  if (interval > 1) {
+    return `${Math.floor(interval)} minutes`;
+  }
+  return `${Math.floor(interval)} seconds`;
+}
+
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
   OwnProps;
@@ -49,12 +77,22 @@ const SourceListElement: React.FC<Props> = ({
       onClick={onClick}
       title={config?.label}
       subtitle={`${numFormatter(source.lines.length)} hosts ${
-        config?.type === 'url' ? '(Since 3 days up to date)' : ''
+        source.mtime !== undefined
+          ? `(Changed ${timeSince(new Date(source.mtime))} ago)`
+          : ''
       }`}
       ItemEndComponent={
         <Switch defaultChecked={config?.enabled} onChange={toggleSource} />
       }
-    />
+    >
+      {config.comment !== undefined && config.comment !== '' ? (
+        <p className="app-para-light app-mt-10 source-comment">
+          {config.comment}
+        </p>
+      ) : (
+        <></>
+      )}
+    </ListItem>
     // </div>
   );
 };

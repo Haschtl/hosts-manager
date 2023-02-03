@@ -28,20 +28,20 @@ const HostLineEditor: React.FC<Props> = ({
 }) => {
   const [current, setCurrent] = React.useState<HostsLine>(line);
   const onDomainChange = React.useCallback(
-    (text: string) => {
-      setCurrent({ ...current, domain: text });
+    (e: any) => {
+      setCurrent({ ...current, domain: e.target.value });
     },
     [current]
   );
   const onHostChange = React.useCallback(
-    (text: string) => {
-      setCurrent({ ...current, host: text });
+    (e: any) => {
+      setCurrent({ ...current, host: e.target.value });
     },
     [current]
   );
   const onCommentChange = React.useCallback(
-    (text: string) => {
-      setCurrent({ ...current, comment: text });
+    (e: any) => {
+      setCurrent({ ...current, comment: e.target.value });
     },
     [current]
   );
@@ -97,7 +97,7 @@ const HostLineEditor: React.FC<Props> = ({
         title="Enabled"
         // subtitle="Target IP-address"
         ItemEndComponent={
-          <Checkbox value={current.enabled} onChange={toggleEnabled} />
+          <Checkbox defaultChecked={current.enabled} onChange={toggleEnabled} />
         }
       />
 
@@ -106,14 +106,14 @@ const HostLineEditor: React.FC<Props> = ({
           style={{ flex: 'auto' }}
           value="Save"
           type="success-outline"
-          onClick={onSave}
+          onClick={save}
         />
         &nbsp;
         <Button
           style={{ flex: 'auto' }}
           value="Remove"
           type="danger-outline"
-          onClick={onRemove}
+          onClick={remove}
         />
       </div>
     </div>

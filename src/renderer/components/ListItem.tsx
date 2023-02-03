@@ -4,14 +4,17 @@ import './ListItem.scss';
 type IProps = {
   imgSrc?: string;
   icon?: string;
-  title: string;
+  enabled?: boolean;
+  title?: string;
   color?: 'success' | 'danger';
   subtitle?: string;
   ItemEndComponent?: React.ReactNode;
   children?: React.ReactNode;
+  className?: string;
   onClick?(e?: React.MouseEvent): void;
 };
 const ListItem: React.FC<IProps> = ({
+  enabled = true,
   imgSrc,
   icon,
   title,
@@ -19,6 +22,7 @@ const ListItem: React.FC<IProps> = ({
   subtitle,
   children,
   ItemEndComponent,
+  className = 'app-section-container-fg item-container',
   onClick,
 }) => {
   const [rerender, setRerender] = React.useState(false);
@@ -36,8 +40,8 @@ const ListItem: React.FC<IProps> = ({
   }, [onClick, forceRerender]);
   return (
     <div
-      className={`app-section-container-fg item-container ${
-        onClick !== undefined ? 'clickable' : ''
+      className={`${className} ${onClick !== undefined ? 'clickable' : ''} ${
+        enabled ? 'enabled' : 'disabled'
       }`}
       onClick={onClickInternal}
     >

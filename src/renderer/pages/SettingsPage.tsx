@@ -55,9 +55,27 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
     },
     [setAndSaveSettings, settings]
   );
+  const changeBlockedHostOverwrite = React.useCallback(
+    (e: string) => {
+      if (e === 'undefined') {
+        setAndSaveSettings({ ...settings, blockedHostOverwrite: undefined });
+      } else {
+        setAndSaveSettings({ ...settings, blockedHostOverwrite: e });
+      }
+    },
+    [setAndSaveSettings, settings]
+  );
   const toggleAutoUpdates = React.useCallback(
     () =>
       setAndSaveSettings({ ...settings, autoUpdates: !settings.autoUpdates }),
+    [setAndSaveSettings, settings]
+  );
+  const toggleRemoveComments = React.useCallback(
+    () =>
+      setAndSaveSettings({
+        ...settings,
+        removeComments: !settings.removeComments,
+      }),
     [setAndSaveSettings, settings]
   );
   const toggleIpv4 = React.useCallback(
@@ -120,6 +138,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
             <Switch
               labelOn="On"
               labelOff="Off"
+              disabled
               onChange={toggleAutoUpdates}
               defaultChecked={settings.autoUpdates}
               labelPosition="start"
@@ -127,6 +146,47 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
           }
         />
         <h3>Block ADs</h3>
+        <ListItem
+          icon="icons10-undo"
+          title="Overwrite blocked"
+          subtitle="Overwrite the host for blocked domains. 0.0.0.0 is preferable over 127.0.0.1 (see https://github.com/StevenBlack/hosts). "
+          ItemEndComponent={
+            <Select
+              defaultValue={
+                settings.blockedHostOverwrite === undefined
+                  ? 'undefined'
+                  : settings.blockedHostOverwrite
+              } // Optional
+              // @ts-ignore
+              onChange={changeBlockedHostOverwrite}
+              data={
+                [
+                  { label: '0.0.0.0', value: '0.0.0.0' },
+                  { label: '127.0.0.1', value: '127.0.0.1' },
+                  {
+                    label: `No overwrite`,
+                    value: 'undefined',
+                  },
+                ] as any
+              }
+            />
+          }
+        />
+        <ListItem
+          onClick={toggleRemoveComments}
+          icon="icons10-messages"
+          title="Remove comments"
+          subtitle="Remove comments from generated hosts files"
+          ItemEndComponent={
+            <Switch
+              labelOn="On"
+              labelOff="Off"
+              onChange={toggleRemoveComments}
+              defaultChecked={settings.removeComments}
+              labelPosition="start"
+            />
+          }
+        />
         <ListItem
           onClick={toggleIpv4}
           imgSrc={IPv6Icon}
@@ -159,6 +219,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
             <Switch
               labelOn="On"
               labelOff="Off"
+              disabled
               onChange={toggleDiagnostics}
               defaultChecked={settings.diagnostics}
               labelPosition="start"
@@ -173,6 +234,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
           ItemEndComponent={
             <Switch
               labelOn="On"
+              disabled
               labelOff="Off"
               onChange={toggleLogging}
               defaultChecked={settings.logging}

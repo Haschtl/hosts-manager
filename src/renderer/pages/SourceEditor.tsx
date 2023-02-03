@@ -26,9 +26,9 @@ type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const SourceEditor: React.FC<Props> = ({
   rmSource,
   setHostsFile,
-  addSource,
   sourcesConfig,
   sources,
+  setSourceConfig,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,21 +60,38 @@ const SourceEditor: React.FC<Props> = ({
     }
   );
 
-  // const onSave = React.useCallback(() => {
-  //   if (idx < 0) {
-  //     addSource(config);
-  //   } else {
-  //     setHostsFile(idx, config);
-  //   }
-  //   navigate('/sources');
-  // }, [navigate, addSource, idx, setHostsFile, config]);
+  const onSave = React.useCallback(() => {
+    setHostsFile(hostsFile);
+    setSourceConfig(config);
+    navigate('/sources');
+  }, [navigate, setHostsFile, config, hostsFile, setSourceConfig]);
   const onRemove = React.useCallback(() => {
     rmSource(id);
     navigate('/sources');
   }, [id, navigate, rmSource]);
   const onLabelChange = React.useCallback(
     (e: any) => {
-      setConfig({ ...config, label: e.target.value });
+      console.log(sourceConfig);
+      if (
+        sourceConfig?.location === undefined ||
+        sourceConfig?.location === ''
+      ) {
+        const path = `./sources/${e.target.value}.hosts`;
+        setConfig({
+          ...config,
+          label: e.target.value,
+          location: path,
+        });
+        setHostsFile2({ ...hostsFile, path });
+      } else {
+        setConfig({ ...config, label: e.target.value });
+      }
+    },
+    [config, sourceConfig, setHostsFile2, hostsFile]
+  );
+  const onCommentChange = React.useCallback(
+    (e: any) => {
+      setConfig({ ...config, comment: e.target.value });
     },
     [config]
   );
@@ -108,10 +125,10 @@ const SourceEditor: React.FC<Props> = ({
 
   const addLine = React.useCallback(() => {
     hostsFile.lines = [
-      ...hostsFile.lines,
       { enabled: true, host: '0.0.0.0', domain: 'example.com' },
+      ...hostsFile.lines,
     ];
-    setHostsFile2(hostsFile);
+    setHostsFile2({ lines: hostsFile.lines, path: hostsFile.path });
   }, [hostsFile]);
   const [loading, setLoading] = React.useState(false);
   const downloadSource = React.useCallback(() => {
@@ -123,7 +140,6 @@ const SourceEditor: React.FC<Props> = ({
           if (b) {
             setHostsFile(b);
           }
-          console.log(b);
           return b;
         })
         .catch((e) => console.log(e))
@@ -144,11 +160,12 @@ const SourceEditor: React.FC<Props> = ({
           }
           history={[{ title: 'Sources', to: '/sources' }]}
         />
+        <p>Location: {config.location}</p>
 
         <CommandBar>
           {/* @ts-ignore */}
           <CommandBar.Button
-            // onClick={onSave}
+            onClick={onSave}
             value="Save"
             icon={<i className="icons10-checkmark color-success" />}
           />
@@ -173,6 +190,18 @@ const SourceEditor: React.FC<Props> = ({
               placeholder="Source label"
               value={config?.label}
               onChange={onLabelChange}
+            />
+          }
+        />
+        <ListItem
+          // imgSrc={BrightnessIcon}
+          title="Comment"
+          subtitle="A comment describing this group."
+          ItemEndComponent={
+            <InputText
+              placeholder="Comment..."
+              value={config?.comment}
+              onChange={onCommentChange}
             />
           }
         />
@@ -212,38 +241,42 @@ const SourceEditor: React.FC<Props> = ({
             />
           }
         />
-        <ListItem
-          // imgSrc={SyncIcon}
-          onClick={onApplyRedirectsChange}
-          title="Allow Redirects"
-          subtitle="Specify if redirects are allowed in this group. If not, all IPs will be redirected to 0.0.0.0.
+        {config.type === 'url' && (
+          <>
+            <ListItem
+              // imgSrc={SyncIcon}
+              onClick={onApplyRedirectsChange}
+              title="Allow Redirects"
+              subtitle="Specify if redirects are allowed in this group. If not, all IPs will be redirected to 0.0.0.0.
                 Allowing redirected hosts may cause security issues. Only use
                 this on a trusted source as it could redirect some sensitive
                 traffic to whatever server it wants"
-          ItemEndComponent={
-            <Switch
-              disabled={config?.type !== 'url'}
-              labelOn="On"
-              labelOff="Off"
-              onChange={onApplyRedirectsChange}
-              defaultChecked={config.applyRedirects}
-              labelPosition="start"
+              ItemEndComponent={
+                <Switch
+                  disabled={config?.type !== 'url'}
+                  labelOn="On"
+                  labelOff="Off"
+                  onChange={onApplyRedirectsChange}
+                  defaultChecked={config.applyRedirects}
+                  labelPosition="start"
+                />
+              }
             />
-          }
-        />
-        <ListItem
-          // imgSrc={BrightnessIcon}
-          title="Location"
-          subtitle="URL of the online source."
-          ItemEndComponent={
-            <InputText
-              disabled={config?.type !== 'url'}
-              placeholder="URL"
-              value={config?.url}
-              onChange={unURLChange}
+            <ListItem
+              // imgSrc={BrightnessIcon}
+              title="Location"
+              subtitle="URL of the online source."
+              ItemEndComponent={
+                <InputText
+                  disabled={config?.type !== 'url'}
+                  placeholder="URL"
+                  value={config?.url}
+                  onChange={unURLChange}
+                />
+              }
             />
-          }
-        />
+          </>
+        )}
         <ListItem
           title="Entries"
           subtitle="Hosts entries of this group"
@@ -272,9 +305,9 @@ const SourceEditor: React.FC<Props> = ({
             }}
           >
             <HostsFileEditor
-              file={hostsFile}
+              file={config.type === 'url' ? hosts : hostsFile}
               // showAddButton
-              editable
+              editable={config.type === 'file'}
               onEdit={editHostsFile}
             />
           </div>
@@ -286,8 +319,8 @@ const SourceEditor: React.FC<Props> = ({
 
 const mapDispatchToProps = {
   rmSource: actions.rmSource,
-  addSource: actions.addSource,
   setHostsFile: actions.setHostsFile,
+  setSourceConfig: actions.setSourceConfig,
 };
 
 const mapStateToProps = (state: State) => {

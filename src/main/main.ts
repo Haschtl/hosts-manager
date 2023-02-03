@@ -209,8 +209,18 @@ const createWindow = async () => {
   // ipcMain.handle("app:set-system-hosts-file", () => {
   //   return io.setSystemHostsFile();
   // });
+
+  ipcMain.on('ondragstart', (event, filePath) => {
+    event.sender.startDrag({
+      file: path.join(__dirname, filePath),
+      icon: getAssetPath(app.isPackaged, 'icon.png'),
+    });
+  });
   ipcMain.handle('app:load-sources-config', () => {
     return io.loadSourceConfig();
+  });
+  ipcMain.handle('app:import-file', (e, origPath: string, newPath: string) => {
+    return io.importFile(origPath, newPath);
   });
   ipcMain.handle('app:save-sources-config', (e, config) => {
     return io.saveSourceConfig(config);
@@ -224,6 +234,56 @@ const createWindow = async () => {
   ipcMain.handle('app:load-sources', () => {
     return io.loadSources();
   });
+  ipcMain.handle('app:load-profiles', () => {
+    const profiles = io.loadProfiles();
+    if (profiles) {
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: 'Open',
+          type: 'normal',
+          click: () => {
+            if (onlyHide) {
+              mainWindow?.show();
+            } else if (mainWindow === null) {
+              createWindow();
+            }
+          },
+        },
+        {
+          label: 'Quit',
+          // type: 'normal',
+          click: () => {
+            isQuiting = true;
+            app.quit();
+          },
+        },
+        // { label: 'Disable', type: 'radio' },
+        // { label: 'Enable', type: 'radio', checked: true },
+        ...profiles.map((hf, idx) => {
+          return {
+            label: hf.path.replace('./profiles/', '').replace('.hosts', ''),
+            type: 'radio',
+            checked: false,
+            click: () => {
+              io.applyProfile(hf.path);
+            },
+            enabled: true,
+            // commandId: idx,
+            // id: idx,
+          } as Partial<Electron.MenuItem> as Electron.MenuItem;
+        }),
+      ]);
+      tray?.setToolTip('AdAway');
+      tray?.setContextMenu(contextMenu);
+    }
+    return profiles;
+  });
+  ipcMain.handle('app:remove-profile', (e, filepath) => {
+    return io.removeProfile(filepath);
+  });
+  ipcMain.handle('app:apply-profile', (e, filepath) => {
+    return io.applyProfile(filepath);
+  });
   ipcMain.handle('app:sources-exist', () => {
     return io.sourcesExist();
   });
@@ -233,8 +293,8 @@ const createWindow = async () => {
   ipcMain.handle('app:delete-sources', (e, p) => {
     return io.deleteSource(p);
   });
-  ipcMain.handle('app:backup-hosts-file', () => {
-    return io.backupHostsFile();
+  ipcMain.handle('app:backup-hosts-file', (e, filepath) => {
+    return io.backupHostsFile(filepath);
   });
   // ipcMain.handle("app:backup-exists", () => {
   //   return io.backupExists();
@@ -242,9 +302,27 @@ const createWindow = async () => {
   ipcMain.handle('app:load-hosts-file', (e, system) => {
     return io.loadHostsFile(system);
   });
-  ipcMain.handle('app:save-hosts-file', (e, sources, config, system) => {
-    return io.saveHostsFile(sources, config, system);
-  });
+  ipcMain.handle(
+    'app:save-hosts-file',
+    (
+      e,
+      sources,
+      config,
+      system,
+      includeIPv6,
+      hostOverwrite,
+      removeComments
+    ) => {
+      return io.saveHostsFile(
+        sources,
+        config,
+        system,
+        includeIPv6,
+        hostOverwrite,
+        removeComments
+      );
+    }
+  );
   ipcMain.handle('app:download-file', (e, url: string, filepath: string) => {
     return io.downloadFile(url, filepath);
   });
@@ -494,8 +572,8 @@ if (!gotTheLock) {
             app.quit();
           },
         },
-        { label: 'Disable', type: 'radio' },
-        { label: 'Enable', type: 'radio', checked: true },
+        // { label: 'Disable', type: 'radio' },
+        // { label: 'Enable', type: 'radio', checked: true },
       ]);
       tray.setToolTip('AdAway');
       tray.setContextMenu(contextMenu);

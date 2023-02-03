@@ -15,10 +15,11 @@ import { State } from '../store/types';
 // import RecordIcon from '../../../assets/drawable/ic_record_24dp.svg';
 // import SortIcon from '../../../assets/drawable/baseline_sort_by_alpha_24.svg';
 import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
+import { filterAny } from '../components/Search';
 import './DNSPage.scss';
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
-const DNSPage: React.FC<Props> = () => {
+const DNSPage: React.FC<Props> = ({ searchText }) => {
   const [newDNSQueryDialogVisible, setNewDNSQueryDialogVisible] =
     React.useState(false);
   const [domain, setDomain] = React.useState('');
@@ -68,6 +69,7 @@ const DNSPage: React.FC<Props> = () => {
   const clearQueries = React.useCallback(() => {
     setDNSQueries([]);
   }, []);
+  const filteredQueries = dnsQueries.filter(filterAny(searchText));
   return (
     <NavPageContainer animateTransition>
       <Dialog
@@ -144,7 +146,12 @@ const DNSPage: React.FC<Props> = () => {
         </div>
         <TableView
           // @ts-ignore
-          rows={dnsQueries.map((r) => [r.domain, r.ip, r.status, r.creator])}
+          rows={filteredQueries.map((r) => [
+            r.domain,
+            r.ip,
+            r.status,
+            r.creator,
+          ])}
           columns={
             [
               { title: 'Domain' },
@@ -161,6 +168,6 @@ const DNSPage: React.FC<Props> = () => {
 
 const mapDispatchToProps = {};
 const mapStateToProps = (state: State) => {
-  return { active: state.app.active };
+  return { searchText: state.app.searchText };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DNSPage);

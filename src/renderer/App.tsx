@@ -1,5 +1,7 @@
+/* eslint-disable promise/always-return */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable promise/catch-or-return */
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Routes,
   Route,
@@ -11,6 +13,7 @@ import { connect } from 'react-redux';
 // import { motion } from 'framer-motion';
 import {
   AppTheme,
+  LoaderBusy,
   NavBar,
   NavBarLink,
   // NavBarSubMenu,
@@ -45,6 +48,8 @@ import HelpPage from './pages/HelpPage';
 import DNSPage from './pages/DNSPage';
 import SourceEditor from './pages/SourceEditor';
 import FirewallPage from './pages/FirewallPage';
+import ProfilePage from './pages/ProfilePage';
+import Search from './components/Search';
 
 // const pageVariants = {
 //   initial: {
@@ -79,7 +84,6 @@ import FirewallPage from './pages/FirewallPage';
 //     </>
 //   );
 // };
-
 const AppRoutes = () => (
   <Routes key="root">
     {/* <Route element={<AnimationLayout />}> */}
@@ -88,6 +92,8 @@ const AppRoutes = () => (
     <Route path="start" element={<StartPage />} />
     <Route path="version" element={<VersionPage />} />
     <Route path="list/*" element={<ListViewPage />} />
+    <Route path="profile/*" element={<ProfilePage />} />
+    <Route path="system" element={<ProfilePage />} />
     <Route path="settings" element={<SettingsPage />} />
     <Route path="sources" element={<SourcesPage />} />
     <Route path="editsource" element={<SourceEditor />} />
@@ -104,10 +110,16 @@ const AppRoutes = () => (
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 
-const App: React.FC<Props> = ({ setState, darkMode = undefined }) => {
+const App: React.FC<Props> = ({
+  setState,
+  darkMode = undefined,
+  setHostsFile,
+  setSourceConfig,
+}) => {
   // if (darkMode === undefined) {
   //   darkMode = await window.darkMode.toggle();
   // }
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const navigateVersion = () => {
     navigate('/version');
@@ -115,20 +127,77 @@ const App: React.FC<Props> = ({ setState, darkMode = undefined }) => {
   useEffect(() => {
     loadState().then((state) => {
       setState(state);
+      setLoading(false);
       return undefined;
     });
     // .catch((r) => {
     //   console.log(r);
     // });
-  }, [setState]);
+  }, []);
+  const [highlight, setHighlight] = useState(false);
   const closeWindow = useCallback(() => window.files.closeWindow(), []);
+  const onDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(e.dataTransfer);
+    setHighlight(true);
+  }, []);
+  const onDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setHighlight(false);
+  }, []);
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setHighlight(true);
+  }, []);
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setHighlight(false);
+    let id = '';
+    [...e.dataTransfer.files].forEach((f) => {
+      [id] = f.name.split('.');
+      const hostsPath = `./sources/${id}.hosts`;
+      setSourceConfig({
+        applyRedirects: false,
+        comment: 'Dropped',
+        enabled: true,
+        format: 'block',
+        label: id,
+        location: hostsPath,
+        type: 'file',
+        id: -1,
+      });
+      window.files.importFile(f.path, hostsPath).then(() => {
+        window.files.loadHostsFile(hostsPath).then((hf) => {
+          if (hf) {
+            setHostsFile(hf);
+          }
+        });
+      });
+      // setHostsFile({ path: hostsPath, lines: [] });
+    });
+    console.log(e.dataTransfer.files);
+    if (id) {
+      navigate(`/source/${id}`);
+    }
+  }, []);
   return (
     <div
       className={`root ${
         // eslint-disable-next-line no-nested-ternary
         darkMode === undefined ? '' : darkMode ? 'dark-theme' : 'light-theme'
       }`}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
     >
+      <div className={`highlight ${highlight ? 'visible' : 'hidden'}`}>
+        Drop hosts file
+      </div>
       <AppTheme
         // eslint-disable-next-line no-nested-ternary
         scheme={darkMode === undefined ? 'system' : darkMode ? 'dark' : 'light'}
@@ -137,10 +206,13 @@ const App: React.FC<Props> = ({ setState, darkMode = undefined }) => {
         onColorChange={() => {}}
         onSchemeChange={() => {}}
       />
+      <div id="extra-drag-area">
+        <Search />
+      </div>
       {/* <button type="button" id="close-button" onClick={closeWindow}>
         <div />
       </button> */}
-      <div id="extra-drag-area" />
+      <LoaderBusy isLoading={loading} display="overlay" />
       <NavBar
         collapsed
         title="AdAway"
@@ -304,6 +376,8 @@ const mapDispatchToProps = {
   setState: actions.setState,
   setElevated: actions.setElevated,
   setSearchText: actions.setSearchText,
+  setSourceConfig: actions.setSourceConfig,
+  setHostsFile: actions.setHostsFile,
 };
 // export default App;
 const mapStateToProps = (state: State) => {

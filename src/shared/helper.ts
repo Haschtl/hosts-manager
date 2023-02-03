@@ -50,3 +50,15 @@ export function annotateSources(
 }
 
 export default annotateSources;
+
+export function hostsFile2sources(file: HostsFile) {
+  return [
+    {
+      applyRedirects: true,
+      enabled: true,
+      format: 'block',
+      id: -1,
+      ...file,
+    },
+  ] as Sources;
+}

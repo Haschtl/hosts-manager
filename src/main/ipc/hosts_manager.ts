@@ -8,6 +8,19 @@ import {
   Sources,
 } from '../../shared/types';
 
+function isIP(text: string) {
+  if (text.split('.').length === 4 || text.split(':').length >= 3) {
+    return true;
+  }
+  return false;
+}
+function isDomain(text: string) {
+  if (text.split('.').length >= 1 && !text.trim().includes(' ')) {
+    return true;
+  }
+  return false;
+}
+
 function splitMax(text: string, splitter: string, max: number) {
   let parts = text.split(splitter).filter((v) => v !== '');
   if (parts.length > max) {
@@ -25,22 +38,30 @@ export function parseLine(line: string, enabled = true): HostsLine {
   const split = splitMax(line.trim().replace('\t', ' '), ' ', 3);
   if (split.length >= 2) {
     const host = split[0];
-    const domain = split[1];
-    let comment: string | undefined;
-    if (split.length === 3 && split[2].startsWith('#')) {
-      comment = split.slice(2).join(' ').replace('#', '');
+    if (isIP(host)) {
+      const domain = split[1];
+      let comment: string | undefined;
+      if (split.length === 3 && split[2].startsWith('#')) {
+        comment = split.slice(2).join(' ').replace('#', '');
+      }
+      return { host, domain, comment, enabled };
     }
-    return { host, domain, comment, enabled };
+    return { comment: line, enabled: false };
+  }
+  if (split.length === 1 && isDomain(split[0])) {
+    return { domain: split[0], enabled };
   }
   return { comment: line.trim().replace('#', ''), enabled };
 }
 
 export function formatLine(
   line: HostsLine,
-  whitelist: string[]
+  whitelist: string[],
+  hostOverwrite?: string,
+  removeComments = false
 ): string | undefined {
   if (line.domain === undefined && line.host === undefined) {
-    if (line.comment) {
+    if (!removeComments && line.comment) {
       return `# ${line.comment}`;
     }
     return undefined;
@@ -48,20 +69,38 @@ export function formatLine(
   if (line.domain === undefined || whitelist.indexOf(line.domain) >= 0) {
     return undefined;
   }
-  let text = `${line.host} ${line.domain}`;
-  if (line.comment) {
+  let host;
+  if (
+    hostOverwrite === undefined ||
+    !['0.0.0.0', '127.0.0.1', 'localhost'].includes(line.host!)
+  ) {
+    host = line.host;
+  } else {
+    host = hostOverwrite;
+  }
+  if (host === undefined) {
+    host = '0.0.0.0';
+  }
+  let text = `${host} ${line.domain}`;
+
+  if (!removeComments && line.comment) {
     text += ` # ${line.comment}`;
   }
-  if (line.enabled === false) {
+  if (!removeComments && line.enabled === false) {
     text = `# ${text}`;
   }
   return text;
 }
 
-export function hostsFileToString(source: HostsFile, whitelist: string[]) {
+export function hostsFileToString(
+  lines: HostsLine[],
+  whitelist: string[],
+  hostOverwrite?: string,
+  removeComments = false
+) {
   let text = '';
-  source.lines.forEach((l) => {
-    const l2 = formatLine(l, whitelist);
+  lines.forEach((l) => {
+    const l2 = formatLine(l, whitelist, hostOverwrite, removeComments);
     if (l2 !== undefined) {
       text += `${l2}\n`;
     }
@@ -70,27 +109,27 @@ export function hostsFileToString(source: HostsFile, whitelist: string[]) {
   return text;
 }
 
-export function formatHosts(sources: Sources, ignoreWhitelist = false) {
-  let text = '';
-  const whitelist: string[] = [];
-  if (ignoreWhitelist === false) {
-    sources.forEach((c) => {
-      if (c.format === 'allow' && c.enabled) {
-        c.lines.forEach((l) => {
-          if (l.enabled && l.domain) {
-            whitelist.push(l.domain);
-          }
-        });
-      }
-    });
-  }
-  sources.forEach((c) => {
-    if (c.enabled || ignoreWhitelist) {
-      text += `${hostsFileToString(c, whitelist)}\n`;
-    }
-  });
-  return text;
-}
+// export function formatHosts(sources: Sources, ignoreWhitelist = false) {
+//   let text = '';
+//   const whitelist: string[] = [];
+//   if (ignoreWhitelist === false) {
+//     sources.forEach((c) => {
+//       if (c.format === 'allow' && c.enabled) {
+//         c.lines.forEach((l) => {
+//           if (l.enabled && l.domain) {
+//             whitelist.push(l.domain);
+//           }
+//         });
+//       }
+//     });
+//   }
+//   sources.forEach((c) => {
+//     if (c.enabled || ignoreWhitelist) {
+//       text += `${hostsFileToString(c, whitelist)}\n`;
+//     }
+//   });
+//   return text;
+// }
 
 export function parseHostsFile(file: string) {
   const lines: HostsLine[] = [];
@@ -101,4 +140,38 @@ export function parseHostsFile(file: string) {
     }
   });
   return lines;
+}
+
+export function mergeSources(sources: Sources, includeIPv6: boolean) {
+  const entries: HostsLine[] = [];
+  const domains: string[] = [];
+  const blockSources = sources.filter((s) => s.enabled && s.format === 'block');
+  const allowSources = sources.filter((s) => s.enabled && s.format === 'allow');
+  const whiteList = allowSources
+    .map((s) => s.lines)
+    .flat()
+    .map((l) => l.domain);
+  blockSources.forEach((c) => {
+    if (c.enabled) {
+      c.lines.forEach((l) => {
+        if (domains.includes(l.domain!)) {
+          // console.log(`Found duplicate: ${l.domain}`);
+        } else if (whiteList.includes(l.domain!)) {
+          console.log(`Skipping whitelisted entry: ${l.domain}`);
+        } else if (
+          c.type === 'url' &&
+          !c.applyRedirects &&
+          ['0.0.0.0', '127.0.0.1'].includes(l.host!)
+        ) {
+          console.log(
+            `Skipping entry, because applyRedirects is disabled: ${l.domain}`
+          );
+        } else if (!includeIPv6 || !l.host?.includes(':')) {
+          domains.push(l.domain!);
+          entries.push(l);
+        }
+      });
+    }
+  });
+  return entries;
 }

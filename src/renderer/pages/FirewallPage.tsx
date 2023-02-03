@@ -11,6 +11,7 @@ import ListItem from '../components/ListItem';
 // import SortIcon from '../../../assets/drawable/baseline_sort_by_alpha_24.svg';
 // import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
 import './FirewallPage.scss';
+import { filterAny } from '../components/Search';
 // import { FirewallRule } from '../../shared/types';
 // import { NotImplemented } from '../components/NotImplemented';
 
@@ -22,7 +23,11 @@ type LProps = typeof mapDispatchToProps &
   OwnProps;
 type HProps = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 
-const DNSListPageFC: React.FC<LProps> = ({ rules, filter }) => {
+const DNSListPageFC: React.FC<LProps> = ({ rules, filter, searchText }) => {
+  const filteredRules = rules
+    .filter((v) => v.Direction === filter)
+    .filter(filterAny(searchText));
+
   return (
     <NavPageContainer animateTransition>
       {/* <NotImplemented isOpen={notImplemented} onDismiss={hideNotImplemented} /> */}
@@ -54,18 +59,16 @@ const DNSListPageFC: React.FC<LProps> = ({ rules, filter }) => {
         ) : (
           <TableView
             rows={
-              rules
-                .filter((v) => v.Direction === filter)
-                .map((r) => [
-                  r.Action,
-                  r.Enabled,
-                  // r.DisplayGroup,
-                  // r.Profile,
-                  r.DisplayName,
-                  r.Description,
-                  r.Profile,
-                  // r.PolicyStoreSource,
-                ]) as any
+              filteredRules.map((r) => [
+                r.Action,
+                r.Enabled,
+                // r.DisplayGroup,
+                // r.Profile,
+                r.DisplayName,
+                r.Description,
+                r.Profile,
+                // r.PolicyStoreSource,
+              ]) as any
             }
             columns={
               [
@@ -86,7 +89,7 @@ const DNSListPageFC: React.FC<LProps> = ({ rules, filter }) => {
   );
 };
 
-const DNSHomePageFC: React.FC<HProps> = ({ rules }) => {
+const DNSHomePageFC: React.FC<HProps> = ({ rules, searchText }) => {
   const navigate = useNavigate();
   const navigateInbound = React.useCallback(() => {
     navigate('/firewall/inbound');
@@ -131,7 +134,7 @@ const DNSHomePageFC: React.FC<HProps> = ({ rules }) => {
 
 const mapDispatchToProps = {};
 const mapStateToProps = (state: State) => {
-  return { rules: state.app.firewall.rules };
+  return { rules: state.app.firewall.rules, searchText: state.app.searchText };
 };
 export const DNSHomePage = connect(
   mapStateToProps,

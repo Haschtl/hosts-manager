@@ -7,7 +7,6 @@ export function lookup(hostname: string) {
     family: number;
   }>((_resolve, reject) => {
     dns.lookup(hostname, (error, address, family) => {
-      console.log(`Address: ${address}, family: IPv${family}`);
       _resolve({ error, address, family });
     });
   });
@@ -17,7 +16,6 @@ export function lookup(hostname: string) {
 export function resolve(hostname: string) {
   return new Promise<string[]>((_resolve, reject) => {
     dns.resolve(hostname, (err, addresses) => {
-      console.log(`Addresses: ${addresses}`);
       _resolve(addresses);
     });
   });

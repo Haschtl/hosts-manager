@@ -3,12 +3,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ListItem, Switch, Dialog } from 'react-windows-ui';
+import { Switch, Dialog } from 'react-windows-ui';
 
 import { State } from '../store/types';
 import { HostsFile, HostsLine } from '../../shared/types';
 import HostLineEditor from './HostLineEditor';
 import './ListViewElement.scss';
+import ListItem from './ListItem';
 
 // const portalRoot = document.querySelector('.page');
 type Props = typeof mapDispatchToProps &
@@ -18,7 +19,7 @@ type Props = typeof mapDispatchToProps &
 type OwnProps = {
   idx: number;
   line: HostsLine;
-  file: HostsFile;
+  file?: HostsFile;
   editable?: boolean;
   setHostsLine(file: HostsFile, idx: number, line: HostsLine): void;
   rmHostsLine(file: HostsFile, idx: number): void;
@@ -38,24 +39,31 @@ const ListViewElement: React.FC<Props> = ({
     }
   };
   const toggleCheckbox = React.useCallback(() => {
-    setHostsLine(file, idx, { ...line, enabled: !line.enabled });
+    if (file) {
+      setHostsLine(file, idx, { ...line, enabled: !line.enabled });
+    }
   }, [file, idx, line, setHostsLine]);
   const onSave = React.useCallback(
     (_line: HostsLine) => {
-      console.log('list-element', _line, idx);
-      setIsOpen(false);
-      setHostsLine(file, idx, _line);
+      if (file) {
+        console.log('list-element', _line, idx);
+        setIsOpen(false);
+        setHostsLine(file, idx, _line);
+      }
     },
     [setIsOpen, setHostsLine, file, idx]
   );
   const onRemove = React.useCallback(() => {
-    setIsOpen(false);
-    rmHostsLine(file, idx);
+    if (file) {
+      setIsOpen(false);
+      rmHostsLine(file, idx);
+    }
   }, [rmHostsLine, setIsOpen, file, idx]);
 
   const onDismiss = React.useCallback(() => {
     setIsOpen(false);
   }, [setIsOpen]);
+  const editablePlus = editable && line.domain !== undefined;
   return (
     <>
       {isOpen === true && (
@@ -75,32 +83,35 @@ const ListViewElement: React.FC<Props> = ({
           />
         </Dialog>
       )}
-      <div onClick={openPopup}>
-        <ListItem
-          ItemEndComponent={
-            editable ? (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                style={{ display: 'flex', height: '100%' }}
-              >
-                <Switch
-                  disabled={!editable}
-                  labelOn="On"
-                  labelOff="Off"
-                  onChange={toggleCheckbox}
-                  defaultChecked={line.enabled}
-                  labelPosition="start"
-                />
-              </div>
-            ) : (
-              <></>
-            )
-          }
-          title={line.domain}
-          subtitle={line.host}
-          info={line.comment}
-        />
-      </div>
+      <ListItem
+        onClick={openPopup}
+        enabled={line.enabled}
+        ItemEndComponent={
+          editablePlus ? (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ display: 'flex', height: '100%' }}
+            >
+              <Switch
+                disabled={!editable}
+                labelOn="On"
+                labelOff="Off"
+                onChange={toggleCheckbox}
+                defaultChecked={line.enabled}
+                labelPosition="start"
+              />
+            </div>
+          ) : (
+            <></>
+          )
+        }
+        title={
+          line.comment && line.comment !== ''
+            ? `${line.domain ? line.domain : ''} #${line.comment}`
+            : line.domain
+        }
+        subtitle={line.host}
+      />
     </>
   );
 };

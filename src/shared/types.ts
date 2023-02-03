@@ -1,3 +1,5 @@
+import { Stats } from 'fs';
+
 export type Sources = Source[];
 export type Source = SourceConfig & HostsFile;
 export type SourceConfigFile = { sources: SourceConfig[] };
@@ -17,7 +19,7 @@ export type SourceConfig = {
 export type HostsFile = {
   path: string;
   lines: HostsLine[];
-};
+} & Partial<Stats>;
 export type HostsLine = {
   domain?: string;
   host?: string;
@@ -26,6 +28,8 @@ export type HostsLine = {
 };
 
 export type Settings = {
+  blockedHostOverwrite?: string;
+  removeComments: boolean;
   darkMode?: boolean;
   autoUpdates: boolean;
   blockMode: 'admin' | 'vpn';

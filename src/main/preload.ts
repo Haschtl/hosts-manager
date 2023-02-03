@@ -28,6 +28,9 @@ export type Channels =
   | 'app:close-window';
 
 const electronHandler = {
+  startDrag: (fileName: string) => {
+    ipcRenderer.send('ondragstart', path.join(process.cwd(), fileName));
+  },
   ipcRenderer: {
     sendMessage(channel: Channels, args: unknown[]) {
       ipcRenderer.send(channel, args);
@@ -66,6 +69,9 @@ const filesHandler = {
   // setSystemHostsFile: async (): Promise<Response> => {
   //   return ipcRenderer.invoke("app:set-system-hosts-file");
   // };
+  importFile: async (origPath: string, newPath: string): Promise<void> => {
+    return ipcRenderer.invoke('app:import-file');
+  },
   loadConfig: async (): Promise<Partial<Settings> | undefined> => {
     return ipcRenderer.invoke('app:load-config');
   },
@@ -81,6 +87,15 @@ const filesHandler = {
   loadSources: async (): Promise<SourceFiles | undefined> => {
     return ipcRenderer.invoke('app:load-sources');
   },
+  loadProfiles: async (): Promise<HostsFile[] | undefined> => {
+    return ipcRenderer.invoke('app:load-profiles');
+  },
+  removeProfile: async (filepath: string): Promise<HostsFile[] | undefined> => {
+    return ipcRenderer.invoke('app:remove-profile', filepath);
+  },
+  applyProfile: async (filepath: string): Promise<HostsFile | undefined> => {
+    return ipcRenderer.invoke('app:apply-profile', filepath);
+  },
   sourcesExist: async (): Promise<boolean> => {
     return ipcRenderer.invoke('app:sources-exist');
   },
@@ -90,21 +105,34 @@ const filesHandler = {
   deleteSources: async (filepath: string): Promise<void> => {
     return ipcRenderer.invoke('app:delete-sources', filepath);
   },
-  backupHostsFile: async (): Promise<void> => {
-    return ipcRenderer.invoke('app:backup-hosts-file');
+  backupHostsFile: async (filepath: string): Promise<HostsFile | undefined> => {
+    return ipcRenderer.invoke('app:backup-hosts-file', filepath);
   },
   // backupExists : async (): Promise<boolean> => {
   //   return ipcRenderer.invoke('app:backup-exists');
   // };
-  loadHostsFile: async (system = true): Promise<HostsFile | undefined> => {
+  loadHostsFile: async (
+    system: string | boolean | undefined = true
+  ): Promise<HostsFile | undefined> => {
     return ipcRenderer.invoke('app:load-hosts-file', system);
   },
   saveHostsFile: async (
     sources: SourceFiles,
     config: SourceConfigFile,
-    system = true
+    system: string | boolean | undefined = true,
+    includeIPv6 = true,
+    hostOverwrite?: string,
+    removeComments = false
   ): Promise<void> => {
-    return ipcRenderer.invoke('app:save-hosts-file', sources, config, system);
+    return ipcRenderer.invoke(
+      'app:save-hosts-file',
+      sources,
+      config,
+      system,
+      includeIPv6,
+      hostOverwrite,
+      removeComments
+    );
   },
   downloadFile: async (
     url: string,

@@ -58,11 +58,16 @@ export const rmSource = (id: number) => ({
   payload: { id },
 });
 
-export const addSource = (config: SourceConfig) => ({
-  type: 'addSource',
-  payload: { config },
+export const setProfiles = (profiles: HostsFile[]) => ({
+  type: 'setProfiles',
+  payload: { profiles },
 });
 export const addHostsLine = (file: HostsFile, line: HostsLine) => ({
   type: 'setHostsLine',
   payload: { file, line },
+});
+
+export const setSystemHosts = (file: HostsFile) => ({
+  type: 'setSystemHosts',
+  payload: { file },
 });

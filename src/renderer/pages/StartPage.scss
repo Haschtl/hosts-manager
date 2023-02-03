@@ -144,14 +144,6 @@
         position: absolute;
         bottom: -10px;
         width: 100%;
-        .updates-available {
-          font-size: 12px;
-          margin-left: 20px;
-          visibility: hidden;
-          &.visible {
-            visibility: visible;
-          }
-        }
         .progress-bar {
           height: 5px;
           transition: transform 0.2s;
@@ -261,6 +253,14 @@
   justify-content: space-evenly;
 }
 
+.profile-statistics {
+  display: flex;
+  width: 100%;
+  align-items: center;
+
+  justify-content: space-evenly;
+}
+
 @keyframes moving-gradient {
   0% {
     background-position: left bottom;
@@ -268,4 +268,28 @@
   100% {
     background-position: right bottom;
   }
+}
+
+.updates-available {
+  font-size: 0.7em;
+  margin-left: 20px;
+  position: absolute;
+  bottom: 4px;
+  left: 0px;
+  visibility: hidden;
+  &.visible {
+    visibility: visible;
+  }
+}
+
+.create-profile-wrapper {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.profiles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }

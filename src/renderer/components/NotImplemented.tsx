@@ -19,6 +19,7 @@ export const NotImplemented: React.FC<Props> = ({ isOpen, onDismiss }) => {
       title="Not implemented"
       message="This feature is currently not implemented"
     >
+      {/* @ts-ignore */}
       <Alert.Footer>
         <Button
           style={{ flex: 'auto' }}
@@ -26,6 +27,7 @@ export const NotImplemented: React.FC<Props> = ({ isOpen, onDismiss }) => {
           type="primary"
           onClick={dismiss}
         />
+        {/* @ts-ignore */}
       </Alert.Footer>
     </Alert>
   );

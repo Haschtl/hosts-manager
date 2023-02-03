@@ -13,8 +13,11 @@ import BookMarkIcon from '../../../assets/drawable/ic_collections_bookmark_24dp.
 import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
 import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
 import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
-import { annotateSources } from '../../shared/helper';
+import { annotateSources, hostsFile2sources } from '../../shared/helper';
 import './ListViewPage.scss';
+import { HostsFile, HostsLine } from '../../shared/types';
+import Breadcrumbs from '../components/Breadcrumbs';
+import { path2profilename } from '../components/ProfileCard';
 
 // type HProps = {
 //   children?: React.ReactNode;
@@ -36,16 +39,28 @@ import './ListViewPage.scss';
 // };
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
-const ListViewPage: React.FC<Props> = ({
-  sourcesConfig,
-  settings,
-  sources,
-}) => {
-  const sorted = sortHosts(
-    annotateSources(sources, sourcesConfig),
-    settings.ipv6
-  );
+const ListViewPage: React.FC<Props> = ({ settings, profiles, systemHosts }) => {
+  const location = useLocation();
+  let profile: HostsFile = { lines: [], path: '' };
+  let sorted: {
+    blocked: HostsLine[];
+    allowed: HostsLine[];
+    redirected: HostsLine[];
+  } = { blocked: [], allowed: [], redirected: [] };
+  let id = location.pathname.split('/')[2];
 
+  // const id = Number(location.state.id);
+  if (location.pathname === '/system') {
+    profile = systemHosts;
+    id = 'System hosts';
+  } else {
+    const tempProfile = profiles.find((p) => path2profilename(p.path) === id);
+    if (tempProfile) {
+      profile = tempProfile;
+    }
+  }
+  sorted = sortHosts(hostsFile2sources(profile), settings.ipv6);
+  // console.log(sorted);
   // const Blocked = (props: any) => {
   //   return HostsFileEditor({
   //     ...props,
@@ -83,16 +98,15 @@ const ListViewPage: React.FC<Props> = ({
     redirected: false,
   });
   const navigate = useNavigate();
-  const location = useLocation();
   // const goToBlocked = React.useCallback(() => {
-  //   navigate('/list/blocked');
-  // }, [navigate]);
+  //   navigate(`/profile/${id}/blocked`);
+  // }, [navigate, id]);
   // const goToAllowed = React.useCallback(() => {
-  //   navigate('/list/allowed');
-  // }, [navigate]);
+  //   navigate(`/profile/${id}/allowed`);
+  // }, [navigate, id]);
   // const goToRedirected = React.useCallback(() => {
-  //   navigate('/list/redirected');
-  // }, [navigate]);
+  //   navigate(`/profile/${id}/redirected`);
+  // }, [navigate, id]);
   const toggleFilterBlocked = React.useCallback(() => {
     setFilter({ ...filter, blocked: !filter.blocked });
   }, [filter]);
@@ -113,7 +127,10 @@ const ListViewPage: React.FC<Props> = ({
   return (
     <NavPageContainer animateTransition>
       <div className="page list">
-        <h1>Hosts</h1>
+        <Breadcrumbs
+          history={[{ title: 'Profiles', to: '/index.html' }]}
+          title={id}
+        />
         <CommandBar>
           {/* @ts-ignore */}
           <CommandBar.Button
@@ -123,8 +140,8 @@ const ListViewPage: React.FC<Props> = ({
               <img
                 src={BlockedIcon}
                 height="20px"
-                style={{ marginLeft: '5px', marginRight: '5px' }}
                 className={filter.blocked ? 'filter-active' : ''}
+                style={{ marginLeft: '5px', marginRight: '5px' }}
                 alt="blocked"
               />
             }
@@ -137,8 +154,8 @@ const ListViewPage: React.FC<Props> = ({
             icon={
               <img
                 src={AllowedIcon}
-                className={filter.allowed ? 'filter-active' : ''}
                 height="20px"
+                className={filter.allowed ? 'filter-active' : ''}
                 style={{ marginLeft: '5px', marginRight: '5px' }}
                 alt="blocked"
               />
@@ -151,8 +168,8 @@ const ListViewPage: React.FC<Props> = ({
             icon={
               <img
                 src={RedirectedIcon}
-                className={filter.redirected ? 'filter-active' : ''}
                 height="20px"
+                className={filter.redirected ? 'filter-active' : ''}
                 style={{ marginLeft: '5px', marginRight: '5px' }}
                 alt="redirected"
               />
@@ -176,8 +193,8 @@ const ListViewPage: React.FC<Props> = ({
               path: 'block',
             }}
           />
-          {/* <Routes key="listroot">
-            <Route path="blocked" element={<Blocked />} />
+          {/* <Routes key="profileroot" location={`/profile/${id}/`}>
+            <Route path="./blocked" element={<Blocked />} />
             <Route path="allowed" element={<Allowed />} />
             <Route path="redirected" element={<Redirected />} />
             <Route path="" element={<Blocked />} />
@@ -191,9 +208,9 @@ const mapDispatchToProps = {};
 
 const mapStateToProps = (state: State) => {
   return {
-    sourcesConfig: state.app.sourcesConfig,
-    sources: state.app.sources,
+    profiles: state.app.profiles,
     settings: state.app.settings,
+    systemHosts: state.app.systemHosts,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ListViewPage);

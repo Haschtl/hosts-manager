@@ -4,6 +4,7 @@ import {
   SourceFiles,
   HostsFile,
   FirewallRule,
+  SourceConfig,
 } from '../../shared/types';
 
 export type AppState = {
@@ -14,6 +15,8 @@ export type AppState = {
   sources: SourceFiles;
   sourcesConfig: SourceConfigFile;
   systemHosts: HostsFile;
+  profiles: HostsFile[];
+  sourceTemplates: Partial<SourceConfig>[];
   firewall: {
     rules: FirewallRule[];
   };

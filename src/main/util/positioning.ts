@@ -123,9 +123,9 @@ class Positioner {
   constructor(browserWindow: BrowserWindow, tray: Tray | null) {
     this.browserWindow = browserWindow;
     this.tray = tray;
-    if (this.tray) {
-      console.log(taskbarLocation(this.tray));
-    }
+    // if (this.tray) {
+    //   console.log(taskbarLocation(this.tray));
+    // }
   }
 
   getCoords(position: Position, trayPosition?: Electron.Rectangle) {
