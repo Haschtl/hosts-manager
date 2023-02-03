@@ -134,14 +134,14 @@ const createWindow = async () => {
   if (process.env.NODE_ENV === 'production') {
     options = {
       ...options,
-      transparent: true,
-      titleBarStyle: 'hidden',
-      frame: false,
-      resizable: false,
-      minimizable: false,
-      maximizable: false,
-      alwaysOnTop: true,
-      movable: false,
+      // transparent: true,
+      // titleBarStyle: 'hidden',
+      // frame: false,
+      // resizable: false,
+      // minimizable: false,
+      // maximizable: false,
+      // alwaysOnTop: true,
+      // movable: false,
     };
   } else {
     options = {
@@ -188,13 +188,13 @@ const createWindow = async () => {
   // Taskbar flash icon
   mainWindow.on('focus', () => mainWindow?.flashFrame(false));
   if (process.env.NODE_ENV === 'production') {
-    mainWindow.on('blur', () => {
-      if (onlyHide) {
-        mainWindow?.hide();
-      } else {
-        mainWindow?.close();
-      }
-    });
+    // mainWindow.on('blur', () => {
+    //   if (onlyHide) {
+    //     mainWindow?.hide();
+    //   } else {
+    //     mainWindow?.close();
+    //   }
+    // });
   }
 
   // ipcMain.on('ipc-example', async (event, arg) => {
