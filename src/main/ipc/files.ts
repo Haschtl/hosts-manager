@@ -38,15 +38,23 @@ function elevateSync(cmd: string) {
     stdout: string;
     stderr: string;
   }>((resolve, reject) => {
-    elevate(
-      cmd,
-      { shell: 'powershell.exe' } as ExecOptions,
-      // @ts-ignore
-      (error: ExecException | null, stdout: string, stderr: string) => {
+    exec(
+      `Start-Process powershell -ArgumentList "${cmd}" -Verb runAs`,
+      { shell: 'powershell.exe' },
+      (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
         resolve({ error, stdout, stderr });
       }
     );
+    // elevate(
+    //   cmd,
+    //   { shell: 'powershell.exe' } as ExecOptions,
+    //   // @ts-ignore
+    //   (error: ExecException | null, stdout: string, stderr: string) => {
+    //     console.log(error, stdout, stderr);
+    //     resolve({ error, stdout, stderr });
+    //   }
+    // );
   });
 }
 function extendPath(path: string) {

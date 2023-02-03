@@ -80,14 +80,18 @@ const ProfileCard: React.FC<Props> = ({
       e.stopPropagation();
       e.preventDefault();
       setLoading(true);
-      return window.files.applyProfile(profile.path).then((f) => {
-        if (f) {
-          setSystemHosts(f);
-        } else {
-          setAlertVisible(true);
-        }
-        setLoading(false);
-        return undefined;
+      return window.files.applyProfile(profile.path).then(() => {
+        return setTimeout(() => {
+          return window.files.loadHostsFile(true).then((f) => {
+            if (f) {
+              setSystemHosts(f);
+            } else {
+              setAlertVisible(true);
+            }
+            setLoading(false);
+            return undefined;
+          });
+        }, 2000);
       });
     },
     [profile.path, setSystemHosts]

@@ -1,5 +1,6 @@
 # Todo
 
+- elevate does not work
 - umbenennen HostsManager
 
 # How does it work?
