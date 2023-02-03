@@ -249,14 +249,6 @@ const createWindow = async () => {
             }
           },
         },
-        {
-          label: 'Quit',
-          // type: 'normal',
-          click: () => {
-            isQuiting = true;
-            app.quit();
-          },
-        },
         // { label: 'Disable', type: 'radio' },
         // { label: 'Enable', type: 'radio', checked: true },
         ...profiles.map((hf, idx) => {
@@ -272,6 +264,14 @@ const createWindow = async () => {
             // id: idx,
           } as Partial<Electron.MenuItem> as Electron.MenuItem;
         }),
+        {
+          label: 'Quit',
+          // type: 'normal',
+          click: () => {
+            isQuiting = true;
+            app.quit();
+          },
+        },
       ]);
       tray?.setToolTip('AdAway');
       tray?.setContextMenu(contextMenu);

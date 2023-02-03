@@ -314,14 +314,12 @@ const appReducer = (
       } else {
         state.sources.files[idx] = action.payload.file;
       }
-      console.log(action.payload.file);
       window.files.saveSources({ files: [action.payload.file] });
       return { ...state, sources: { files: state.sources.files } };
     case 'setHostsLine':
       idx = state.sources.files.findIndex(
         (f) => f.path === action.payload.file.path
       );
-      console.log(idx, action.payload.idx);
       // state.sources.files[idx].lines.push(action.payload.line);
       state.sources.files[idx].lines[action.payload.idx] = action.payload.line;
       state.sources.files[idx].lines = [...state.sources.files[idx].lines];

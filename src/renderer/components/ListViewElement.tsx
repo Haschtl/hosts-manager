@@ -46,7 +46,6 @@ const ListViewElement: React.FC<Props> = ({
   const onSave = React.useCallback(
     (_line: HostsLine) => {
       if (file) {
-        console.log('list-element', _line, idx);
         setIsOpen(false);
         setHostsLine(file, idx, _line);
       }

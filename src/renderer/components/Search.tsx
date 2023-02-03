@@ -33,7 +33,6 @@ const GlobalSearch: React.FC<Props> = ({ searchText, setSearchText }) => {
     location.pathname.startsWith('/dns') ||
     location.pathname.startsWith('/editsource') ||
     location.pathname.startsWith('/list');
-  console.log(isSearchAvailable, location.pathname);
   return (
     <div
       className={`search-wrapper ${isSearchAvailable ? 'visible' : 'hidden'}`}

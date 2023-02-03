@@ -8,6 +8,7 @@ import {
   // Outlet,
   // useLocation,
   useNavigate,
+  useLocation,
 } from 'react-router-dom';
 import { connect } from 'react-redux';
 // import { motion } from 'framer-motion';
@@ -102,7 +103,7 @@ const AppRoutes = () => (
     {/* <Route path="dns" element={<DNSPage />} /> */}
     <Route path="dns/*" element={<DNSPage />} />
     <Route path="firewall/*" element={<FirewallPage />} />
-    <Route element={<StartPage />} />
+    <Route path="*" element={<StartPage />} />
     {/* </Route> */}
   </Routes>
 );
@@ -139,7 +140,6 @@ const App: React.FC<Props> = ({
   const onDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log(e.dataTransfer);
     setHighlight(true);
   }, []);
   const onDragLeave = useCallback((e: React.DragEvent) => {
@@ -152,6 +152,7 @@ const App: React.FC<Props> = ({
     e.stopPropagation();
     setHighlight(true);
   }, []);
+  // const location = useLocation();
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -179,7 +180,6 @@ const App: React.FC<Props> = ({
       });
       // setHostsFile({ path: hostsPath, lines: [] });
     });
-    console.log(e.dataTransfer.files);
     if (id) {
       navigate(`/source/${id}`);
     }
@@ -366,6 +366,7 @@ const App: React.FC<Props> = ({
         >
           1.0.0
         </button>
+        {/* {location.pathname} */}
       </NavBar>
       <AppRoutes />
     </div>

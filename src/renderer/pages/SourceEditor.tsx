@@ -71,7 +71,6 @@ const SourceEditor: React.FC<Props> = ({
   }, [id, navigate, rmSource]);
   const onLabelChange = React.useCallback(
     (e: any) => {
-      console.log(sourceConfig);
       if (
         sourceConfig?.location === undefined ||
         sourceConfig?.location === ''

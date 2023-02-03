@@ -49,7 +49,6 @@ const HostLineEditor: React.FC<Props> = ({
     setCurrent({ ...current, enabled: !current.enabled });
   }, [current]);
   const save = () => {
-    console.log('line-editor', current);
     onSave(current);
   };
   const remove = () => {

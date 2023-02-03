@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 /* eslint no-console: off */
 
@@ -19,9 +19,11 @@ if (container) {
   root.render(
     // <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
+      {/* <BrowserRouter> */}
+      <HashRouter>
         <App />
-      </BrowserRouter>
+      </HashRouter>
+      {/* </BrowserRouter> */}
     </Provider>
     // </React.StrictMode>
   );
