@@ -22,7 +22,7 @@ import {
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-// import { EventLogger, isAdminUser, Service } from 'node-windows';
+import { EventLogger, isAdminUser, Service, elevate } from 'node-windows';
 // import { promisify } from 'util';
 
 import MenuBuilder from './menu';
@@ -46,7 +46,9 @@ import { getAssetPath } from './util/files';
 import { FirewallRuleO } from '../shared/types';
 
 const onlyHide = false;
-
+// isAdminUser((i)=>{console.log(i);
+//   elevate('ls',{shell:"powershell.exe"}, (a,b,c)=>{console.log(a,b,c)})
+// })
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
