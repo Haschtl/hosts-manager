@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { NavPageContainer } from 'react-windows-ui';
 
 import { State } from '../store/types';
-import AppIcon from '../../../assets/drawable/icon_foreground.png';
+import AppIcon from '../../../assets/icon.png';
 import './VersionPage.scss';
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
@@ -28,17 +28,6 @@ const VersionPage: React.FC<Props> = () => {
             <div className="change">- Fix hosts file install</div>
           </div>
         </div>
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href="https://icons8.com/icon/zvzyoB3xqw1m/firewall"
-        >
-          Firewall
-        </a>{' '}
-        icon by{' '}
-        <a target="_blank" rel="noreferrer" href="https://icons8.com">
-          Icons8
-        </a>
       </div>
     </NavPageContainer>
   );

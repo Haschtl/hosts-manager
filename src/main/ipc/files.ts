@@ -4,7 +4,6 @@
 import fs from 'fs';
 import https from 'https';
 import { app } from 'electron';
-import { elevate } from 'node-windows';
 import { exec, ExecException } from 'child_process';
 
 import {
@@ -359,10 +358,6 @@ export const saveHostsFile = (
     path = extendPath(system);
   } else if (!system) {
     path = preHostsPath;
-  } else {
-    elevate('ls', undefined, () => {
-      console.log('wow');
-    });
   }
   console.log(`Saving hosts-file to ${path}`);
   const h = hostsFileToString(

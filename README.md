@@ -44,5 +44,5 @@
 
 ## Todo
 
-- icons ersetzen
+- main-icon ersetzen
 - firewall add/remove rules

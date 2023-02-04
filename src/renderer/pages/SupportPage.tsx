@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { NavPageContainer, Button } from 'react-windows-ui';
 
 import { State } from '../store/types';
-import FavoritesIcon from '../../../assets/drawable/baseline_favorite_24.svg';
 import PayPalIcon from '../../../assets/icons8/icons8-paypal-48.png';
 import GithubIcon from '../../../assets/icons8/icons8-github-48.png';
 import './SupportPage.scss';
@@ -15,7 +14,7 @@ const SupportPage: React.FC<Props> = () => {
       <div className="page full support">
         <div className="background">
           <div className="textWrapper">
-            <img src={FavoritesIcon} alt="favorites" />
+            <i className="icons10-heart" style={{ fontSize: '120px' }} />
             <div className="title">Support Me!</div>
           </div>
           <div className="changelog">

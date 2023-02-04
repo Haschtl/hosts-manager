@@ -1,6 +1,6 @@
 :root {
-  --PrimaryColor: #86352c; /* App's primary color */
-  --PrimaryColorLight: #86352c; /* Lighter version of --PrimaryColor for DarkMode */
+  --PrimaryColor: #ae2538; /* App's primary color */
+  --PrimaryColorLight: #ae2538; /* Lighter version of --PrimaryColor for DarkMode */
 }
 body {
   font-family: 'Segoe UI', sans-serif;
@@ -14,51 +14,6 @@ html {
   user-select: none;
 }
 
-.buttonwrapper {
-  cursor: pointer;
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-
-  position: relative;
-  transition: filter 0.2s;
-
-  &:hover {
-    filter: brightness(1.2);
-  }
-  &:active {
-    filter: brightness(0.8);
-  }
-
-  .title {
-    font-size: 30px;
-    font-weight: 400px;
-    text-align: center;
-  }
-  .subtitle {
-    font-size: 25px;
-    font-weight: 300px;
-    text-align: center;
-  }
-  .buttonicon {
-    height: 40px;
-    width: 40px;
-    background-color: var(--darker);
-    border-radius: 20px;
-    position: absolute;
-    top: 0px;
-    display: flex;
-    flex: 1;
-    align-items: center;
-    align-content: center;
-    justify-content: center;
-    img {
-      padding: 4px;
-    }
-  }
-}
-
 .page {
   padding: 20px;
   &.full {
@@ -67,7 +22,7 @@ html {
 }
 @media (prefers-color-scheme: dark) {
   .root {
-    --primary: #9c2d26;
+    --primary: #ae2538;
     --primary80: #9c2d2680;
     --primary40: #9c2d2640;
     --text: #c7c7c7;
@@ -82,7 +37,7 @@ html {
 }
 @media (prefers-color-scheme: light) {
   .root {
-    --primary: #9c2d26;
+    --primary: #ae2538;
     --primary80: #9c2d2680;
     --primary40: #9c2d2640;
     --text: #181818;
@@ -96,7 +51,7 @@ html {
   }
 }
 .dark-theme {
-  --primary: #9c2d26;
+  --primary: #ae2538;
   --primary80: #9c2d2680;
   --primary40: #9c2d2640;
   --text: #c7c7c7;
@@ -115,7 +70,7 @@ html {
 }
 
 .light-theme {
-  --primary: #9c2d26;
+  --primary: #ae2538;
   --primary80: #9c2d2680;
   --primary40: #9c2d2640;
   --text: #181818;

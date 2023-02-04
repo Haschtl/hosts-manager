@@ -20,25 +20,23 @@ import { sortHosts } from '../store/selectors';
 import * as actions from '../store/actions';
 import { annotateSources, hostsFile2sources } from '../../shared/helper';
 import ProfileCard from '../components/ProfileCard';
-import BookMarkIcon from '../../../assets/drawable/ic_collections_bookmark_24dp.svg';
-import SyncIcon from '../../../assets/drawable/ic_sync_24dp.svg';
-import AppIcon from '../../../assets/drawable/icon_foreground.png';
-import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
-import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
-import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
 import ListItem from '../components/ListItem';
+import AppIcon from '../../../assets/icon.png';
+import RedirectedIcon from '../../../assets/icons/redirect_24.svg';
 import './StartPage.scss';
 
 interface HBProps {
   title?: string;
   subtitle?: string;
   icon?: string;
+  imgSrc?: string;
   onClick?(): void;
 }
 export const HeaderButton: React.FC<HBProps> = ({
   title,
   subtitle,
   icon,
+  imgSrc,
   onClick,
 }) => {
   return (
@@ -51,7 +49,12 @@ export const HeaderButton: React.FC<HBProps> = ({
       </button>
       {icon !== undefined ? (
         <div className="buttonicon">
-          <img src={icon} className="icon" alt="icon" />
+          <i className={icon} />
+        </div>
+      ) : null}
+      {imgSrc !== undefined ? (
+        <div className="buttonicon">
+          <img src={imgSrc} alt="alt" />
         </div>
       ) : null}
     </div>
@@ -87,19 +90,19 @@ export const StartHeader: React.FC<HProps> = ({
           <HeaderButton
             title={String(blocked)}
             subtitle="Blocked"
-            icon={BlockedIcon}
+            icon="icons10-cancel color-danger"
             onClick={navigateSystem}
           />
           <HeaderButton
             title={String(allowed)}
             subtitle="Allowed"
-            icon={AllowedIcon}
+            icon="icons10-checkmark color-success"
             onClick={navigateSystem}
           />
           <HeaderButton
             title={String(redirected)}
             subtitle="Redirected"
-            icon={RedirectedIcon}
+            imgSrc={RedirectedIcon}
             onClick={navigateSystem}
           />
         </div>
@@ -294,7 +297,7 @@ const StartPage: React.FC<Props> = ({
             ItemEndComponent={
               <>
                 <Button
-                  icon={<img src={SyncIcon} height="20px" alt="sync" />}
+                  icon={<i className="icons10-refresh" />}
                   style={{ margin: 1, height: '40px', width: '40px' }}
                   onClick={updateSources}
                   value=""
@@ -308,7 +311,7 @@ const StartPage: React.FC<Props> = ({
                 />
               </>
             }
-            imgSrc={BookMarkIcon}
+            icon="icons10-bookmark"
             title="Current selection"
             subtitle={`${
               sourcesConfig.sources.filter((sc) => sc.enabled).length
@@ -320,12 +323,12 @@ const StartPage: React.FC<Props> = ({
               <ListItem
                 title={String(sorted.blocked.length)}
                 subtitle="Blocked"
-                imgSrc={BlockedIcon}
+                icon="icons10-cancel color-danger"
               />
               <ListItem
                 title={String(sorted.allowed.length)}
                 subtitle="Allowed"
-                imgSrc={AllowedIcon}
+                icon="icons10-checkmark color-success"
               />
               <ListItem
                 title={String(sorted.redirected.length)}

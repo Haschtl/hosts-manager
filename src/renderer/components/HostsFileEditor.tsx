@@ -7,20 +7,17 @@ import ListViewElement from './ListViewElement';
 import { State } from '../store/types';
 import { filterAny } from './Search';
 import './HostsFileEditor.scss';
-import AddIcon from '../../../assets/drawable/ic_add_black_24px.svg';
 
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
   OwnProps;
 type OwnProps = {
   file?: HostsFile;
-  showAddButton?: boolean;
   editable?: boolean;
   onEdit?(file: HostsFile): void;
 };
 const HostsFileEditor: React.FC<Props> = ({
   file,
-  showAddButton = false,
   editable = false,
   onEdit = () => {},
   searchText,
@@ -54,15 +51,6 @@ const HostsFileEditor: React.FC<Props> = ({
       setHostsLine={setHostsLine}
     />
   );
-  const addLine = () => {
-    if (file) {
-      file.lines = [
-        ...file.lines,
-        { enabled: true, host: '0.0.0.0', domain: 'example.com' },
-      ];
-      onEdit(file);
-    }
-  };
   const filteredLines = file?.lines.filter(filterAny(searchText));
   if (file?.lines.length === 0) {
     return (
@@ -86,11 +74,6 @@ const HostsFileEditor: React.FC<Props> = ({
       <ViewportList items={filteredLines} itemMinSize={80}>
         {renderRow}
       </ViewportList>
-      {showAddButton && (
-        <button type="button" className="button addbutton" onClick={addLine}>
-          <img src={AddIcon} alt="add" />
-        </button>
-      )}
     </div>
   );
 };

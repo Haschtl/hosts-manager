@@ -7,9 +7,7 @@ import { State } from '../store/types';
 import { sortHosts } from '../store/selectors';
 import HostsFileEditor from '../components/HostsFileEditor';
 
-import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
-import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
-import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
+import RedirectedIcon from '../../../assets/icons/redirect_24.svg';
 import { annotateSources } from '../../shared/helper';
 import './ListViewPage.scss';
 
@@ -52,12 +50,11 @@ const ListViewPage: React.FC<Props> = ({
             onClick={toggleFilterBlocked}
             value="Blocked"
             icon={
-              <img
-                src={BlockedIcon}
-                height="20px"
+              <i
+                className={`icons10-cancel color-danger ${
+                  filter.blocked ? 'filter-active' : ''
+                }`}
                 style={{ marginLeft: '5px', marginRight: '5px' }}
-                className={filter.blocked ? 'filter-active' : ''}
-                alt="blocked"
               />
             }
           />
@@ -67,12 +64,11 @@ const ListViewPage: React.FC<Props> = ({
             onClick={toggleFilterAllowed}
             value="Allowed"
             icon={
-              <img
-                src={AllowedIcon}
-                className={filter.allowed ? 'filter-active' : ''}
-                height="20px"
+              <i
+                className={`icons10-checkmark color-success ${
+                  filter.allowed ? 'filter-active' : ''
+                }`}
                 style={{ marginLeft: '5px', marginRight: '5px' }}
-                alt="blocked"
               />
             }
           />

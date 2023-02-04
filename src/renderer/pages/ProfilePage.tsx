@@ -8,9 +8,7 @@ import { State } from '../store/types';
 import { sortHosts } from '../store/selectors';
 import HostsFileEditor from '../components/HostsFileEditor';
 
-import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
-import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
-import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
+import RedirectedIcon from '../../../assets/icons/redirect_24.svg';
 import { hostsFile2sources } from '../../shared/helper';
 import { HostsFile } from '../../shared/types';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -64,12 +62,11 @@ const ListViewPage: React.FC<Props> = ({ settings, profiles, systemHosts }) => {
             onClick={toggleFilterBlocked}
             value="Blocked"
             icon={
-              <img
-                src={BlockedIcon}
-                height="20px"
-                className={filter.blocked ? 'filter-active' : ''}
+              <i
+                className={`icons10-cancel color-danger ${
+                  filter.blocked ? 'filter-active' : ''
+                }`}
                 style={{ marginLeft: '5px', marginRight: '5px' }}
-                alt="blocked"
               />
             }
           />
@@ -79,12 +76,11 @@ const ListViewPage: React.FC<Props> = ({ settings, profiles, systemHosts }) => {
             onClick={toggleFilterAllowed}
             value="Allowed"
             icon={
-              <img
-                src={AllowedIcon}
-                height="20px"
-                className={filter.allowed ? 'filter-active' : ''}
+              <i
+                className={`icons10-checkmark color-success ${
+                  filter.allowed ? 'filter-active' : ''
+                }`}
                 style={{ marginLeft: '5px', marginRight: '5px' }}
-                alt="blocked"
               />
             }
           />

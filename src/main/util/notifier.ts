@@ -14,10 +14,7 @@ const n = {
     notifier.notify({
       title,
       message,
-      icon: getAssetPath(
-        process.env.NODE_ENV === 'production',
-        'drawable/icon.png'
-      ),
+      icon: getAssetPath(process.env.NODE_ENV === 'production', 'icon.png'),
     });
   },
 };

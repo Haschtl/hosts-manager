@@ -401,7 +401,7 @@ const createWindow = async () => {
   // mainWindow.setOverlayIcon(
   //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //   //  @ts-ignore
-  //   getAssetPath('drawable/icon_background.png'),
+  //   getAssetPath('icon.png'),
   //   'Description for overlay'
   // );
 

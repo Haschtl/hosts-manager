@@ -9,9 +9,7 @@ import { connect } from 'react-redux';
 import { hostsFile2sources } from '../../shared/helper';
 import { HostsFile } from '../../shared/types';
 import ListItem from './ListItem';
-import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
-import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
-import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
+import RedirectedIcon from '../../../assets/icons/redirect_24.svg';
 import { timeSince } from './SourceListElement';
 import * as actions from '../store/actions';
 import './ProfileCard.scss';
@@ -153,14 +151,14 @@ const ProfileCard: React.FC<Props> = ({
                 <ListItem
                   title={String(sorted.blocked.length)}
                   subtitle="Blocked"
-                  imgSrc={BlockedIcon}
+                  icon="icons10-cancel color-danger"
                   className="profile-item"
                 />
                 <ListItem
                   title={String(sorted.allowed.length)}
                   subtitle="Allowed"
                   className="profile-item"
-                  imgSrc={AllowedIcon}
+                  icon="icons10-checkmark color-success"
                 />
                 <ListItem
                   title={String(sorted.redirected.length)}
@@ -173,14 +171,14 @@ const ProfileCard: React.FC<Props> = ({
           </div>
           <div className="item-end" onClick={(e) => e.stopPropagation()}>
             <Button
-              icon={<i className="icons10-cross" />}
+              icon={<i className="icons10-cross color-danger" />}
               style={{ margin: 1, height: '40px', width: '40px' }}
               onClick={removeProfile}
               value=""
               tooltip="Delete this profile"
             />
             <Button
-              icon={<i className="icons10-checkmark" />}
+              icon={<i className="icons10-checkmark color-success" />}
               style={{ margin: 1, height: '40px', width: '40px' }}
               onClick={applyProfile}
               value=""

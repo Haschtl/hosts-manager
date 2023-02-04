@@ -13,7 +13,6 @@ import {
 } from 'react-windows-ui';
 
 import { State } from '../store/types';
-import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
 import { filterAny } from '../components/Search';
 import './DNSPage.scss';
 
@@ -111,9 +110,7 @@ const DNSPage: React.FC<Props> = ({ searchText }) => {
           {/* @ts-ignore */}
           <CommandBar.Button
             value="Clear"
-            icon={
-              <img src={DeleteIcon} alt="delete" className="commandbar-img" />
-            }
+            icon={<i className="icons10-trash" />}
             onClick={clearQueries}
           />
         </CommandBar>

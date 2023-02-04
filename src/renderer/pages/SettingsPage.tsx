@@ -10,12 +10,7 @@ import { State } from '../store/types';
 import { Settings } from '../../shared/types';
 import * as actions from '../store/actions';
 import { NotImplemented } from '../components/NotImplemented';
-import BrightnessIcon from '../../../assets/drawable/ic_brightness_medium_24dp.svg';
-import SyncIcon from '../../../assets/drawable/ic_sync_24dp.svg';
-import IPv6Icon from '../../../assets/drawable/ic_ipv6_24dp.svg';
-import BackupIcon from '../../../assets/drawable/ic_sd_storage_24dp.svg';
-import DiagnosticsIcon from '../../../assets/drawable/outline_cloud_upload_24.svg';
-import LoggingIcon from '../../../assets/drawable/ic_bug_report_24dp.svg';
+import IPv6Icon from '../../../assets/icons/ipv6_24.svg';
 import ListItem from '../components/ListItem';
 
 import './SettingsPage.scss';
@@ -98,7 +93,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
         <h1>Settings</h1>
         <h3>General</h3>
         <ListItem
-          imgSrc={BrightnessIcon}
+          icon="icons10-pencil"
           title="Select mode"
           subtitle="Change the visual appearence."
           ItemEndComponent={
@@ -122,8 +117,8 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
           }
         />
         <ListItem
-          onClick={toggleAutoUpdates}
-          imgSrc={SyncIcon}
+          // onClick={toggleAutoUpdates}
+          icon="icons10-refresh"
           title="Automatic Updates"
           subtitle="Enable or disable automatic updates. (not available)"
           ItemEndComponent={
@@ -196,15 +191,15 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
         />
         <ListItem
           onClick={startBackup}
-          imgSrc={BackupIcon}
+          icon="icons10-file-explorer"
           title="Backup/Recover"
           subtitle="Backup or recover your hosts sources"
           ItemEndComponent={<Button onClick={startBackup} value="Start" />}
         />
         <h3>Diagnostics</h3>
         <ListItem
-          onClick={toggleDiagnostics}
-          imgSrc={DiagnosticsIcon}
+          // onClick={toggleDiagnostics}
+          icon="icons10-upload-2"
           title="Send error reports"
           subtitle="Share error reports. Submitted data is always anonymized."
           ItemEndComponent={
@@ -219,8 +214,8 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
           }
         />
         <ListItem
-          onClick={toggleLogging}
-          imgSrc={LoggingIcon}
+          // onClick={toggleLogging}
+          icon="icons10-align-center"
           title="Extended logging"
           subtitle="Enable or disable extended logging. Costs a lot of CPU. Do not enable, if not needed."
           ItemEndComponent={
