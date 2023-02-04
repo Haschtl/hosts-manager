@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 import { connect } from 'react-redux';
@@ -14,13 +15,11 @@ import {
 import { State } from '../store/types';
 import * as actions from '../store/actions';
 import HostsFileEditor from '../components/HostsFileEditor';
-import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
-import SaveIcon from '../../../assets/drawable/baseline_check_24.svg';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ListItem from '../components/ListItem';
-import './SourceEditor.scss';
 import { HostsFile, SourceConfig } from '../../shared/types';
 import { getSource, getUniqueID } from '../../shared/helper';
+import './SourceEditor.scss';
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const SourceEditor: React.FC<Props> = ({
@@ -56,7 +55,7 @@ const SourceEditor: React.FC<Props> = ({
   const [hostsFile, setHostsFile2] = React.useState<HostsFile>(
     hosts || {
       lines: [],
-      path: '',
+      path: config.location,
     }
   );
 
@@ -70,7 +69,7 @@ const SourceEditor: React.FC<Props> = ({
     navigate('/sources');
   }, [id, navigate, rmSource]);
   const onLabelChange = React.useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       if (
         sourceConfig?.location === undefined ||
         sourceConfig?.location === ''
@@ -89,7 +88,7 @@ const SourceEditor: React.FC<Props> = ({
     [config, sourceConfig, setHostsFile2, hostsFile]
   );
   const onCommentChange = React.useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       setConfig({ ...config, comment: e.target.value });
     },
     [config]
@@ -107,7 +106,7 @@ const SourceEditor: React.FC<Props> = ({
     [config]
   );
   const unURLChange = React.useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       setConfig({ ...config, url: e.target.value });
     },
     [config]
@@ -115,9 +114,6 @@ const SourceEditor: React.FC<Props> = ({
   const onApplyRedirectsChange = () => {
     setConfig({ ...config, applyRedirects: !config.applyRedirects });
   };
-  const editConfig = React.useCallback((c: SourceConfig) => {
-    setConfig({ ...c });
-  }, []);
   const editHostsFile = React.useCallback((c: HostsFile) => {
     setHostsFile2({ ...c });
   }, []);
@@ -133,6 +129,7 @@ const SourceEditor: React.FC<Props> = ({
   const downloadSource = React.useCallback(() => {
     if (config.url && config.url !== '') {
       setLoading(true);
+      window.taskbar.progress(2);
       return window.files
         .downloadFile(config.url, config.location)
         .then((b) => {
@@ -144,6 +141,8 @@ const SourceEditor: React.FC<Props> = ({
         .catch((e) => console.log(e))
         .finally(() => {
           setLoading(false);
+
+          window.taskbar.progress(0);
         });
     }
     return undefined;
@@ -159,8 +158,6 @@ const SourceEditor: React.FC<Props> = ({
           }
           history={[{ title: 'Sources', to: '/sources' }]}
         />
-        <p>Location: {config.location}</p>
-
         <CommandBar>
           {/* @ts-ignore */}
           <CommandBar.Button
@@ -181,7 +178,6 @@ const SourceEditor: React.FC<Props> = ({
         <p>Modify or create a new source.</p>
 
         <ListItem
-          // imgSrc={BrightnessIcon}
           title="Label"
           subtitle="Name of this source group."
           ItemEndComponent={
@@ -193,7 +189,6 @@ const SourceEditor: React.FC<Props> = ({
           }
         />
         <ListItem
-          // imgSrc={BrightnessIcon}
           title="Comment"
           subtitle="A comment describing this group."
           ItemEndComponent={
@@ -205,7 +200,6 @@ const SourceEditor: React.FC<Props> = ({
           }
         />
         <ListItem
-          // imgSrc={BrightnessIcon}
           title="Type"
           subtitle="Specify if hosts in this list should be blocked or allowed (whitelisted)"
           ItemEndComponent={
@@ -217,13 +211,12 @@ const SourceEditor: React.FC<Props> = ({
                 [
                   { label: 'Block', value: 'block' },
                   { label: 'Allow', value: 'allow' },
-                ] as any
+                ] as unknown as string[]
               }
             />
           }
         />
         <ListItem
-          // imgSrc={BrightnessIcon}
           title="Source-type"
           subtitle="Specify the type of this source. Online sources or local files are available."
           ItemEndComponent={
@@ -235,7 +228,7 @@ const SourceEditor: React.FC<Props> = ({
                 [
                   { label: 'Online', value: 'url' },
                   { label: 'Local', value: 'file' },
-                ] as any
+                ] as unknown as string[]
               }
             />
           }
@@ -243,7 +236,6 @@ const SourceEditor: React.FC<Props> = ({
         {config.type === 'url' && (
           <>
             <ListItem
-              // imgSrc={SyncIcon}
               onClick={onApplyRedirectsChange}
               title="Allow Redirects"
               subtitle="Specify if redirects are allowed in this group. If not, all IPs will be redirected to 0.0.0.0.
@@ -262,7 +254,6 @@ const SourceEditor: React.FC<Props> = ({
               }
             />
             <ListItem
-              // imgSrc={BrightnessIcon}
               title="Location"
               subtitle="URL of the online source."
               ItemEndComponent={
@@ -281,17 +272,12 @@ const SourceEditor: React.FC<Props> = ({
           subtitle="Hosts entries of this group"
           ItemEndComponent={
             config?.type !== 'url' ? (
-              <Button
-                value="Add"
-                onClick={addLine}
-                // disabled={config?.type === 'url'}
-              />
+              <Button value="Add" onClick={addLine} />
             ) : (
               <Button
-                value="Reload"
+                value="Download"
                 onClick={downloadSource}
                 isLoading={loading}
-                // disabled={config?.type === 'url'}
               />
             )
           }
@@ -305,7 +291,6 @@ const SourceEditor: React.FC<Props> = ({
           >
             <HostsFileEditor
               file={config.type === 'url' ? hosts : hostsFile}
-              // showAddButton
               editable={config.type === 'file'}
               onEdit={editHostsFile}
             />

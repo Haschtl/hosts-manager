@@ -1,7 +1,4 @@
 .list {
-  // .content {
-  //   height: calc(100% - 100px);
-  // }
   .tab-bar {
     position: absolute;
     bottom: 0px;
@@ -11,7 +8,6 @@
     border-top: 1px solid var(--darker);
 
     .tab-button {
-      //   height: 49px;
       width: 100%;
       font-size: 12px;
       display: flex;

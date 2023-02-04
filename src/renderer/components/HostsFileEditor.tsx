@@ -3,17 +3,11 @@ import ViewportList from 'react-viewport-list';
 import { connect } from 'react-redux';
 
 import { HostsFile, HostsLine } from '../../shared/types';
-// import * as actions from '../store/actions';
-
 import ListViewElement from './ListViewElement';
-// import {List} from "react-virtualized"
-// import List from "react-virtualized/dist/commonjs/List";
-// import { FixedSizeList as List } from "react-window";
-
-import AddIcon from '../../../assets/drawable/ic_add_black_24px.svg';
-import './HostsFileEditor.scss';
 import { State } from '../store/types';
 import { filterAny } from './Search';
+import './HostsFileEditor.scss';
+import AddIcon from '../../../assets/drawable/ic_add_black_24px.svg';
 
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
@@ -70,6 +64,23 @@ const HostsFileEditor: React.FC<Props> = ({
     }
   };
   const filteredLines = file?.lines.filter(filterAny(searchText));
+  if (file?.lines.length === 0) {
+    return (
+      <div className="hosts-file-editor">
+        <p>
+          This hosts file contains no hosts. Add some lines manually or download
+          them.
+        </p>
+      </div>
+    );
+  }
+  if (filteredLines?.length === 0) {
+    return (
+      <div className="hosts-file-editor">
+        <p>No lines found matching &quot;{searchText}&quot;.</p>
+      </div>
+    );
+  }
   return (
     <div className="hosts-file-editor">
       <ViewportList items={filteredLines} itemMinSize={80}>

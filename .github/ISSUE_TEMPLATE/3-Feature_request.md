@@ -1,11 +1,11 @@
 ---
 name: Feature request
-about: You want something added to AdAway-Win. 🎉
+about: You want something added to Hosts-Manager. 🎉
 labels: 'enhancement'
 ---
 
 <!---
-❗️❗️ Also, please consider donating (https://opencollective.com/adaway-win) ❗️❗️
+❗️❗️ Also, please consider donating (https://opencollective.com/hosts-manager) ❗️❗️
 
 Donations will ensure the following:
 

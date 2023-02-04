@@ -1,4 +1,5 @@
 import {
+  FirewallRule,
   HostsFile,
   HostsLine,
   Settings,
@@ -38,6 +39,10 @@ export const setHostsFile = (file: HostsFile) => ({
 export const setSourceConfig = (config: SourceConfig) => ({
   type: 'setSourceConfig',
   payload: { config },
+});
+export const setFirewallRules = (rules: FirewallRule[]) => ({
+  type: 'setFirewallRules',
+  payload: { rules },
 });
 export const setHostsLine = (
   file: HostsFile,

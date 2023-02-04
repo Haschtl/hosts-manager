@@ -8,7 +8,6 @@ labels: 'bug'
 
 ## Prerequisites
 
-
 ## Expected Behavior
 
 <!--- What should have happened? -->
@@ -44,12 +43,12 @@ labels: 'bug'
 
 <!--- Include as many relevant details about the environment you experienced the bug in -->
 
-- AdAway-Win version or branch :
+- Hosts-Manager version or branch :
 - Operating System and version :
 - Link to your project :
 
 <!---
-❗️❗️ Also, please consider donating (https://opencollective.com/adaway-win) ❗️❗️
+❗️❗️ Also, please consider donating (https://opencollective.com/hosts-manager) ❗️❗️
 
 Donations will ensure the following:
 

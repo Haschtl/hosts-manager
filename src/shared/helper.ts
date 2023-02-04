@@ -7,7 +7,7 @@ import {
 } from './types';
 
 export function getUniqueID(configs: SourceConfigFile) {
-  let id = -1;
+  let id = 0;
   const ids = configs.sources.map((s) => s.id);
   while (ids.includes(id)) {
     id += 1;
@@ -34,7 +34,10 @@ export function getSourceConfig(file: HostsFile, config: SourceConfigFile) {
 export function getSource(conf: SourceConfig, files: SourceFiles) {
   let file = files.files.find((f) => f.path === conf.location);
   if (file === undefined) {
-    file = { path: `./sources/${conf.label}.hosts`, lines: [] };
+    file = {
+      path: `./sources/${conf.label.replaceAll(' ', '_')}.hosts`,
+      lines: [],
+    };
   }
   return file;
 }

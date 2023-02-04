@@ -7,7 +7,7 @@ const execP = async (command: string) => {
     error: ExecException | null;
     stdout: string;
     stderr: string;
-  }>((resolve, reject) => {
+  }>((resolve) => {
     exec(command, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
       resolve({ error, stdout, stderr });
     });
@@ -15,8 +15,8 @@ const execP = async (command: string) => {
 };
 
 export function getFirewallRules() {
-  return execP('get-netfirewallrule -all').then(({ error, stdout, stderr }) => {
-    let rule: any = {};
+  return execP('get-netfirewallrule -all').then(({ stdout }) => {
+    let rule: Partial<FirewallRule> = {};
     const rules: FirewallRule[] = [];
     stdout.split('\n').forEach((line) => {
       if (line.trim() === '') {
@@ -29,17 +29,8 @@ export function getFirewallRules() {
       if (lineParts.length === 2) {
         const key = lineParts[0].trim();
         const value = lineParts[1].trim();
-        rule[key] = value;
+        rule[key as 'Name'] = value;
       }
-      // exec(
-      //   `Get-NetFirewallPortFilter -Name ${rule.Name}`,
-      //   {
-      //     shell: 'powershell.exe',
-      //   },
-      //   (_error, _stdout, _stderr) => {
-      //     console.log(_stdout);
-      //   }
-      // );
     });
     return rules;
   });
@@ -56,13 +47,13 @@ export function showFirewallRules(rule: FirewallRuleO) {
 
     const rules: FirewallRule[] = [];
     stdout.split('\n\n').forEach((block) => {
-      const newRule: any = {};
+      const newRule: Partial<FirewallRule> = {};
       block.split('\n').forEach((line) => {
         const lineParts = line.split(': ', 2);
         if (lineParts.length === 2) {
           const key = lineParts[0].trim();
           const value = lineParts[1].trim();
-          newRule[key] = value;
+          newRule[key as 'Name'] = value;
         }
       });
       rules.push(newRule as FirewallRule);

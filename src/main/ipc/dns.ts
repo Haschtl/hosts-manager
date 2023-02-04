@@ -5,7 +5,7 @@ export function lookup(hostname: string) {
     error: NodeJS.ErrnoException | null;
     address: string;
     family: number;
-  }>((_resolve, reject) => {
+  }>((_resolve) => {
     dns.lookup(hostname, (error, address, family) => {
       _resolve({ error, address, family });
     });
@@ -14,7 +14,7 @@ export function lookup(hostname: string) {
 }
 
 export function resolve(hostname: string) {
-  return new Promise<string[]>((_resolve, reject) => {
+  return new Promise<string[]>((_resolve) => {
     dns.resolve(hostname, (err, addresses) => {
       _resolve(addresses);
     });

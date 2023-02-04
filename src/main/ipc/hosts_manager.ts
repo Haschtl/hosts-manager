@@ -1,12 +1,6 @@
 /* eslint no-console: off */
 
-import {
-  HostsFile,
-  HostsLine,
-  Source,
-  SourceConfig,
-  Sources,
-} from '../../shared/types';
+import { HostsLine, Sources } from '../../shared/types';
 
 function isIP(text: string) {
   if (text.split('.').length === 4 || text.split(':').length >= 3) {
@@ -105,31 +99,8 @@ export function hostsFileToString(
       text += `${l2}\n`;
     }
   });
-  // text += `${annotation_start} </group>`;
   return text;
 }
-
-// export function formatHosts(sources: Sources, ignoreWhitelist = false) {
-//   let text = '';
-//   const whitelist: string[] = [];
-//   if (ignoreWhitelist === false) {
-//     sources.forEach((c) => {
-//       if (c.format === 'allow' && c.enabled) {
-//         c.lines.forEach((l) => {
-//           if (l.enabled && l.domain) {
-//             whitelist.push(l.domain);
-//           }
-//         });
-//       }
-//     });
-//   }
-//   sources.forEach((c) => {
-//     if (c.enabled || ignoreWhitelist) {
-//       text += `${hostsFileToString(c, whitelist)}\n`;
-//     }
-//   });
-//   return text;
-// }
 
 export function parseHostsFile(file: string) {
   const lines: HostsLine[] = [];

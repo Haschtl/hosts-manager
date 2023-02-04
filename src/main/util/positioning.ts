@@ -123,16 +123,11 @@ class Positioner {
   constructor(browserWindow: BrowserWindow, tray: Tray | null) {
     this.browserWindow = browserWindow;
     this.tray = tray;
-    // if (this.tray) {
-    //   console.log(taskbarLocation(this.tray));
-    // }
   }
 
   getCoords(position: Position, trayPosition?: Electron.Rectangle) {
     const screenSize = this.getScreenSize(trayPosition);
     const windowSize = this.getWindowSize();
-
-    // if (trayPosition === undefined) trayPosition = {};
 
     // Positions
     let positions: { [id: string]: { x: number; y: number } } = {

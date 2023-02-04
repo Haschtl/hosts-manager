@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 
-import { Dialog, Button, Alert } from 'react-windows-ui';
+import { Button, Alert } from 'react-windows-ui';
 import './NotImplemented.scss';
 
 type Props = { isOpen?: boolean; onDismiss(): void };

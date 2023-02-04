@@ -3,21 +3,14 @@
   --PrimaryColorLight: #86352c; /* Lighter version of --PrimaryColor for DarkMode */
 }
 body {
-  font-family: 'Segoe UI';
+  font-family: 'Segoe UI', sans-serif;
 }
 ::selection {
   color: #ffffff;
   background-color: var(--PrimaryColor);
 }
-// .root {
-//   background-color: var(--black);
-//   color: var(--text);
-// }
 
 html {
-  // overflow: hidden;
-  // width: 100%;
-  // height: 100vh;
   user-select: none;
 }
 
@@ -42,13 +35,11 @@ html {
     font-size: 30px;
     font-weight: 400px;
     text-align: center;
-    // height: 40px;
   }
   .subtitle {
     font-size: 25px;
     font-weight: 300px;
     text-align: center;
-    // height: 35px;
   }
   .buttonicon {
     height: 40px;
@@ -67,47 +58,9 @@ html {
     }
   }
 }
-// .button {
-//   transition: filter 0.2s;
-//   cursor: pointer;
-//   &:hover {
-//     filter: brightness(1.2);
-//   }
-//   &:active {
-//     filter: brightness(0.8);
-//   }
-// }
-
-// .floating-button {
-//   bottom: 20px;
-//   right: 20px;
-//   position: absolute;
-//   border-radius: 50%;
-//   height: 40px;
-//   width: 40px;
-//   background-color: var(--primary);
-//   transition: filter 0.2s;
-//   cursor: pointer;
-//   &:hover {
-//     filter: brightness(1.2);
-//   }
-//   &:active {
-//     filter: brightness(0.8);
-//   }
-// }
 
 .page {
-  // display: flex;
-  // overflow-y: auto;
-  // flex: 1;
   padding: 20px;
-  // height: 100%;
-  // padding-bottom:100px;
-  // width: 100%;
-  // background-color: var(--black);
-  // color: var(--text);
-  // flex-direction: column;
-  // position: relative;
   &.full {
     padding: 0px;
   }
@@ -174,8 +127,6 @@ html {
   --black: rgb(232, 232, 232);
   --warning: #fa4;
 
-  // --color-background-default: rgb(29, 29, 29);
-  // --color-button-default: rgb(45, 45, 45);
   --color-button-default-active: #ffffff;
   --color-button-default-hover: #f7f7f7;
 }

@@ -24,24 +24,6 @@ const SupportPage: React.FC<Props> = () => {
               free time. If you like it, please support me:
             </div>
             <div className="buttonbar">
-              {/* <a
-                className="button supportButton"
-                href="https://paypal.me/haschtl"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <img src={PayPalIcon} alt="paypal" />
-                <div style={{ marginLeft: 5 }}>Spenden</div>
-              </a>
-              <a
-                className="button supportButton"
-                href="https://github.com/haschtl/adaway-win"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <img src={GithubIcon} alt="github" />
-                <div style={{ marginLeft: 5 }}>Sponsor</div>
-              </a> */}
               <Button
                 style={{ height: '50px' }}
                 value="Sponsor"
@@ -60,7 +42,10 @@ const SupportPage: React.FC<Props> = () => {
                 style={{ height: '50px' }}
                 value="Contribute"
                 onClick={() =>
-                  window.open('https://github.com/haschtl/adaway-win', '_blank')
+                  window.open(
+                    'https://github.com/haschtl/hosts-manager',
+                    '_blank'
+                  )
                 }
                 icon={
                   <img
@@ -73,7 +58,6 @@ const SupportPage: React.FC<Props> = () => {
             </div>
           </div>
         </div>
-        {/* <Footer /> */}
       </div>
     </NavPageContainer>
   );

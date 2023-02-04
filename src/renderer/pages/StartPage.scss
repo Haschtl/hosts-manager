@@ -15,12 +15,10 @@
 
     padding-bottom: 60px;
     padding-top: 50px;
-    // background-color: var(--primary);
     display: flex;
     max-height: 200px;
     flex-direction: row;
     align-items: center;
-    // margin-bottom: 80px;
     position: relative;
     transition: background-color 0.6s;
 
@@ -49,7 +47,6 @@
       }
     }
     .iconwrapper {
-      max-width: 20%;
       width: 20%;
       aspect-ratio: 1;
       margin: 10px;
@@ -78,23 +75,12 @@
   }
 
   .page-content {
-    // display: flex;
-    // flex: 1;
-    // align-content: center;
-    // justify-content: center;
-    // flex-direction: column;
     width: 80%;
     transform: translateX(12%);
-
-    // margin-left: 2%;
     margin-top: 80px;
-    // margin-right: 2%;
-    // margin-bottom: 20px;
     .mainbutton {
-      // height: 40px;
       padding: 10px;
       margin-bottom: 15px;
-      // width: 99%;
       background-color: var(--darker);
       border-radius: 8px;
       width: 100%;
@@ -151,11 +137,7 @@
           &.visible {
             transform: translateY(0%);
           }
-        }
 
-        .progress-bar {
-          // border: 1px solid #ddd;
-          // border-radius: 3px;
           .half {
             width: 50%;
             overflow-x: hidden;
@@ -196,7 +178,6 @@
             position: absolute;
             width: 100%;
             height: 16px;
-            // border: 1px solid rgba(255, 255, 255, 0.15);
           }
         }
       }
@@ -208,7 +189,6 @@
     .button.simple {
       background-color: var(--darker);
       margin: 10px;
-      // width:100%;
       height: 50px;
       text-align: center;
       border-radius: 4px;
@@ -241,7 +221,6 @@
     .content {
       margin-top: 20px;
       margin-bottom: 10px;
-      // width:100%;
     }
   }
 }
@@ -255,6 +234,7 @@
 
 .profile-statistics {
   display: flex;
+  margin-top: 8px;
   width: 100%;
   align-items: center;
 

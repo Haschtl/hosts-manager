@@ -1,15 +1,13 @@
 /* eslint no-console: off */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import fs, { existsSync } from 'fs';
+import fs from 'fs';
 import https from 'https';
-import { dirname } from 'path';
 import { app } from 'electron';
 import { elevate } from 'node-windows';
-import { exec, ExecException, ExecOptions } from 'child_process';
+import { exec, ExecException } from 'child_process';
 
 import {
-  // formatHosts,
   mergeSources,
   hostsFileToString,
   parseHostsFile,
@@ -22,40 +20,82 @@ import {
 } from '../../shared/types';
 import { annotateSources } from '../../shared/helper';
 
-export const userFolder = `${app.getPath('home')}/.adaway`;
-const hostsPath = 'C://windows/system32/drivers/etc/hosts';
-const backupFolder = `${userFolder}/backup/`;
+type ExecReturn = {
+  error: ExecException | null;
+  stdout: string;
+  stderr: string;
+};
+
+/** Options to use when running an executable as admin */
+interface RunAsAdminCommand {
+  /** Path to the executable to run */
+  path: string;
+  /** Working dir to run the executable from */
+  workingDir?: string;
+}
+/**
+ * Runs a PowerShell command or an executable as admin
+ *
+ * @param command If a string is provided, it will be used as a command to
+ *   execute in an elevated PowerShell. If an object with `path` is provided,
+ *   the executable will be started in Run As Admin mode
+ *
+ * If providing a string for elevated PowerShell, ensure the command is parsed
+ *   by PowerShell correctly by using an interpolated string and wrap the
+ *   command in double quotes.
+ *
+ * Example:
+ *
+ * ```
+ * `"Do-The-Thing -Param '${pathToFile}'"`
+ * ```
+ */
+const runAsAdmin = async (command: string | RunAsAdminCommand) => {
+  const usePowerShell = typeof command === 'string';
+  let args;
+  if (usePowerShell) {
+    args = `-ArgumentList '${command}'`;
+  } else {
+    args = `-FilePath '${command.path}'`;
+    if (command.workingDir) {
+      args += ` -WorkingDirectory '${command.workingDir}'`;
+    }
+  }
+  const cmd = `Start-Process ${
+    usePowerShell ? 'PowerShell' : ''
+  } -Verb RunAs -WindowStyle Hidden -PassThru ${
+    usePowerShell ? '-Wait' : ''
+  } ${args}`;
+
+  return new Promise<ExecReturn>((resolve) => {
+    exec(cmd, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
+      console.log(error, stdout, stderr);
+      resolve({ error, stdout, stderr });
+    });
+  });
+};
+
+export const userFolder = `${app.getPath('home')}/.hosts`;
+let hostsPath: string;
+if (process.platform === 'win32') {
+  hostsPath = 'C://windows/system32/drivers/etc/hosts';
+} else if (process.platform === 'darwin') {
+  hostsPath = '/private/etc/hosts';
+} else {
+  hostsPath = '/etc/hosts';
+}
 const sourcesFolder = `${userFolder}/sources/`;
 const preHostsPath = `${userFolder}/hosts`;
-const backupPath = `${backupFolder}hosts.bak`;
 const configPath = `${userFolder}/config.json`;
 const sourcesPath = `${userFolder}/sources.json`;
 const profilesFolder = `${userFolder}/profiles/`;
 
-function elevateSync(cmd: string) {
-  return new Promise<{
-    error: ExecException | null;
-    stdout: string;
-    stderr: string;
-  }>((resolve, reject) => {
-    exec(
-      `Start-Process powershell -ArgumentList "${cmd}" -Verb runAs`,
-      { shell: 'powershell.exe' },
-      (error, stdout, stderr) => {
-        console.log(error, stdout, stderr);
-        resolve({ error, stdout, stderr });
-      }
-    );
-    // elevate(
-    //   cmd,
-    //   { shell: 'powershell.exe' } as ExecOptions,
-    //   // @ts-ignore
-    //   (error: ExecException | null, stdout: string, stderr: string) => {
-    //     console.log(error, stdout, stderr);
-    //     resolve({ error, stdout, stderr });
-    //   }
-    // );
-  });
+export function openFolder(path: string) {
+  return new Promise<ExecReturn>((resolve) =>
+    exec(`start "${path}"`, (error, stdout, stderr) =>
+      resolve({ error, stdout, stderr })
+    )
+  );
 }
 function extendPath(path: string) {
   if (path.startsWith('./')) {
@@ -69,26 +109,16 @@ function shortenPath(path: string) {
   }
   return path;
 }
-export function fileExists(path = backupPath) {
+export function fileExists(path: string) {
   const absPath = extendPath(path);
-  // return fs.statSync(absPath).isFile();
   return fs.existsSync(absPath);
 }
-
-if (!fileExists(userFolder)) {
-  fs.mkdirSync(userFolder);
-}
-[backupFolder, sourcesFolder, profilesFolder].forEach((p) => {
-  if (!fileExists(p)) {
-    fs.mkdirSync(p);
-  }
-});
 
 function httpGet(url: string, path: string) {
   const file = fs.createWriteStream(path);
 
-  return new Promise<string>((resolve, reject) => {
-    https.get(url, (response: any) => {
+  return new Promise<string>((resolve) => {
+    https.get(url, (response) => {
       response.pipe(file);
       // after download completed close filestream
       file.on('finish', () => {
@@ -104,38 +134,26 @@ export const downloadFile = (url: string, path = sourcesFolder) => {
   const absPath = extendPath(path);
   try {
     fs.accessSync(absPath);
-  } catch {
-    // fs.mkdirSync(absPath);
-  }
-  if (!fs.existsSync(absPath)) {
-    const fd = fs.openSync(absPath, 'w');
-    // fs.closeSync();
-  }
-  console.log(`Writing ${url} to ${absPath}`);
-  try {
-    return httpGet(url, absPath)
-      .then((c) => {
-        return {
-          path: shortenPath(absPath),
-          lines: parseHostsFile(c),
-        } as HostsFile;
-      })
-      .catch((e) => {
-        console.log(e);
-        return undefined;
-      });
   } catch (e) {
     console.log(e);
-    return new Promise<undefined>((resolve) => resolve(undefined));
   }
+  if (!fs.existsSync(absPath)) {
+    fs.openSync(absPath, 'w');
+  }
+  console.log(`Writing ${url} to ${absPath}`);
+  return httpGet(url, absPath)
+    .then((c) => {
+      return {
+        path: shortenPath(absPath),
+        lines: parseHostsFile(c),
+      } as HostsFile;
+    })
+    .catch((e) => {
+      console.log(e);
+      return undefined;
+    });
 };
 
-// export const urlToFilename = (url: string) => {
-//   return `${url
-//     .replace('http://', '')
-//     .replace('https://', '')
-//     .replace('/', '_')}.host`;
-// };
 export const loadConfig = (path = configPath) => {
   const absPath = extendPath(path);
   console.log(`Loading settings from ${absPath}`);
@@ -145,9 +163,18 @@ export const loadConfig = (path = configPath) => {
     return {
       ...JSON.parse(fs.readFileSync(absPath).toString()),
     } as Partial<Settings>;
-  } catch {
-    fs.mkdirSync(dirname(absPath));
-    return undefined;
+  } catch (e) {
+    console.log('Warning: No ./config.json found.');
+    return {
+      autoUpdates: false,
+      blockMode: 'admin',
+      darkMode: true,
+      diagnostics: false,
+      ipv6: true,
+      logging: false,
+      blockedHostOverwrite: '0.0.0.0',
+      removeComments: false,
+    } as Settings;
   }
 };
 export const saveConfig = (config: Settings, path = configPath) => {
@@ -164,9 +191,9 @@ export const loadSourceConfig = (path = sourcesPath) => {
     return {
       ...JSON.parse(fs.readFileSync(absPath).toString()),
     } as SourceConfigFile;
-  } catch {
-    fs.mkdirSync(dirname(absPath));
-    return undefined;
+  } catch (e) {
+    console.log('Warning: ./sources.json does not exist.');
+    return { sources: [] } as SourceConfigFile;
   }
 };
 export const saveSourceConfig = (
@@ -189,36 +216,19 @@ export const sourcesExist = (path = sourcesFolder) => {
   }
 };
 
-export const saveSourcesInner = (hosts: SourceFiles) => {
-  // const absPath = extendPath(path);
+export const saveSources = (hosts: SourceFiles) => {
   hosts.files.forEach((h) => {
     const fpath = extendPath(h.path);
     console.log(`Saving sources to ${fpath}`);
-    // const fpath = `${absPath}${h.label}.host`;
     fs.writeFileSync(fpath, hostsFileToString(h.lines, []));
   });
-};
-export const saveSources = (hosts: SourceFiles, path = sourcesFolder) => {
-  const absPath = extendPath(path);
-  saveSourcesInner(hosts);
-
-  // try {
-  //   fs.accessSync(absPath);
-  //   saveSourcesInner(hosts, absPath);
-  // } catch {
-  //   fs.mkdirSync(absPath);
-  //   saveSourcesInner(hosts, absPath);
-  // }
 };
 
 export const deleteSource = (path = sourcesFolder) => {
   const absPath = extendPath(path);
-  // const files = fs.readdirSync(absPath);
   if (fileExists(absPath)) {
-    // files.forEach((file: string) => {
     fs.unlinkSync(absPath);
   }
-  // });
 };
 
 export const importFile = (origPath: string, newPath: string) => {
@@ -250,7 +260,25 @@ export function loadHostsFile(system?: boolean | string) {
     return undefined;
   }
 }
-export function backupHostsFile(filepath: string) {
+export function backupHostsFile(filepath?: string) {
+  if (filepath === undefined) {
+    const id = `hosts_${new Date(Date.now())
+      .toUTCString()
+      .replaceAll(' ', '_')
+      .replaceAll(',', '_')
+      .replaceAll(':', '_')}`;
+    // eslint-disable-next-line no-param-reassign
+    filepath = `./profiles/${id}.hosts`;
+  }
+  const absPath = extendPath(filepath);
+  fs.copyFileSync(hostsPath, absPath);
+  return loadHostsFile(absPath);
+}
+export function hostsFileAsSource(filepath?: string) {
+  if (filepath === undefined) {
+    // eslint-disable-next-line no-param-reassign
+    filepath = `./sources/hostsBackup.hosts`;
+  }
   const absPath = extendPath(filepath);
   fs.copyFileSync(hostsPath, absPath);
   return loadHostsFile(absPath);
@@ -274,8 +302,8 @@ export const loadSources = (path = sourcesFolder) => {
     });
     return sources;
   } catch (e) {
-    console.log(e);
-    return undefined;
+    console.log('Warning: No sources found');
+    return { files: [] };
   }
 };
 
@@ -297,8 +325,8 @@ export const loadProfiles = (path = profilesFolder) => {
     });
     return sources.files;
   } catch (e) {
-    console.log(e);
-    return undefined;
+    console.log('Warning: No profiles found.');
+    return [];
   }
 };
 export const removeProfile = (path: string) => {
@@ -310,8 +338,8 @@ export const removeProfile = (path: string) => {
 export const applyProfile = (path: string) => {
   const absPath = extendPath(path);
   console.log(`Setting profile ${absPath} to ${hostsPath}`);
-  return elevateSync(`copy ${absPath} ${hostsPath}`).then(({ error }) => {
-    if (error === null) {
+  return runAsAdmin(`copy ${absPath} ${hostsPath}`).then(({ error }) => {
+    if (!error) {
       return loadHostsFile(true);
     }
     return undefined;
@@ -343,6 +371,20 @@ export const saveHostsFile = (
     hostOverwrite,
     removeComments
   );
-  // const h = formatHosts(annotateSources(sources, config));
   return fs.writeFileSync(path, h);
 };
+
+let isFirstRun = false;
+if (!fileExists(userFolder)) {
+  fs.mkdirSync(userFolder);
+  isFirstRun = true;
+}
+[sourcesFolder, profilesFolder].forEach((p) => {
+  if (!fileExists(p)) {
+    fs.mkdirSync(p);
+  }
+});
+if (isFirstRun) {
+  backupHostsFile();
+  hostsFileAsSource();
+}

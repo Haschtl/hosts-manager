@@ -38,6 +38,14 @@ const ListItem: React.FC<IProps> = ({
       forceRerender();
     }
   }, [onClick, forceRerender]);
+  let iconComponent: React.ReactNode;
+  if (imgSrc !== undefined) {
+    iconComponent = <img className="settings-icon" src={imgSrc} alt="icon" />;
+  } else if (icon !== undefined) {
+    iconComponent = <i className={`settings-icon ${icon} color-${color}`} />;
+  } else {
+    iconComponent = <div className="settings-icon" />;
+  }
   return (
     <div
       className={`${className} ${onClick !== undefined ? 'clickable' : ''} ${
@@ -48,13 +56,7 @@ const ListItem: React.FC<IProps> = ({
       <div className="item-outer">
         <div className="item-wrapper">
           <div className="item-content">
-            {imgSrc !== undefined ? (
-              <img className="settings-icon" src={imgSrc} alt="icon" />
-            ) : icon !== undefined ? (
-              <i className={`settings-icon ${icon} color-${color}`} />
-            ) : (
-              <div className="settings-icon" />
-            )}
+            {iconComponent}
             <div className="item-content-inner">
               <div className="item-title">{title}</div>
               <p className="item-subtitle app-m-0 app-para-light">{subtitle}</p>

@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { Switch } from 'react-windows-ui';
 
-import { State } from '../store/types';
 import { HostsFile, SourceConfig } from '../../shared/types';
 import * as actions from '../store/actions';
 import ListItem from './ListItem';
@@ -55,7 +54,6 @@ type OwnProps = {
 const SourceListElement: React.FC<Props> = ({
   source,
   config,
-  setHostsFile,
   setSourceConfig,
 }) => {
   const navigate = useNavigate();
@@ -70,7 +68,6 @@ const SourceListElement: React.FC<Props> = ({
     setSourceConfig({ ...config, enabled: !config.enabled });
   }, [setSourceConfig, config]);
   return (
-    // <div onClick={onClick}>
     <ListItem
       icon={config.type === 'url' ? 'icons10-download-2' : 'icons10-file'}
       color={config.format === 'block' ? 'danger' : 'success'}
@@ -93,7 +90,6 @@ const SourceListElement: React.FC<Props> = ({
         <></>
       )}
     </ListItem>
-    // </div>
   );
 };
 
@@ -103,7 +99,7 @@ const mapDispatchToProps = {
   setSourceConfig: actions.setSourceConfig,
 };
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = () => {
   return {};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(SourceListElement);

@@ -22,13 +22,10 @@ import {
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import { EventLogger, isAdminUser, Service, elevate } from 'node-windows';
-// import { promisify } from 'util';
 
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import * as io from './ipc/files';
-import { isElevatedNodeWindows } from './util/isElevated';
 import notifier from './util/notifier';
 import Positioner from './util/positioning';
 import { resolve, lookup } from './ipc/dns';
@@ -46,9 +43,6 @@ import { getAssetPath } from './util/files';
 import { FirewallRuleO } from '../shared/types';
 
 const onlyHide = false;
-// isAdminUser((i)=>{console.log(i);
-//   elevate('ls',{shell:"powershell.exe"}, (a,b,c)=>{console.log(a,b,c)})
-// })
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -253,7 +247,7 @@ const createWindow = async () => {
         },
         // { label: 'Disable', type: 'radio' },
         // { label: 'Enable', type: 'radio', checked: true },
-        ...profiles.map((hf, idx) => {
+        ...profiles.map((hf) => {
           return {
             label: hf.path.replace('./profiles/', '').replace('.hosts', ''),
             type: 'radio',
@@ -275,7 +269,7 @@ const createWindow = async () => {
           },
         },
       ]);
-      tray?.setToolTip('AdAway');
+      tray?.setToolTip('hosts-manager');
       tray?.setContextMenu(contextMenu);
     }
     return profiles;
@@ -328,22 +322,14 @@ const createWindow = async () => {
   ipcMain.handle('app:download-file', (e, url: string, filepath: string) => {
     return io.downloadFile(url, filepath);
   });
-  // ipcMain.handle('app:hosts:disable', (e, url: string) => {
-  //   return io.disableHosts();
-  // });
-  // ipcMain.handle('app:hosts:enable', (e, url: string) => {
-  //   return io.enableHosts();
-  // });
   ipcMain.handle('app:open-user-folder', () => {
     shell.openPath(io.userFolder);
   });
   ipcMain.handle('app:is-elevated', async () => {
-    const isAdmin = await isElevatedNodeWindows();
-    return isAdmin;
-    // return isElevated();
+    return false;
   });
   ipcMain.handle('app:notify', (e, message: string) => {
-    return notifier.notify({ title: 'AdAway', message });
+    return notifier.notify({ title: 'hosts-manager', message });
   });
   ipcMain.handle('app:close-window', () => {
     if (mainWindow !== null) {
@@ -488,11 +474,11 @@ const createWindow = async () => {
 // ]);
 
 // if (process.platform === 'win32') {
-//   const eventLogger = new EventLogger({ source: 'AdAway' });
+//   const eventLogger = new EventLogger({ source: 'hosts-manager' });
 //   // Create a new service object
 //   const svc = new Service({
-//     name: 'AdAway Win',
-//     description: 'Background autorun service for AdAway.',
+//     name: 'hosts-manager',
+//     description: 'Background autorun service for hosts-manager.',
 //     script: path.join(__dirname, 'main.js'),
 //     nodeOptions: '--harmony --max_old_space_size=4096',
 //     // workingDirectory: '...',
@@ -516,7 +502,7 @@ if (!gotTheLock) {
   /**
    * Add event listeners...
    */
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (event, commandLine) => {
     // Someone tried to run a second instance, we should focus our window.
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
@@ -549,7 +535,7 @@ if (!gotTheLock) {
     .whenReady()
     .then(() => {
       globalShortcut.register('Alt+CommandOrControl+I', () => {
-        console.log('Toggle AdAway!');
+        console.log('Toggle hosts-manager!');
         // io.toggleHosts();
       });
       tray = new Tray(getAssetPath(app.isPackaged, 'icon.ico'));
@@ -577,7 +563,7 @@ if (!gotTheLock) {
         // { label: 'Disable', type: 'radio' },
         // { label: 'Enable', type: 'radio', checked: true },
       ]);
-      tray.setToolTip('AdAway');
+      tray.setToolTip('hosts-manager');
       tray.setContextMenu(contextMenu);
 
       tray.addListener('double-click', () => {

@@ -7,7 +7,7 @@ import * as actions from '../store/actions';
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 
-export const filterAny = (searchText?: string) => (data: any) => {
+export const filterAny = (searchText?: string) => (data: unknown) => {
   let compareString: string;
   if (searchText === undefined || searchText === '') {
     return true;
@@ -21,7 +21,7 @@ export const filterAny = (searchText?: string) => (data: any) => {
 };
 const GlobalSearch: React.FC<Props> = ({ searchText, setSearchText }) => {
   const onChange = useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchText(e.target.value);
     },
     [setSearchText]

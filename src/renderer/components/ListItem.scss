@@ -1,9 +1,6 @@
 .item-container {
   margin-bottom: 5px;
-  // display: flex;
   position: relative;
-  // align-items: center;
-  // justify-content: space-between;
   .item-wrapper {
     display: flex;
 
@@ -27,7 +24,6 @@
     font-size: 0.8em;
   }
   .item-end {
-    // max-width:200px#;
     margin-right: 10px;
   }
 
@@ -46,7 +42,6 @@
     &:hover {
       background-color: var(--color-button-default-hover);
       border-radius: 5px;
-      // transform: scale(1.005);
     }
     &:active {
       background-color: var(--color-button-default-active);

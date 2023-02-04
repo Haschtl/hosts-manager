@@ -62,15 +62,8 @@ const darkModeHandler = {
 };
 
 const filesHandler = {
-  // getSystemHostsFile: async (): Promise<Response> => {
-  //   return ipcRenderer.invoke("app:get-system-hosts-file");
-  // };
-
-  // setSystemHostsFile: async (): Promise<Response> => {
-  //   return ipcRenderer.invoke("app:set-system-hosts-file");
-  // };
   importFile: async (origPath: string, newPath: string): Promise<void> => {
-    return ipcRenderer.invoke('app:import-file');
+    return ipcRenderer.invoke('app:import-file', origPath, newPath);
   },
   loadConfig: async (): Promise<Partial<Settings> | undefined> => {
     return ipcRenderer.invoke('app:load-config');
@@ -78,13 +71,13 @@ const filesHandler = {
   saveConfig: async (config: Settings): Promise<void> => {
     return ipcRenderer.invoke('app:save-config', config);
   },
-  loadSourcesConfig: async (): Promise<SourceConfigFile | undefined> => {
+  loadSourcesConfig: async (): Promise<SourceConfigFile> => {
     return ipcRenderer.invoke('app:load-sources-config');
   },
   saveSourcesConfig: async (config: SourceConfigFile): Promise<void> => {
     return ipcRenderer.invoke('app:save-sources-config', config);
   },
-  loadSources: async (): Promise<SourceFiles | undefined> => {
+  loadSources: async (): Promise<SourceFiles> => {
     return ipcRenderer.invoke('app:load-sources');
   },
   loadProfiles: async (): Promise<HostsFile[] | undefined> => {
@@ -105,12 +98,11 @@ const filesHandler = {
   deleteSources: async (filepath: string): Promise<void> => {
     return ipcRenderer.invoke('app:delete-sources', filepath);
   },
-  backupHostsFile: async (filepath: string): Promise<HostsFile | undefined> => {
+  backupHostsFile: async (
+    filepath?: string
+  ): Promise<HostsFile | undefined> => {
     return ipcRenderer.invoke('app:backup-hosts-file', filepath);
   },
-  // backupExists : async (): Promise<boolean> => {
-  //   return ipcRenderer.invoke('app:backup-exists');
-  // };
   loadHostsFile: async (
     system: string | boolean | undefined = true
   ): Promise<HostsFile | undefined> => {

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable promise/always-return */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
@@ -12,8 +13,6 @@ import {
 } from 'react-windows-ui';
 
 import { State } from '../store/types';
-// import RecordIcon from '../../../assets/drawable/ic_record_24dp.svg';
-// import SortIcon from '../../../assets/drawable/baseline_sort_by_alpha_24.svg';
 import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
 import { filterAny } from '../components/Search';
 import './DNSPage.scss';
@@ -36,36 +35,34 @@ const DNSPage: React.FC<Props> = ({ searchText }) => {
   const sendQuery = React.useCallback(() => {
     window.dns
       .lookup(domain)
-      .then((lookup) => {
-        window.dns
-          .resolve(domain)
-          .then((resolve) => {
-            const ip = resolve ? resolve[0] : undefined;
-            let status = 'Reachable';
-            if (lookup.error !== null) {
-              status = 'Blocked';
-            }
-            if (ip === '127.0.0.1' || ip === '0.0.0.0') {
-              status = 'Blocked';
-            }
-            if (ip === undefined) {
-              status = 'Unreachable';
-            }
-            // return { ip, blocked };
-            setDNSQueries([
-              ...dnsQueries,
-              { ip, status, domain, creator: 'AdAway' },
-            ]);
-            setDomain('');
-            setNewDNSQueryDialogVisible(false);
-          })
-          .catch((e) => console.log(e));
+      .then(async (lookup) => {
+        const resolve = await window.dns.resolve(domain);
+        const ip = resolve ? resolve[0] : undefined;
+        let status = 'Reachable';
+        if (lookup.error !== null) {
+          status = 'Blocked';
+        }
+        if (ip === '127.0.0.1' || ip === '0.0.0.0') {
+          status = 'Blocked';
+        }
+        if (ip === undefined) {
+          status = 'Unreachable';
+        }
+        setDNSQueries([
+          ...dnsQueries,
+          { ip, status, domain, creator: 'hosts-manager' },
+        ]);
+        setDomain('');
+        setNewDNSQueryDialogVisible(false);
       })
       .catch((e) => console.log(e));
   }, [domain, dnsQueries]);
-  const onDomainChange = React.useCallback((e: any) => {
-    setDomain(e.target?.value);
-  }, []);
+  const onDomainChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setDomain(e.target?.value);
+    },
+    []
+  );
   const clearQueries = React.useCallback(() => {
     setDNSQueries([]);
   }, []);
@@ -112,17 +109,6 @@ const DNSPage: React.FC<Props> = ({ searchText }) => {
           {/* @ts-ignore */}
           <CommandBar.SplitDivider />
           {/* @ts-ignore */}
-          {/* <CommandBar.Button
-            value="Record"
-            icon={
-              <img src={RecordIcon} alt="record" className="commandbar-img" />
-            }
-          /> */}
-          {/* <CommandBar.Button
-            value="Sort"
-            icon={<img src={SortIcon} alt="sort" className="commandbar-img" />}
-          /> */}
-          {/* @ts-ignore */}
           <CommandBar.Button
             value="Clear"
             icon={
@@ -135,14 +121,6 @@ const DNSPage: React.FC<Props> = ({ searchText }) => {
           <p>
             Press <b>New</b> to create a DNS lookup query manually.
           </p>
-          {/* <p>
-            Press record to start logging requests, browse the Web or use apps,
-            then go back or swipe to refresh the logs.
-          </p> */}
-          {/* <p className="app-para-light">
-            Blocked requests will not be logged. Disable ad-blocking first if
-            you want to log them too.
-          </p> */}
         </div>
         <TableView
           // @ts-ignore
@@ -158,7 +136,7 @@ const DNSPage: React.FC<Props> = ({ searchText }) => {
               { title: 'IP' },
               { title: 'Status' },
               { title: 'Initiator' },
-            ] as any
+            ] as unknown as undefined
           }
         />
       </div>

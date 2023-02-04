@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
 import * as React from 'react';
@@ -11,10 +12,9 @@ import ListItem from './ListItem';
 import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
 import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
 import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
-import './ProfileCard.scss';
 import { timeSince } from './SourceListElement';
-import { State } from '../store/types';
 import * as actions from '../store/actions';
+import './ProfileCard.scss';
 
 export function path2profilename(p: string) {
   return p.replace('./profiles/', '').replace('.hosts', '');
@@ -29,12 +29,8 @@ type OwnProps = {
   imgSrc?: string;
   icon?: string;
   enabled?: boolean;
-  // title?: string;
   color?: 'success' | 'danger';
-  // subtitle?: string;
-  // ItemEndComponent?: React.ReactNode;
   children?: React.ReactNode;
-  // onClick?(e?: React.MouseEvent): void;
 };
 const ProfileCard: React.FC<Props> = ({
   profile,
@@ -46,19 +42,6 @@ const ProfileCard: React.FC<Props> = ({
   setProfiles,
   setSystemHosts,
 }) => {
-  const [rerender, setRerender] = React.useState(false);
-  const forceRerender = React.useCallback(() => {
-    setRerender(true);
-    setTimeout(() => {
-      setRerender(false);
-    }, 10);
-  }, []);
-  // const onClickInternal = React.useCallback(() => {
-  //   if (onClick) {
-  //     onClick();
-  //     forceRerender();
-  //   }
-  // }, [onClick, forceRerender]);
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(false);
@@ -80,18 +63,18 @@ const ProfileCard: React.FC<Props> = ({
       e.stopPropagation();
       e.preventDefault();
       setLoading(true);
-      return window.files.applyProfile(profile.path).then(() => {
-        return setTimeout(() => {
-          return window.files.loadHostsFile(true).then((f) => {
-            if (f) {
-              setSystemHosts(f);
-            } else {
-              setAlertVisible(true);
-            }
-            setLoading(false);
-            return undefined;
-          });
-        }, 2000);
+
+      window.taskbar.progress(2);
+      return window.files.applyProfile(profile.path).then(async () => {
+        const f = await window.files.loadHostsFile(true);
+        if (f) {
+          setSystemHosts(f);
+        } else {
+          setAlertVisible(true);
+        }
+        setLoading(false);
+        window.taskbar.progress(0);
+        return undefined;
       });
     },
     [profile.path, setSystemHosts]
@@ -101,12 +84,15 @@ const ProfileCard: React.FC<Props> = ({
     (e: Event) => {
       e.stopPropagation();
       e.preventDefault();
+
+      window.taskbar.progress(2);
       setLoading(true);
       window.files
         .removeProfile(profile.path)
         .then((p) => {
           if (p) {
             setLoading(false);
+            window.taskbar.progress(0);
             setProfiles(p);
           }
           return undefined;
@@ -115,6 +101,14 @@ const ProfileCard: React.FC<Props> = ({
     },
     [profile.path, setProfiles]
   );
+  let iconComponent: React.ReactNode;
+  if (imgSrc !== undefined) {
+    iconComponent = <img className="settings-icon" src={imgSrc} alt="icon" />;
+  } else if (icon !== undefined) {
+    iconComponent = <i className={`settings-icon ${icon} color-${color}`} />;
+  } else {
+    iconComponent = <div className="settings-icon" />;
+  }
   return (
     <div
       className={`app-section-container-fg item-container profile-container ${
@@ -145,13 +139,7 @@ const ProfileCard: React.FC<Props> = ({
       <div className="item-outer">
         <div className="item-wrapper">
           <div className="item-content">
-            {imgSrc !== undefined ? (
-              <img className="settings-icon" src={imgSrc} alt="icon" />
-            ) : icon !== undefined ? (
-              <i className={`settings-icon ${icon} color-${color}`} />
-            ) : (
-              <div className="settings-icon" />
-            )}
+            {iconComponent}
             <div className="item-content-inner">
               <div className="item-title">
                 {path2profilename(profile.path)}
@@ -186,7 +174,6 @@ const ProfileCard: React.FC<Props> = ({
           <div className="item-end" onClick={(e) => e.stopPropagation()}>
             <Button
               icon={<i className="icons10-cross" />}
-              // icon={<img src={SyncIcon} height="20px" alt="sync" />}
               style={{ margin: 1, height: '40px', width: '40px' }}
               onClick={removeProfile}
               value=""
@@ -194,7 +181,6 @@ const ProfileCard: React.FC<Props> = ({
             />
             <Button
               icon={<i className="icons10-checkmark" />}
-              // icon={<img src={SyncIcon} height="20px" alt="sync" />}
               style={{ margin: 1, height: '40px', width: '40px' }}
               onClick={applyProfile}
               value=""
@@ -212,7 +198,7 @@ const mapDispatchToProps = {
   setSystemHosts: actions.setSystemHosts,
 };
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = () => {
   return {};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileCard);

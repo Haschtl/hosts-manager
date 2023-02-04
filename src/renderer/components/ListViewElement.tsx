@@ -5,13 +5,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Switch, Dialog } from 'react-windows-ui';
 
-import { State } from '../store/types';
 import { HostsFile, HostsLine } from '../../shared/types';
 import HostLineEditor from './HostLineEditor';
 import './ListViewElement.scss';
 import ListItem from './ListItem';
 
-// const portalRoot = document.querySelector('.page');
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
   OwnProps;
@@ -63,6 +61,10 @@ const ListViewElement: React.FC<Props> = ({
     setIsOpen(false);
   }, [setIsOpen]);
   const editablePlus = editable && line.domain !== undefined;
+  let title = `${line.domain ? line.domain : ''}`;
+  if (line.comment && line.comment !== '') {
+    title += ` #${line.comment}`;
+  }
   return (
     <>
       {isOpen === true && (
@@ -74,12 +76,7 @@ const ListViewElement: React.FC<Props> = ({
         >
           <h2 className="app-m-0">Edit</h2>
           <p>Edit this line</p>
-          <HostLineEditor
-            line={line}
-            onDismiss={onDismiss}
-            onSave={onSave}
-            onRemove={onRemove}
-          />
+          <HostLineEditor line={line} onSave={onSave} onRemove={onRemove} />
         </Dialog>
       )}
       <ListItem
@@ -104,25 +101,16 @@ const ListViewElement: React.FC<Props> = ({
             <></>
           )
         }
-        title={
-          line.comment && line.comment !== ''
-            ? `${line.domain ? line.domain : ''} #${line.comment}`
-            : line.domain
-        }
+        title={title}
         subtitle={line.host}
       />
     </>
   );
 };
 
-const mapDispatchToProps = {
-  // rmHostsLine: actions.rmHostsLine,
-  // setHostsLine: actions.setHostsLine,
-};
+const mapDispatchToProps = {};
 
-const mapStateToProps = (state: State, ownProps: OwnProps) => {
-  return {
-    // line: state.app.hosts.categories,
-  };
+const mapStateToProps = () => {
+  return {};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ListViewElement);

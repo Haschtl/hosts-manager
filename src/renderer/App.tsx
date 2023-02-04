@@ -116,6 +116,7 @@ const App: React.FC<Props> = ({
   darkMode = undefined,
   setHostsFile,
   setSourceConfig,
+  setFirewallRules,
 }) => {
   // if (darkMode === undefined) {
   //   darkMode = await window.darkMode.toggle();
@@ -126,11 +127,15 @@ const App: React.FC<Props> = ({
     navigate('/version');
   };
   useEffect(() => {
+    window.taskbar.progress(2);
     loadState().then((state) => {
       setState(state);
       setLoading(false);
+      window.taskbar.progress(0);
       return undefined;
     });
+    window.firewall.rules.get().then((rules) => setFirewallRules(rules));
+
     // .catch((r) => {
     //   console.log(r);
     // });
@@ -215,7 +220,7 @@ const App: React.FC<Props> = ({
       <LoaderBusy isLoading={loading} display="overlay" />
       <NavBar
         collapsed
-        title="AdAway"
+        title="hosts-manager"
         shadowOnScroll
         titleBarMobile={
           <div
@@ -225,7 +230,7 @@ const App: React.FC<Props> = ({
               width: 'calc(100% - 60px)',
             }}
           >
-            <span className="app-navbar-name">AdAway</span>
+            <span className="app-navbar-name">hosts-manager</span>
             {/* <span className="app-navbar-name">Subtitle</span> */}
           </div>
         }
@@ -379,6 +384,7 @@ const mapDispatchToProps = {
   setSearchText: actions.setSearchText,
   setSourceConfig: actions.setSourceConfig,
   setHostsFile: actions.setHostsFile,
+  setFirewallRules: actions.setFirewallRules,
 };
 // export default App;
 const mapStateToProps = (state: State) => {

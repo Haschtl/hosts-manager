@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable promise/always-return */
@@ -16,21 +18,16 @@ import { State } from '../store/types';
 import { NotImplemented } from '../components/NotImplemented';
 import { sortHosts } from '../store/selectors';
 import * as actions from '../store/actions';
+import { annotateSources, hostsFile2sources } from '../../shared/helper';
+import ProfileCard from '../components/ProfileCard';
 import BookMarkIcon from '../../../assets/drawable/ic_collections_bookmark_24dp.svg';
-import AddIcon from '../../../assets/drawable/ic_get_app_24dp.svg';
 import SyncIcon from '../../../assets/drawable/ic_sync_24dp.svg';
 import AppIcon from '../../../assets/drawable/icon_foreground.png';
-import HelpIcon from '../../../assets/drawable/ic_help_24dp.svg';
-import DnsIcon from '../../../assets/drawable/ic_outline_rule_24.svg';
-import FavoriteIcon from '../../../assets/drawable/baseline_favorite_24.svg';
 import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
 import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
 import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
 import ListItem from '../components/ListItem';
 import './StartPage.scss';
-import { annotateSources, hostsFile2sources } from '../../shared/helper';
-import { HostsFile, Sources } from '../../shared/types';
-import ProfileCard from '../components/ProfileCard';
 
 interface HBProps {
   title?: string;
@@ -83,7 +80,7 @@ export const StartHeader: React.FC<HProps> = ({
           <img src={AppIcon} alt="app-icon" />
         </div>
         <div className="textWrapper">
-          <div className="title">AdAway</div>
+          <div className="title">hosts-manager</div>
           <div className="subtitle">Open Source ad blocker</div>
         </div>
         <div className="abs_buttonbar">
@@ -123,31 +120,10 @@ const StartPage: React.FC<Props> = ({
   profiles,
   setProfiles,
 }) => {
-  // const profiles: HostsFile[] = [systemHosts];
-  // window.files
-  //   .isElevated()
-  //   .then((v) => {
-  //     console.log(`Has admin rights: ${v}`);
-  //     return setElevated(v);
-  //   })
-  //   .catch((r) => console.log(r));
-  const [updatesAvailable, setUpdatesAvailable] = useState(false);
   const [loading, setLoading] = useState<string>();
   const navigate = useNavigate();
   const [notImplemented, setNotImplemented] = useState(false);
 
-  const navigateBlocked = useCallback(
-    () => navigate('/list/blocked'),
-    [navigate]
-  );
-  const navigateAllowed = useCallback(
-    () => navigate('/list/allowed'),
-    [navigate]
-  );
-  const navigateRedirected = useCallback(
-    () => navigate('/list/redirected'),
-    [navigate]
-  );
   const onlineSources = sourcesConfig.sources.filter(
     (s) =>
       s.type === 'url' &&
@@ -156,48 +132,36 @@ const StartPage: React.FC<Props> = ({
       s.location !== '' &&
       s.location !== undefined
   );
+  const scs = onlineSources.filter((s) => s.enabled);
   const updateSources = (e: React.MouseEvent) => {
+    if (scs.length === 0) {
+      return;
+    }
     e.stopPropagation();
-    const scs = onlineSources.filter((s) => s.enabled);
-    // setNotImplemented(true);
     setLoading(`Downloading ${scs.length} sources`);
-    // setUpdatesAvailable(false);
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   setUpdatesAvailable(true);
-    // }, 2000);
 
-    scs.map(async (s, idx) => {
+    window.taskbar.progress(2);
+    scs.forEach(async (s, idx) => {
       const f = await window.files.downloadFile(s.url!, s.location);
+
       setLoading(`Downloaded ${s.label}...`);
       if (f) {
         setHostsFile(f);
       }
       if (idx === scs.length - 1) {
         setLoading(undefined);
+        window.taskbar.progress(0);
       }
     });
-    // Promise.all(promises).then(() => setLoading(undefined));
     window.files.notify('Updating sources');
   };
-  // const upgradeSources = (e: React.MouseEvent) => {
-  //   e.stopPropagation();
-  //   setNotImplemented(true);
-  //   setUpdatesAvailable(false);
-  // };
   const openFolder = () => {
     window.files.openUserFolder();
   };
-  // const checkHostFile = () => {
-  //   // checkBackendService().then((v) => console.log(v));
-  // };
 
   const hideNotImplemented = useCallback(() => {
     setNotImplemented(false);
   }, []);
-  const navigateDNS = useCallback(() => navigate('/dns'), [navigate]);
-  const navigateHelp = useCallback(() => navigate('/help'), [navigate]);
-  const navigateSupport = useCallback(() => navigate('/support'), [navigate]);
 
   const sorted = sortHosts(
     annotateSources(sources, sourcesConfig),
@@ -215,28 +179,25 @@ const StartPage: React.FC<Props> = ({
     setProfileInputVisible(true);
     setProfileName('');
   }, []);
-  const onProfileNameChange = useCallback((e: any) => {
-    setProfileName(e.target.value);
-  }, []);
+  const onProfileNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setProfileName(e.target.value);
+    },
+    []
+  );
   const createSystemBackup = useCallback(() => {
+    window.taskbar.progress(2);
     setLoading('Backing up system...');
-    const id = `hosts_${new Date(Date.now())
-      .toUTCString()
-      .replaceAll(' ', '_')
-      .replaceAll(',', '_')
-      .replaceAll(':', '_')}`;
     window.files
-      .backupHostsFile(`./profiles/${id}.hosts`)
-      .then((hf) => {
-        window.files
-          .loadProfiles()
-          .then((p) => {
-            if (p) {
-              setProfiles(p);
-            }
-            setLoading(undefined);
-          })
-          .catch((e) => console.log(e));
+      .backupHostsFile()
+      .then(async () => {
+        const profileFiles = await window.files.loadProfiles();
+        if (profileFiles) {
+          setProfiles(profileFiles);
+        }
+        setLoading(undefined);
+
+        window.taskbar.progress(0);
       })
       .catch((e) => console.log(e));
   }, [setProfiles]);
@@ -244,6 +205,7 @@ const StartPage: React.FC<Props> = ({
     const name = profileName;
     hideProfileInput();
     setLoading('Creating profile...');
+    window.taskbar.progress(2);
     window.files
       .saveHostsFile(
         sources,
@@ -253,16 +215,14 @@ const StartPage: React.FC<Props> = ({
         settings.blockedHostOverwrite,
         settings.removeComments
       )
-      .then(() => {
-        window.files
-          .loadProfiles()
-          .then((p) => {
-            if (p) {
-              setProfiles(p);
-            }
-            setLoading(undefined);
-          })
-          .catch((e) => console.log(e));
+      .then(async () => {
+        const profileFiles = await window.files.loadProfiles();
+
+        if (profileFiles) {
+          setProfiles(profileFiles);
+        }
+        setLoading(undefined);
+        window.taskbar.progress(0);
       })
       .catch((e) => console.log(e));
   }, [
@@ -317,7 +277,8 @@ const StartPage: React.FC<Props> = ({
             onClick={openFolder}
           >
             <div className="adminWarningText">
-              AdAway not running as Admin. Can not write hosts file directly
+              hosts-manager not running as Admin. Can not write hosts file
+              directly
             </div>
           </button>
         )}
@@ -331,13 +292,21 @@ const StartPage: React.FC<Props> = ({
           <ListItem
             onClick={() => navigate('/sources')}
             ItemEndComponent={
-              <Button
-                icon={<img src={SyncIcon} height="20px" alt="sync" />}
-                style={{ margin: 1, height: '40px', width: '40px' }}
-                onClick={updateSources}
-                value=""
-                tooltip="Fetch online sources"
-              />
+              <>
+                <Button
+                  icon={<img src={SyncIcon} height="20px" alt="sync" />}
+                  style={{ margin: 1, height: '40px', width: '40px' }}
+                  onClick={updateSources}
+                  value=""
+                  disabled={scs.length === 0}
+                  tooltip="Fetch online sources"
+                />
+                <Button
+                  value="Create profile"
+                  style={{ height: '40px' }}
+                  onClick={showProfileInput}
+                />
+              </>
             }
             imgSrc={BookMarkIcon}
             title="Current selection"
@@ -352,25 +321,18 @@ const StartPage: React.FC<Props> = ({
                 title={String(sorted.blocked.length)}
                 subtitle="Blocked"
                 imgSrc={BlockedIcon}
-                onClick={navigateBlocked}
               />
               <ListItem
                 title={String(sorted.allowed.length)}
                 subtitle="Allowed"
                 imgSrc={AllowedIcon}
-                onClick={navigateAllowed}
               />
               <ListItem
                 title={String(sorted.redirected.length)}
                 subtitle="Redirected"
                 imgSrc={RedirectedIcon}
-                onClick={navigateRedirected}
               />
             </div>
-            <div className="create-profile-wrapper">
-              <Button value="Create profile" onClick={showProfileInput} />
-            </div>
-
             <div className="update-bar">
               <div
                 className={`updates-available ${
@@ -388,9 +350,18 @@ const StartPage: React.FC<Props> = ({
               Create backup of system&apos;s hosts
             </p>
           </div>
-          {profiles.map((p) => (
-            <ProfileCard profile={p} key={p.path} />
-          ))}
+          {profiles.length === 0 ? (
+            <p>
+              Create a profile from the selected sources. Then you can apply it
+              to your system&apos;s hosts file.
+            </p>
+          ) : (
+            <>
+              {profiles.map((p) => (
+                <ProfileCard profile={p} key={p.path} />
+              ))}
+            </>
+          )}
         </div>
         <br />
         <br />

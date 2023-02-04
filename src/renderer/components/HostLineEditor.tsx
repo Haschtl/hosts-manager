@@ -2,13 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Button, InputText, Checkbox } from 'react-windows-ui';
 
-import { State } from '../store/types';
 import { HostsLine } from '../../shared/types';
-import './HostLineEditor.scss';
-// import BackIcon from '../../../assets/drawable/baseline_arrow_left.svg';
-// import DeleteIcon from '../../../assets/drawable/outline_delete_24.svg';
-// import SaveIcon from '../../../assets/drawable/baseline_check_24.svg';
 import ListItem from './ListItem';
+import './HostLineEditor.scss';
 
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
@@ -18,29 +14,23 @@ type OwnProps = {
   line: HostsLine;
   onSave(line: HostsLine): void;
   onRemove(line: HostsLine): void;
-  onDismiss(): void;
 };
-const HostLineEditor: React.FC<Props> = ({
-  line,
-  onSave,
-  onDismiss,
-  onRemove,
-}) => {
+const HostLineEditor: React.FC<Props> = ({ line, onSave, onRemove }) => {
   const [current, setCurrent] = React.useState<HostsLine>(line);
   const onDomainChange = React.useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       setCurrent({ ...current, domain: e.target.value });
     },
     [current]
   );
   const onHostChange = React.useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       setCurrent({ ...current, host: e.target.value });
     },
     [current]
   );
   const onCommentChange = React.useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       setCurrent({ ...current, comment: e.target.value });
     },
     [current]
@@ -58,7 +48,6 @@ const HostLineEditor: React.FC<Props> = ({
     <div className="hostline-editor">
       <ListItem
         title="Domain"
-        // subtitle=""
         ItemEndComponent={
           <InputText
             placeholder="example.com"
@@ -70,7 +59,6 @@ const HostLineEditor: React.FC<Props> = ({
       />
       <ListItem
         title="Host"
-        // subtitle="Target IP-address"
         ItemEndComponent={
           <InputText
             width="300px"
@@ -82,7 +70,6 @@ const HostLineEditor: React.FC<Props> = ({
       />
       <ListItem
         title="Comment"
-        // subtitle="Target IP-address"
         ItemEndComponent={
           <InputText
             width="300px"
@@ -94,7 +81,6 @@ const HostLineEditor: React.FC<Props> = ({
       />
       <ListItem
         title="Enabled"
-        // subtitle="Target IP-address"
         ItemEndComponent={
           <Checkbox defaultChecked={current.enabled} onChange={toggleEnabled} />
         }
@@ -120,7 +106,7 @@ const HostLineEditor: React.FC<Props> = ({
 };
 const mapDispatchToProps = {};
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = () => {
   return {};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(HostLineEditor);

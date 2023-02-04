@@ -1,39 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { NavPageContainer, CommandBar } from 'react-windows-ui';
 
 import { State } from '../store/types';
 import { sortHosts } from '../store/selectors';
 import HostsFileEditor from '../components/HostsFileEditor';
-import SearchIcon from '../../../assets/drawable/baseline_search_24.svg';
-import BookMarkIcon from '../../../assets/drawable/ic_collections_bookmark_24dp.svg';
 
 import BlockedIcon from '../../../assets/drawable/baseline_block_24.svg';
 import AllowedIcon from '../../../assets/drawable/baseline_check_24.svg';
 import RedirectedIcon from '../../../assets/drawable/baseline_compare_arrows_24.svg';
 import { annotateSources } from '../../shared/helper';
 import './ListViewPage.scss';
-
-// type HProps = {
-//   children?: React.ReactNode;
-// };
-// const ListHeader: React.FC<HProps> = ({ children }) => {
-//   return (
-//     <div>
-//       {children}
-//       <div className="buttonwrapper">
-//         <div className="button">
-//           <img src={SearchIcon} alt="search" />
-//         </div>
-//         <div className="button">
-//           <img src={BookMarkIcon} alt="favorites" />
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const ListViewPage: React.FC<Props> = ({
@@ -46,33 +24,6 @@ const ListViewPage: React.FC<Props> = ({
     settings.ipv6
   );
 
-  // const Blocked = (props: any) => {
-  //   return HostsFileEditor({
-  //     ...props,
-  //     file: {
-  //       lines: sorted.blocked,
-  //       path: 'block',
-  //     },
-  //   });
-  // };
-  // const Allowed = (props: any) => {
-  //   return HostsFileEditor({
-  //     ...props,
-  //     file: {
-  //       lines: sorted.allowed,
-  //       path: 'allowed',
-  //     },
-  //   });
-  // };
-  // const Redirected = (props: any) => {
-  //   return HostsFileEditor({
-  //     ...props,
-  //     file: {
-  //       lines: sorted.redirected,
-  //       path: 'redirected',
-  //     },
-  //   });
-  // };
   const [filter, setFilter] = React.useState<{
     blocked: boolean;
     allowed: boolean;
@@ -82,17 +33,6 @@ const ListViewPage: React.FC<Props> = ({
     allowed: false,
     redirected: false,
   });
-  const navigate = useNavigate();
-  const location = useLocation();
-  // const goToBlocked = React.useCallback(() => {
-  //   navigate('/list/blocked');
-  // }, [navigate]);
-  // const goToAllowed = React.useCallback(() => {
-  //   navigate('/list/allowed');
-  // }, [navigate]);
-  // const goToRedirected = React.useCallback(() => {
-  //   navigate('/list/redirected');
-  // }, [navigate]);
   const toggleFilterBlocked = React.useCallback(() => {
     setFilter({ ...filter, blocked: !filter.blocked });
   }, [filter]);
@@ -102,14 +42,6 @@ const ListViewPage: React.FC<Props> = ({
   const toggleFilterAllowed = React.useCallback(() => {
     setFilter({ ...filter, allowed: !filter.allowed });
   }, [filter]);
-  let title;
-  if (location.pathname.includes('redirected')) {
-    title = 'Redirected';
-  } else if (location.pathname.includes('allowed')) {
-    title = 'Allowed';
-  } else {
-    title = 'Blocked';
-  }
   return (
     <NavPageContainer animateTransition>
       <div className="page list">
@@ -164,7 +96,6 @@ const ListViewPage: React.FC<Props> = ({
           Note that this list still contains all duplicates. Created profiles
           will not contain any duplicates.
         </p>
-        {/* <h3>{title}</h3> */}
         <div className="content">
           <HostsFileEditor
             file={{
@@ -176,12 +107,6 @@ const ListViewPage: React.FC<Props> = ({
               path: 'block',
             }}
           />
-          {/* <Routes key="listroot">
-            <Route path="blocked" element={<Blocked />} />
-            <Route path="allowed" element={<Allowed />} />
-            <Route path="redirected" element={<Redirected />} />
-            <Route path="" element={<Blocked />} />
-          </Routes> */}
         </div>
       </div>
     </NavPageContainer>

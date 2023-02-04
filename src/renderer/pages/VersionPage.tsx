@@ -4,19 +4,8 @@ import { NavPageContainer } from 'react-windows-ui';
 
 import { State } from '../store/types';
 import AppIcon from '../../../assets/drawable/icon_foreground.png';
-import PayPalIcon from '../../../assets/drawable/paypal.svg';
-import GithubIcon from '../../../assets/drawable/ic_github_24dp.svg';
 import './VersionPage.scss';
 
-// import shell from "electron";
-export const openSupportWebsite = () => {
-  const url = 'https://google.de';
-  // shell.openExternal(url);
-};
-export const openPaypal = () => {
-  const url = 'https://paypal.com';
-  // shell.openExternal(url);
-};
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const VersionPage: React.FC<Props> = () => {
   return (
@@ -39,7 +28,6 @@ const VersionPage: React.FC<Props> = () => {
             <div className="change">- Fix hosts file install</div>
           </div>
         </div>
-        {/* <Footer /> */}
         <a
           target="_blank"
           rel="noreferrer"

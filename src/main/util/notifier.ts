@@ -3,10 +3,10 @@ import notifier from 'node-notifier';
 
 import { getAssetPath } from './files';
 
-notifier.on('click', (_notifierObject: any, _options: any, _event: any) => {
+notifier.on('click', () => {
   console.log('Click!');
 });
-notifier.on('timeout', (_notifierObject: any, _options: any) => {
+notifier.on('timeout', () => {
   console.log('Timeout!');
 });
 const n = {
@@ -18,7 +18,6 @@ const n = {
         process.env.NODE_ENV === 'production',
         'drawable/icon.png'
       ),
-      // appId: 'AdAway',
     });
   },
 };

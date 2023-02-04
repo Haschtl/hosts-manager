@@ -1,9 +1,9 @@
 {
-  "name": "adaway-win",
+  "name": "hosts-manager",
   "version": "1.0.0",
   "description": "A hosts-based ad-blocker for windows",
   "keywords": [
-    "adaway",
+    "hosts-manager",
     "adblocker",
     "adblock",
     "ads",
@@ -16,13 +16,13 @@
     "sass",
     "webpack"
   ],
-  "homepage": "https://github.com/haschtl/adaway-win#readme",
+  "homepage": "https://github.com/haschtl/hosts-manager#readme",
   "bugs": {
-    "url": "https://github.com/haschtl/adaway-win/issues"
+    "url": "https://github.com/haschtl/hosts-manager/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/haschtl/adaway-win.git"
+    "url": "git+https://github.com/haschtl/hosts-manager.git"
   },
   "license": "MIT",
   "author": {
@@ -114,6 +114,7 @@
     "framer-motion": "^8.5.5",
     "http-mitm-proxy": "^1.0.0",
     "node-notifier": "^10.0.1",
+    "node-powershell": "^5",
     "node-windows": "^1.0.0-beta.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -201,8 +202,8 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "AdAway",
-    "appId": "org.hasch.adaway",
+    "productName": "Hosts-Manager",
+    "appId": "org.haschtl.hostsmanager",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -267,11 +268,11 @@
     "publish": {
       "provider": "github",
       "owner": "haschtl",
-      "repo": "adaway-win"
+      "repo": "hosts-manager"
     }
   },
   "collective": {
-    "url": "https://opencollective.com/adaway-win"
+    "url": "https://opencollective.com/hosts-manager"
   },
   "devEngines": {
     "node": ">=14.x",

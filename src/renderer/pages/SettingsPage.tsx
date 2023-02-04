@@ -26,12 +26,6 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
   const hideNotImplemented = React.useCallback(() => {
     setNotImplemented(false);
   }, []);
-  const setAdminBasedAdblock = () => {
-    setNotImplemented(true);
-  };
-  const setVPNBasedAdblock = () => {
-    setNotImplemented(true);
-  };
   const setAndSaveSettings = React.useCallback(
     (s: Settings) => {
       window.files.saveConfig(s);
@@ -88,11 +82,15 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
     [setAndSaveSettings, settings]
   );
   const startBackup = React.useCallback(() => {
-    setNotImplemented(true);
+    window.files.openUserFolder();
   }, []);
   const isSystemDark =
     window.matchMedia &&
     window.matchMedia('(prefers-color-scheme: dark)').matches;
+  let darkMode = 'system';
+  if (settings.darkMode !== undefined) {
+    darkMode = settings.darkMode ? 'dark' : 'light';
+  }
   return (
     <NavPageContainer animateTransition>
       <NotImplemented isOpen={notImplemented} onDismiss={hideNotImplemented} />
@@ -105,13 +103,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
           subtitle="Change the visual appearence."
           ItemEndComponent={
             <Select
-              defaultValue={
-                settings.darkMode === undefined
-                  ? 'system'
-                  : settings.darkMode
-                  ? 'dark'
-                  : 'light'
-              } // Optional
+              defaultValue={darkMode} // Optional
               // @ts-ignore
               onChange={changeDarkMode}
               data={
@@ -124,7 +116,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
                     })`,
                     value: 'system',
                   },
-                ] as any
+                ] as unknown as string[]
               }
             />
           }
@@ -167,7 +159,7 @@ const SettingsPage: React.FC<Props> = ({ settings, setSettings }) => {
                     label: `No overwrite`,
                     value: 'undefined',
                   },
-                ] as any
+                ] as unknown as string[]
               }
             />
           }
