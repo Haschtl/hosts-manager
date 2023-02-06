@@ -132,7 +132,7 @@ export function mergeSources(sources: Sources, includeIPv6: boolean) {
         } else if (
           c.type === 'url' &&
           !c.applyRedirects &&
-          ['0.0.0.0', '127.0.0.1'].includes(l.host!)
+          !['0.0.0.0', '127.0.0.1'].includes(l.host!)
         ) {
           console.log(
             `Skipping entry, because applyRedirects is disabled: ${l.domain}`

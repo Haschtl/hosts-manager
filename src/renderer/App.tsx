@@ -8,7 +8,7 @@ import { AppTheme, LoaderBusy, NavBar, NavBarLink } from 'react-windows-ui';
 
 import './App.scss';
 import './styles/styles.scss';
-import { loadState } from './store/reducer';
+import { loadState, VERSION } from './store/reducer';
 import * as actions from './store/actions';
 import { State } from './store/types';
 import HomeIcon from '../../assets/icons8/icons8-home-page-48.png';
@@ -206,7 +206,7 @@ const App: React.FC<Props> = ({
           className="flat abs_version"
           onClick={navigateVersion}
         >
-          1.0.1
+          {VERSION}
         </button>
       </NavBar>
       <AppRoutes />
