@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
+    environment: default
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -26,7 +27,7 @@ jobs:
 
       - name: npm test
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           npm run package
           npm run lint

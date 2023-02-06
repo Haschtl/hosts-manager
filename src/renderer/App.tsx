@@ -206,7 +206,7 @@ const App: React.FC<Props> = ({
           className="flat abs_version"
           onClick={navigateVersion}
         >
-          1.0.0
+          1.0.1
         </button>
       </NavBar>
       <AppRoutes />
