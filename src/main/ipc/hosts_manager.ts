@@ -1,6 +1,7 @@
 /* eslint no-console: off */
 
 import { HostsLine, Sources } from '../../shared/types';
+import { isLineFiltered } from '../../shared/helper';
 
 function isIP(text: string) {
   if (text.split('.').length === 4 || text.split(':').length >= 3) {
@@ -121,23 +122,19 @@ export function mergeSources(sources: Sources, includeIPv6: boolean) {
   const whiteList = allowSources
     .map((s) => s.lines)
     .flat()
-    .map((l) => l.domain);
+    .filter((l) => l.domain !== undefined)
+    .map((l) => l.domain as string);
   blockSources.forEach((c) => {
     if (c.enabled) {
       c.lines.forEach((l) => {
-        if (domains.includes(l.domain!)) {
-          // console.log(`Found duplicate: ${l.domain}`);
-        } else if (whiteList.includes(l.domain!)) {
-          console.log(`Skipping whitelisted entry: ${l.domain}`);
-        } else if (
-          c.type === 'url' &&
-          !c.applyRedirects &&
-          !['0.0.0.0', '127.0.0.1'].includes(l.host!)
-        ) {
-          console.log(
-            `Skipping entry, because applyRedirects is disabled: ${l.domain}`
-          );
-        } else if (!includeIPv6 || !l.host?.includes(':')) {
+        const isFiltered = isLineFiltered(
+          l,
+          domains,
+          whiteList,
+          includeIPv6,
+          c
+        );
+        if (isFiltered) {
           domains.push(l.domain!);
           entries.push(l);
         }

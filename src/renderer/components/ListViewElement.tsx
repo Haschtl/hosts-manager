@@ -5,7 +5,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Switch, Dialog } from 'react-windows-ui';
 
-import { HostsFile, HostsLine } from '../../shared/types';
+import { HostsFile, HostsLine, HostsLinePlus } from '../../shared/types';
+import { isLineFiltered } from '../../shared/helper';
+import { State } from '../store/types';
 import HostLineEditor from './HostLineEditor';
 import './ListViewElement.scss';
 import ListItem from './ListItem';
@@ -16,7 +18,7 @@ type Props = typeof mapDispatchToProps &
 
 type OwnProps = {
   idx: number;
-  line: HostsLine;
+  line: HostsLine | HostsLinePlus;
   file?: HostsFile;
   editable?: boolean;
   setHostsLine(file: HostsFile, idx: number, line: HostsLine): void;
@@ -29,6 +31,8 @@ const ListViewElement: React.FC<Props> = ({
   rmHostsLine,
   setHostsLine,
   editable,
+  sourcesConfig,
+  includeIPv6,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const openPopup = () => {
@@ -65,6 +69,15 @@ const ListViewElement: React.FC<Props> = ({
   if (line.comment && line.comment !== '') {
     title += ` #${line.comment}`;
   }
+  const isFiltered = isLineFiltered(
+    line,
+    [],
+    [],
+    includeIPv6,
+    sourcesConfig.sources.find(
+      (s) => s.label === (line as HostsLinePlus).source
+    )
+  );
   return (
     <>
       {isOpen === true && (
@@ -98,11 +111,21 @@ const ListViewElement: React.FC<Props> = ({
               />
             </div>
           ) : (
-            <></>
+            <>
+              {!isFiltered ? (
+                <i className="icons10-cancel color-danger" />
+              ) : (
+                <i className="icons10-checkmark color-success" />
+              )}
+            </>
           )
         }
         title={title}
-        subtitle={line.host}
+        subtitle={
+          (line as HostsLinePlus).source === undefined
+            ? line.host
+            : `${line.host} (${(line as HostsLinePlus).source})`
+        }
       />
     </>
   );
@@ -110,7 +133,10 @@ const ListViewElement: React.FC<Props> = ({
 
 const mapDispatchToProps = {};
 
-const mapStateToProps = () => {
-  return {};
+const mapStateToProps = (state: State) => {
+  return {
+    sourcesConfig: state.app.sourcesConfig,
+    includeIPv6: state.app.settings.ipv6,
+  };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ListViewElement);

@@ -18,8 +18,9 @@ export type SourceConfig = {
 };
 export type HostsFile = {
   path: string;
-  lines: HostsLine[];
+  lines: (HostsLine | HostsLinePlus)[];
 } & Partial<Stats>;
+export type HostsLinePlus = HostsLine & { source: string };
 export type HostsLine = {
   domain?: string;
   host?: string;

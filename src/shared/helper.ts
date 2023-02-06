@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   HostsFile,
   SourceConfig,
   SourceConfigFile,
   SourceFiles,
   Sources,
+  HostsLine,
 } from './types';
 
 export function getUniqueID(configs: SourceConfigFile) {
@@ -68,4 +70,36 @@ export function hostsFile2sources(file: HostsFile) {
 
 export function path2profilename(p: string) {
   return p.replace('./profiles/', '').replace('.hosts', '');
+}
+
+export function isLineFiltered(
+  line: HostsLine,
+  existing: string[],
+  whiteList: string[],
+  includeIPv6: boolean,
+  config?: SourceConfig
+) {
+  if (existing.includes(line.domain!)) {
+    // console.log(`Found duplicate: ${l.domain}`);
+    return false;
+  }
+  if (whiteList.includes(line.domain!)) {
+    console.log(`Skipping whitelisted entry: ${line.domain}`);
+    return false;
+  }
+  if (
+    config?.type === 'url' &&
+    !config?.applyRedirects &&
+    !['0.0.0.0', '127.0.0.1'].includes(line.host!)
+  ) {
+    console.log(
+      `Skipping entry, because applyRedirects is disabled: ${line.domain}`
+    );
+    return false;
+  }
+  if (line.domain === 'localhost') {
+    console.log(`Skipping invalid domain: ${line.domain}`);
+    return false;
+  }
+  return true;
 }
