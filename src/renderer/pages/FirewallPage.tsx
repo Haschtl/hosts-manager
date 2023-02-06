@@ -97,24 +97,24 @@ const FirewallPage: React.FC<HProps> = ({
   // .filter(filterAny(searchText));
 
   const groups: FirewallRuleKeys[] = [
-    'Name',
-    'DisplayName',
-    'Description',
-    'DisplayGroup',
-    'Group',
-    'Enabled',
-    'Profile',
-    'Platform',
-    'Direction',
     'Action',
+    'Description',
+    'Direction',
+    'DisplayGroup',
+    'DisplayName',
     'EdgeTraversalPolicy',
-    'Protocol',
-    'LocalPort',
-    'RemotePort',
-    'Program',
-    'Package',
+    'Enabled',
+    'Group',
     'LocalAddress',
+    'LocalPort',
+    'Name',
+    'Package',
+    'Platform',
+    'Profile',
+    'Program',
+    'Protocol',
     'RemoteAddress',
+    'RemotePort',
   ];
   // const groupFilters = groups.map((v) => {
   //   return (

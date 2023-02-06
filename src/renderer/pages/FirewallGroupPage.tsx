@@ -102,8 +102,6 @@ export const getFilename = (f: string) => {
 };
 type RProps = {
   rule: FirewallRule;
-  onChange?(rule: FirewallRule): void;
-  onSetEnabled?(value: boolean): void;
   setFirewallRule: (rule: FirewallRule) => {
     type: string;
     payload: {
@@ -111,12 +109,7 @@ type RProps = {
     };
   };
 };
-const RuleItem: React.FC<RProps> = ({
-  rule,
-  onChange,
-  onSetEnabled,
-  setFirewallRule,
-}) => {
+const RuleItem: React.FC<RProps> = ({ rule, setFirewallRule }) => {
   const navigate = useNavigate();
   const toggleRule = React.useCallback(() => {
     if (rule.DisplayName) {
