@@ -17,7 +17,7 @@ import {
   SourceConfigFile,
   SourceFiles,
 } from '../../shared/types';
-import { annotateSources } from '../../shared/helper';
+import { annotateSources, path2profilename } from '../../shared/helper';
 
 export const userFolder = `${app.getPath('home')}/.hosts`;
 let hostsPath: string;
@@ -93,11 +93,10 @@ export const runAsAdminBase = async (command: string | RunAsAdminCommand) => {
   } -Verb RunAs -WindowStyle Hidden -PassThru ${
     usePowerShell ? '-Wait' : ''
   } ${args}`;
-  console.log(cmd);
+  console.log(`PS (elevated): ${cmd}`);
 
   return new Promise<ExecReturn>((resolve) => {
     exec(cmd, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
-      console.log(error, stdout, stderr);
       resolve({ error, stdout, stderr });
     });
   });
@@ -380,9 +379,12 @@ export const removeProfile = (path: string) => {
 };
 export const applyProfile = (path: string) => {
   const absPath = extendPath(path);
+  const id = path2profilename(path);
   console.log(`Setting profile ${absPath} to ${hostsPath}`);
   return runAsAdmin(`copy ${absPath} ${hostsPath}`).then(({ error }) => {
     if (!error) {
+      const currentConfig = loadSourceConfig();
+      saveSourceConfig({ ...currentConfig, active: id });
       return loadHostsFile(true);
     }
     return undefined;

@@ -6,6 +6,7 @@ import {
   FirewallRule,
   SourceConfig,
   FirewallProfile,
+  FirewallSetting,
 } from '../../shared/types';
 
 export type FirewallFilter = {
@@ -28,6 +29,7 @@ export type AppState = {
   firewall: {
     rules: FirewallRule[];
     profiles: FirewallProfile[];
+    settings?: FirewallSetting;
     filter: FirewallFilter;
   };
   searchText: string;

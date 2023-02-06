@@ -67,23 +67,41 @@ export const RuleAddDialog: React.FC<DProps> = ({ isVisible, onDismiss }) => {
       {/* @ts-ignore */}
       <Dialog.Body style={{ padding: 20, overflow: 'visible' }}>
         <p>Create a new firewall rule</p>
-        <InputText
-          value={displayName} // Optional
-          // @ts-ignore
-          placeholder="Name"
-          onChange={onDisplayNameChange}
+        <ListItem
+          title="Name"
+          ItemEndComponent={
+            <InputText
+              value={displayName} // Optional
+              // @ts-ignore
+              placeholder="Name"
+              onChange={onDisplayNameChange}
+            />
+          }
         />
-        <Switch
-          labelOn="Allow"
-          labelOff="Block"
-          defaultChecked={action === 'Allow'}
-          onChange={toggleAction}
+        <ListItem
+          title="Action"
+          ItemEndComponent={
+            <Switch
+              labelOn="Allow"
+              labelOff="Block"
+              labelPosition="start"
+              defaultChecked={action === 'Allow'}
+              onChange={toggleAction}
+            />
+          }
         />
-        <Switch
-          labelOn="Outbound"
-          labelOff="Inbound"
-          defaultChecked={direction === 'Outbound'}
-          onChange={toggleDirection}
+
+        <ListItem
+          title="Direction"
+          ItemEndComponent={
+            <Switch
+              labelOn="Outbound"
+              labelOff="Inbound"
+              labelPosition="start"
+              defaultChecked={direction === 'Outbound'}
+              onChange={toggleDirection}
+            />
+          }
         />
         {/* @ts-ignore */}
       </Dialog.Body>
@@ -111,11 +129,16 @@ type RProps = {
 };
 const RuleItem: React.FC<RProps> = ({ rule, setFirewallRule }) => {
   const navigate = useNavigate();
+  const [isLoading, setLoading] = React.useState(false);
   const toggleRule = React.useCallback(() => {
     if (rule.DisplayName) {
+      setLoading(true);
       return window.firewall.rules
         .toggle(rule.DisplayName, !rule.Enabled)
-        .then((r) => setFirewallRule(r));
+        .then((r) => {
+          setLoading(false);
+          return setFirewallRule(r);
+        });
       // if (rule.Enabled) {
       //   window.firewall.rules
       //     .disable(rule.DisplayName)
@@ -129,25 +152,30 @@ const RuleItem: React.FC<RProps> = ({ rule, setFirewallRule }) => {
     return undefined;
   }, [rule.DisplayName, rule.Enabled, setFirewallRule]);
   return (
-    <ListItem
-      title={rule.DisplayName}
-      onClick={() =>
-        navigate(`/firewall/rule`, {
-          state: {
-            DisplayName: rule.DisplayName,
-          },
-        })
-      }
-      subtitle={rule.DisplayGroup}
-      icon={rule.Action === 'Allow' ? 'icons10-checkmark' : 'icons10-cancel'}
-      ItemEndComponent={
-        <Switch
-          labelPosition="start"
-          defaultChecked={rule.Enabled}
-          onChange={toggleRule}
-        />
-      }
-    />
+    <>
+      {isLoading ? (
+        <LoaderBusy isLoading={isLoading} display="overlay" />
+      ) : null}
+      <ListItem
+        title={rule.DisplayName}
+        onClick={() =>
+          navigate(`/firewall/rule`, {
+            state: {
+              DisplayName: rule.DisplayName,
+            },
+          })
+        }
+        subtitle={rule.DisplayGroup}
+        icon={rule.Action === 'Allow' ? 'icons10-checkmark' : 'icons10-cancel'}
+        ItemEndComponent={
+          <Switch
+            labelPosition="start"
+            defaultChecked={rule.Enabled}
+            onChange={toggleRule}
+          />
+        }
+      />
+    </>
   );
 };
 type OwnProps = {

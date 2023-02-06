@@ -1,6 +1,7 @@
 import {
   FirewallProfile,
   FirewallRule,
+  FirewallSetting,
   HostsFile,
   HostsLine,
   Settings,
@@ -41,6 +42,10 @@ export const setSourceConfig = (config: SourceConfig) => ({
   type: 'setSourceConfig',
   payload: { config },
 });
+export const setActiveProfile = (value: string) => ({
+  type: 'setActiveProfile',
+  payload: { value },
+});
 export const setFirewallRules = (rules: FirewallRule[]) => ({
   type: 'setFirewallRules',
   payload: { rules },
@@ -48,6 +53,10 @@ export const setFirewallRules = (rules: FirewallRule[]) => ({
 export const setFirewallRule = (rule: FirewallRule) => ({
   type: 'setFirewallRule',
   payload: { rule },
+});
+export const setFirewallSettings = (setting: FirewallSetting) => ({
+  type: 'setFirewallSettings',
+  payload: { setting },
 });
 export const removeFirewallRule = (displayName: string) => ({
   type: 'removeFirewallRule',

@@ -108,6 +108,14 @@ const appReducer = (
         ...state,
         firewall: { ...state.firewall, rules: action.payload.rules },
       };
+    case 'setFirewallSettings':
+      return {
+        ...state,
+        firewall: {
+          ...state.firewall,
+          settings: action.payload.setting,
+        },
+      };
     case 'setFirewallRule':
       idx = state.firewall.rules.findIndex(
         (v) => v.DisplayName === action.payload.rule.DisplayName
@@ -156,6 +164,11 @@ const appReducer = (
       };
     case 'resetSettings':
       return { ...state, settings: initialSettings };
+    case 'setActiveProfile':
+      return {
+        ...state,
+        sourcesConfig: { ...state.sourcesConfig, active: action.payload.value },
+      };
     case 'setSourceConfig':
       id = action.payload.config.id;
       if (id === -1) {
@@ -167,10 +180,16 @@ const appReducer = (
       } else {
         state.sourcesConfig.sources[idx] = action.payload.config;
       }
-      window.files.saveSourcesConfig({ sources: state.sourcesConfig.sources });
+      window.files.saveSourcesConfig({
+        ...state.sourcesConfig,
+        sources: state.sourcesConfig.sources,
+      });
       return {
         ...state,
-        sourcesConfig: { sources: state.sourcesConfig.sources },
+        sourcesConfig: {
+          ...state.sourcesConfig,
+          sources: state.sourcesConfig.sources,
+        },
       };
 
     case 'rmSource':

@@ -2,7 +2,7 @@ import { Stats } from 'fs';
 
 export type Sources = Source[];
 export type Source = SourceConfig & HostsFile;
-export type SourceConfigFile = { sources: SourceConfig[] };
+export type SourceConfigFile = { sources: SourceConfig[]; active?: string };
 export type SourceFiles = { files: HostsFile[] };
 export type SourceConfig = {
   id: number;
@@ -38,6 +38,23 @@ export type Settings = {
   logging: boolean;
 };
 
+export type FirewallSetting = {
+  Name?: string;
+  Exemptions?: string;
+  EnableStatefulFtp?: boolean;
+  EnableStatefulPptp?: boolean;
+  ActiveProfile?: string;
+  RemoteMachineTransportAuthorizationList?: string;
+  RemoteMachineTunnelAuthorizationList?: string;
+  RemoteUserTransportAuthorizationList?: string;
+  RemoteUserTunnelAuthorizationList?: string;
+  RequireFullAuthSupport?: boolean;
+  CertValidationLevel?: string;
+  AllowIPsecThroughNAT?: string;
+  MaxSAIdleTimeSeconds?: number;
+  KeyEncoding?: string;
+  EnablePacketQueuing?: string;
+};
 export type FirewallProfile = {
   Name?: string;
   Enabled?: boolean;

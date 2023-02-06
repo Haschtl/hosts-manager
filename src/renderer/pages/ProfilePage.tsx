@@ -9,10 +9,9 @@ import { sortHosts } from '../store/selectors';
 import HostsFileEditor from '../components/HostsFileEditor';
 
 import RedirectedIcon from '../../../assets/icons/redirect_24.svg';
-import { hostsFile2sources } from '../../shared/helper';
+import { path2profilename, hostsFile2sources } from '../../shared/helper';
 import { HostsFile } from '../../shared/types';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { path2profilename } from '../components/ProfileCard';
 import './ListViewPage.scss';
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;

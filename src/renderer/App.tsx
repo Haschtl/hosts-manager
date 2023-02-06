@@ -62,6 +62,7 @@ const App: React.FC<Props> = ({
   setSourceConfig,
   setFirewallRules,
   setFirewallProfiles,
+  setFirewallSettings,
 }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -80,6 +81,10 @@ const App: React.FC<Props> = ({
     window.firewall.profiles
       .get()
       .then((profiles) => setFirewallProfiles(profiles));
+    window.firewall.settings.get().then((s) => {
+      console.log(s);
+      setFirewallSettings(s);
+    });
   }, []);
   const [highlight, setHighlight] = useState(false);
   const onDragEnter = useCallback((e: React.DragEvent) => {
@@ -217,6 +222,7 @@ const mapDispatchToProps = {
   setHostsFile: actions.setHostsFile,
   setFirewallRules: actions.setFirewallRules,
   setFirewallProfiles: actions.setFirewallProfiles,
+  setFirewallSettings: actions.setFirewallSettings,
 };
 
 const mapStateToProps = (state: State) => {

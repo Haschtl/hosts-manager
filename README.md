@@ -5,7 +5,7 @@
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/haschtl?logo=github)](https://github.com/sponsors/haschtl)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](/LICENSE.md)
 
-`hosts_manager` can manage your system's hosts file. This is used primarily for Ad-blocking purpose. You can include online-sources or custom files. `hosts_manager` includes a list of common Ad-Blocking files.
+`hosts_manager` can manage your system's hosts file. This is used primarily for Ad-blocking purpose. You can include online-sources or custom files. `hosts_manager` includes a list of common Ad-Blocking files. Additionally it provides a modern interface for Windows-Firewall rules.
 
 ## Availability
 
@@ -43,9 +43,6 @@
 - [lightswitch05's hosts](https://github.com/lightswitch05/hosts)
 - [ADios](https://github.com/AlexRabbit/ADios)
 
-## Todo
+## Known issues
 
-- bug mit callback
-
-- IsLoading bei toggle,save,remove
-- toggle profiles
+- Currently the firewall-manager gets no feedback if changes were successful or not. This does not affect enabling/disabling the firewall or rules and the removal of rules, but on `edit` and `new`.

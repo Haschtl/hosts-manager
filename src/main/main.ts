@@ -43,9 +43,12 @@ import {
   showSmartFirewallRules,
   getFirewallProfiles,
   showSmartFirewallRule,
+  getFirewallSettings,
+  toggleFirewallProfile,
 } from './ipc/windowsFirewall';
 import { getAssetPath } from './util/files';
-import { FirewallRuleO } from '../shared/types';
+import { FirewallRuleO, HostsFile } from '../shared/types';
+import { path2profilename } from '../shared/helper';
 
 const onlyHide = false;
 class AppUpdater {
@@ -97,6 +100,57 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
+  const setContextMenu = (profiles: HostsFile[], active?: string) => {
+    if (profiles) {
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: 'Open',
+
+          type: 'normal',
+          click: () => {
+            if (onlyHide) {
+              mainWindow?.show();
+            } else if (mainWindow === null) {
+              createWindow();
+            }
+          },
+        },
+        { type: 'separator' },
+        // { label: 'Disable', type: 'radio' },
+        // { label: 'Enable', type: 'radio', checked: true },
+        ...profiles.map((hf) => {
+          const id = path2profilename(hf.path);
+          return {
+            label: id,
+            type: 'radio',
+            checked: active === id,
+            click: () => {
+              const config = io.loadSourceConfig();
+              if (profiles) {
+                setContextMenu(profiles, config.active);
+              }
+              io.applyProfile(hf.path);
+            },
+            enabled: true,
+            // commandId: idx,
+            // id: idx,
+          } as Partial<Electron.MenuItem> as Electron.MenuItem;
+        }),
+        { type: 'separator' },
+
+        {
+          label: 'Quit',
+          // type: 'normal',
+          click: () => {
+            isQuiting = true;
+            app.quit();
+          },
+        },
+      ]);
+      tray?.setToolTip('hosts_manager');
+      tray?.setContextMenu(contextMenu);
+    }
+  };
   if (isDebug) {
     await installExtensions();
   }
@@ -237,45 +291,9 @@ const createWindow = async () => {
   });
   ipcMain.handle('app:load-profiles', () => {
     const profiles = io.loadProfiles();
+    const config = io.loadSourceConfig();
     if (profiles) {
-      const contextMenu = Menu.buildFromTemplate([
-        {
-          label: 'Open',
-          type: 'normal',
-          click: () => {
-            if (onlyHide) {
-              mainWindow?.show();
-            } else if (mainWindow === null) {
-              createWindow();
-            }
-          },
-        },
-        // { label: 'Disable', type: 'radio' },
-        // { label: 'Enable', type: 'radio', checked: true },
-        ...profiles.map((hf) => {
-          return {
-            label: hf.path.replace('./profiles/', '').replace('.hosts', ''),
-            type: 'radio',
-            checked: false,
-            click: () => {
-              io.applyProfile(hf.path);
-            },
-            enabled: true,
-            // commandId: idx,
-            // id: idx,
-          } as Partial<Electron.MenuItem> as Electron.MenuItem;
-        }),
-        {
-          label: 'Quit',
-          // type: 'normal',
-          click: () => {
-            isQuiting = true;
-            app.quit();
-          },
-        },
-      ]);
-      tray?.setToolTip('hosts_manager');
-      tray?.setContextMenu(contextMenu);
+      setContextMenu(profiles, config.active);
     }
     return profiles;
   });
@@ -283,7 +301,13 @@ const createWindow = async () => {
     return io.removeProfile(filepath);
   });
   ipcMain.handle('app:apply-profile', (e, filepath) => {
-    return io.applyProfile(filepath);
+    const retValue = io.applyProfile(filepath);
+    const profiles = io.loadProfiles();
+    const config = io.loadSourceConfig();
+    if (profiles) {
+      setContextMenu(profiles, config.active);
+    }
+    return retValue;
   });
   ipcMain.handle('app:sources-exist', () => {
     return io.sourcesExist();
@@ -383,6 +407,13 @@ const createWindow = async () => {
   ipcMain.handle('firewall:profiles:get', () => {
     return getFirewallProfiles();
   });
+  ipcMain.handle('firewall:settings:get', () => {
+    return getFirewallSettings();
+  });
+  ipcMain.handle('firewall:profiles:toggle', (e, name, value) => {
+    return toggleFirewallProfile(name, value);
+  });
+
   ipcMain.handle('firewall:rules:show', () => {
     return showFirewallRules();
   });

@@ -14,7 +14,12 @@ import { State } from '../store/types';
 import ListItem from '../components/ListItem';
 import './FirewallPage.scss';
 import { filterAny } from '../components/Search';
-import { FirewallRule, FirewallRuleKeys } from '../../shared/types';
+import {
+  FirewallProfile,
+  FirewallRule,
+  FirewallRuleKeys,
+  FirewallSetting,
+} from '../../shared/types';
 import * as actions from '../store/actions';
 import FirewallGroupPage, {
   getFilename,
@@ -23,6 +28,43 @@ import FirewallGroupPage, {
 import FirewallRulePage from './FirewallRule';
 import { HeaderButton } from './StartPage';
 
+type PProps = {
+  profile: FirewallProfile;
+  settings?: FirewallSetting;
+  rules: FirewallRule[];
+  onClick(p: FirewallProfile): void;
+};
+const ProfileButton: React.FC<PProps> = ({
+  profile,
+  settings,
+  rules,
+  onClick,
+}) => {
+  return (
+    <HeaderButton
+      className="profile-header"
+      key={profile.Name}
+      title={String(profile.Name)}
+      onClick={() => onClick(profile)}
+      // subtitle={p.profile.Enabled ? 'enabled' : 'disabled'}
+      subtitle={`${rules.filter((r) => r.Enabled).length}/${
+        rules.length
+      } rules`}
+      subsubtitle={`(${
+        settings?.ActiveProfile?.includes(profile.Name!)
+          ? 'applied'
+          : 'not applied'
+      })`}
+      // imgSrc={RedirectedIcon}
+      icon={
+        profile.Enabled
+          ? 'icons10-checkmark color-success'
+          : 'icons10-cancel color-danger'
+      }
+      // onClick={navigateSystem}
+    />
+  );
+};
 type HProps = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -31,8 +73,11 @@ const FirewallPage: React.FC<HProps> = ({
   searchText,
   filter,
   profiles,
+  settings,
   setFirewallRules,
   setFirewallFilter,
+  setFirewallProfiles,
+  setFirewallSettings,
 }) => {
   const [isLoading, setLoading] = React.useState(false);
   const navigate = useNavigate();
@@ -69,11 +114,19 @@ const FirewallPage: React.FC<HProps> = ({
       return undefined;
     }
     setLoading(true);
+    window.firewall.profiles
+      .get()
+      .then((p) => setFirewallProfiles(p))
+      .catch((e) => console.log(e));
+    window.firewall.settings
+      .get()
+      .then((p) => setFirewallSettings(p))
+      .catch((e) => console.log(e));
     return window.firewall.rules.showSmart().then((r) => {
       setLoading(false);
       return setFirewallRules(r);
     });
-  }, [setFirewallRules, isLoading]);
+  }, [setFirewallRules, isLoading, setFirewallProfiles, setFirewallSettings]);
 
   const filteredRules = rules
     .filter(filterAny(searchText))
@@ -144,9 +197,26 @@ const FirewallPage: React.FC<HProps> = ({
     return { profile: p, rules: pRules };
   });
 
+  const [isLoadingFullPage, setLoadingFullPage] = React.useState(false);
+  const onProfileClick = React.useCallback(
+    (profile: FirewallProfile) => {
+      setLoadingFullPage(true);
+      if (profile.Name !== undefined && profile.Enabled !== undefined)
+        return window.firewall.profiles
+          .toggle(profile.Name, !profile.Enabled)
+          .then((newP) => {
+            setFirewallProfiles(newP);
+            return setLoadingFullPage(false);
+          });
+      return undefined;
+    },
+    [setFirewallProfiles]
+  );
   return (
     <NavPageContainer animateTransition>
       <RuleAddDialog isVisible={addVisible} onDismiss={hideAdd} />
+      <LoaderBusy isLoading={isLoadingFullPage} display="overlay" />
+
       <div className="page full dns">
         {/* <h2>Profiles</h2> */}
         <div className={`start-header p20 ${true ? 'active' : 'inactive'}`}>
@@ -162,21 +232,12 @@ const FirewallPage: React.FC<HProps> = ({
           </div>
           <div className="abs_buttonbar">
             {profileRules.map((p) => (
-              <HeaderButton
-                className="profile-header"
+              <ProfileButton
+                onClick={onProfileClick}
+                settings={settings}
+                profile={p.profile}
+                rules={p.rules}
                 key={p.profile.Name}
-                title={String(p.profile.Name)}
-                // subtitle={p.profile.Enabled ? 'enabled' : 'disabled'}
-                subtitle={`${p.rules.filter((r) => r.Enabled).length}/${
-                  p.rules.length
-                } rules`}
-                // imgSrc={RedirectedIcon}
-                icon={
-                  p.profile.Enabled
-                    ? 'icons10-checkmark color-success'
-                    : 'icons10-cancel color-danger'
-                }
-                // onClick={navigateSystem}
               />
             ))}
           </div>
@@ -338,10 +399,13 @@ const FirewallPage: React.FC<HProps> = ({
 const mapDispatchToProps = {
   setFirewallRules: actions.setFirewallRules,
   setFirewallFilter: actions.setFirewallFilter,
+  setFirewallProfiles: actions.setFirewallProfiles,
+  setFirewallSettings: actions.setFirewallSettings,
 };
 const mapStateToProps = (state: State) => {
   return {
     rules: state.app.firewall.rules,
+    settings: state.app.firewall.settings,
     profiles: state.app.firewall.profiles,
     searchText: state.app.searchText,
     filter: state.app.firewall.filter,

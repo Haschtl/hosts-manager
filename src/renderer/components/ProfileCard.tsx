@@ -6,17 +6,14 @@ import { sortHosts } from 'renderer/store/selectors';
 import { Alert, Button, LoaderBusy } from 'react-windows-ui';
 import { useNavigate } from 'react-router';
 import { connect } from 'react-redux';
-import { hostsFile2sources } from '../../shared/helper';
+import { hostsFile2sources, path2profilename } from '../../shared/helper';
 import { HostsFile } from '../../shared/types';
 import ListItem from './ListItem';
 import RedirectedIcon from '../../../assets/icons/redirect_24.svg';
 import { timeSince } from './SourceListElement';
 import * as actions from '../store/actions';
 import './ProfileCard.scss';
-
-export function path2profilename(p: string) {
-  return p.replace('./profiles/', '').replace('.hosts', '');
-}
+import { State } from '../store/types';
 
 type Props = typeof mapDispatchToProps &
   ReturnType<typeof mapStateToProps> &
@@ -26,19 +23,19 @@ type OwnProps = {
   profile: HostsFile;
   imgSrc?: string;
   icon?: string;
-  enabled?: boolean;
   color?: 'success' | 'danger';
   children?: React.ReactNode;
 };
 const ProfileCard: React.FC<Props> = ({
   profile,
-  enabled = true,
   imgSrc,
   icon,
   color,
   children,
   setProfiles,
   setSystemHosts,
+  setActiveProfile,
+  sourcesConfig,
 }) => {
   const navigate = useNavigate();
 
@@ -73,6 +70,7 @@ const ProfileCard: React.FC<Props> = ({
         const f = await window.files.loadHostsFile(true);
         if (f) {
           setSystemHosts(f);
+          setActiveProfile(path2profilename(profile.path));
         } else {
           setAlertVisible(true);
         }
@@ -81,7 +79,7 @@ const ProfileCard: React.FC<Props> = ({
         return undefined;
       });
     },
-    [profile.path, setSystemHosts]
+    [profile.path, setSystemHosts, setActiveProfile]
   );
 
   const removeProfile = React.useCallback(
@@ -117,7 +115,11 @@ const ProfileCard: React.FC<Props> = ({
     <div
       className={`app-section-container-fg item-container profile-container ${
         onClick !== undefined ? 'clickable' : ''
-      } ${enabled ? 'enabled' : 'disabled'}`}
+      } ${
+        sourcesConfig.active === path2profilename(profile.path)
+          ? 'enabled'
+          : 'disabled'
+      }`}
       onClick={onClick}
     >
       <Alert
@@ -226,9 +228,10 @@ const ProfileCard: React.FC<Props> = ({
 const mapDispatchToProps = {
   setProfiles: actions.setProfiles,
   setSystemHosts: actions.setSystemHosts,
+  setActiveProfile: actions.setActiveProfile,
 };
 
-const mapStateToProps = () => {
-  return {};
+const mapStateToProps = (state: State) => {
+  return { sourcesConfig: state.app.sourcesConfig };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileCard);

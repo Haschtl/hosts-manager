@@ -65,3 +65,7 @@ export function hostsFile2sources(file: HostsFile) {
     },
   ] as Sources;
 }
+
+export function path2profilename(p: string) {
+  return p.replace('./profiles/', '').replace('.hosts', '');
+}

@@ -28,6 +28,7 @@ import './StartPage.scss';
 interface HBProps {
   title?: string;
   subtitle?: string;
+  subsubtitle?: string;
   icon?: string;
   imgSrc?: string;
   onClick?(): void;
@@ -36,6 +37,7 @@ interface HBProps {
 export const HeaderButton: React.FC<HBProps> = ({
   title,
   subtitle,
+  subsubtitle,
   icon,
   imgSrc,
   onClick,
@@ -47,6 +49,9 @@ export const HeaderButton: React.FC<HBProps> = ({
         <div className="content">
           {title !== undefined && <div className="title">{title}</div>}
           {subtitle !== undefined && <div className="subtitle">{subtitle}</div>}
+          {subsubtitle !== undefined && (
+            <div className="subsubtitle">{subsubtitle}</div>
+          )}
         </div>
       </button>
       {icon !== undefined ? (

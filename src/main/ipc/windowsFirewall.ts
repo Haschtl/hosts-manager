@@ -1,6 +1,11 @@
 /* eslint no-console: off */
 import { exec, ExecException } from 'child_process';
-import { FirewallProfile, FirewallRule, FirewallRuleO } from 'shared/types';
+import {
+  FirewallProfile,
+  FirewallRule,
+  FirewallRuleO,
+  FirewallSetting,
+} from 'shared/types';
 import { runAsAdmin } from './files';
 
 const execP = async (command: string) => {
@@ -9,6 +14,7 @@ const execP = async (command: string) => {
     stdout: string;
     stderr: string;
   }>((resolve) => {
+    console.log(`PS: ${command}`);
     exec(command, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
       resolve({ error, stdout, stderr });
     });
@@ -19,6 +25,24 @@ export function openWindowsFirewall() {
   exec('wf.msc', { shell: 'powershell.exe' });
 }
 
+function parseLine(line: string) {
+  const lineParts = line.split(': ', 2);
+  if (lineParts.length === 2) {
+    const key = lineParts[0].trim();
+    let value: string | boolean | number = lineParts[1].trim();
+    if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
+      if (value.toLowerCase() === 'false') {
+        value = false;
+      } else {
+        value = true;
+      }
+    } else if (!Number.isNaN(Number(value))) {
+      value = Number(value);
+    }
+    return { key, value };
+  }
+  return undefined;
+}
 function parseGroups<O = FirewallRule>(stdout: string): O[] {
   let rule: Partial<O> = {};
   const rules: O[] = [];
@@ -29,33 +53,27 @@ function parseGroups<O = FirewallRule>(stdout: string): O[] {
       }
       rule = {};
     }
-    const lineParts = line.split(': ', 2);
-    if (lineParts.length === 2) {
-      const key = lineParts[0].trim();
-      const value = lineParts[1].trim();
-      rule[key as keyof O] = value as any;
+    const result = parseLine(line);
+    if (result) {
+      rule[result.key as keyof O] = result.value as any;
     }
   });
   return rules;
 }
 
-export function parseShowNetFirewallRules(stdout: string) {
-  let rule: Partial<FirewallRule> = {};
-  const rules: FirewallRule[] = [];
+export function parseShowNetFirewallRules<O = FirewallRule>(stdout: string) {
+  let rule: Partial<O> = {};
+  const rules: O[] = [];
   stdout.split('\n').forEach((line) => {
     if (line.startsWith('--------------')) {
       if (Object.keys(rule).length > 0) {
-        rules.push(rule as FirewallRule);
+        rules.push(rule as O);
       }
       rule = {};
     }
-    if (line.includes(':')) {
-      const lineParts = line.split(': ', 2);
-      if (lineParts.length === 2) {
-        const key = lineParts[0].trim();
-        const value = lineParts[1].trim();
-        rule[key as 'Name'] = value;
-      }
+    const result = parseLine(line);
+    if (result) {
+      rule[result.key as keyof O] = result.value as any;
     }
   });
   return rules;
@@ -64,25 +82,39 @@ export function parseShowNetFirewallRules(stdout: string) {
 export function getFirewallProfiles(args = '') {
   const cmd = `Get-NetFirewallProfile ${args}`;
   return execP(cmd).then(({ error, stdout, stderr }) => {
-    console.log(error, stderr);
+    // console.log(error, stderr);
     return parseGroups<FirewallProfile>(stdout);
   });
 }
-export function getFirewallRules(args = '') {
-  const cmd = `get-netfirewallrule -all ${args}`;
+export function toggleFirewallProfile(name: string, enabled: boolean) {
+  const cmd = `Set-NetFirewallProfile -Name '${name}' -Enabled ${enabled}`;
+  return runAsAdmin(cmd).then(({ error, stdout, stderr }) => {
+    // console.log(error, stderr);
+    return getFirewallProfiles();
+  });
+}
+export function getFirewallSettings(args = '-PolicyStore ActiveStore') {
+  const cmd = `Get-NetFirewallSetting ${args}`;
   return execP(cmd).then(({ error, stdout, stderr }) => {
-    console.log(error, stderr);
+    // console.log(error, stderr);
+    return parseGroups<FirewallSetting>(stdout)[0];
+  });
+}
+export function getFirewallRules(args = '') {
+  const cmd = `Get-NetFirewallRule -all ${args}`;
+  return execP(cmd).then(({ error, stdout, stderr }) => {
+    // console.log(error, stderr);
     return parseGroups(stdout);
   });
 }
 
 export function showFirewallRules(args = '') {
-  const cmd = `show-netfirewallrule ${args}`;
+  const cmd = `Show-NetFirewallRule ${args}`;
   // Object.keys(rule).forEach((key) => {
   //   cmd += `-${key} ${String(rule[key as 'Name'])}`;
   // });
   return execP(cmd).then(({ error, stdout, stderr }) => {
-    console.log(error, stderr);
+    // console.log(error, stderr);
     return parseShowNetFirewallRules(stdout);
   });
 }
@@ -103,7 +135,7 @@ function getFirewallFilter(filter: NetFirewallFilter, args?: string) {
   }
 
   return execP(cmd).then(({ error, stdout, stderr }) => {
-    console.log(error, stderr);
+    // console.log(error, stderr);
     return parseGroups(stdout);
   });
 }
@@ -185,47 +217,45 @@ export async function showSmartFirewallRule(displayName: string) {
 
 export function setFirewallRule(rule: FirewallRuleO) {
   const { DisplayName, ...rest } = rule;
-  let cmd = `set-netfirewallrule -DisplayName '${DisplayName}'`;
+  let cmd = `Set-NetFirewallRule -DisplayName '${DisplayName}'`;
   Object.keys(rest).forEach((key) => {
     cmd += ` -${key} '${String(rest[key as 'Name'])}'`;
   });
-  console.log(cmd);
   return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
-    console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
 
     if (error === null) {
       return showSmartFirewallRule(rule.DisplayName!);
     }
+    console.log(`Powershell Error: ${error}`);
     return undefined;
   });
 }
 
 export function newFirewallRule(newRule: FirewallRuleO) {
-  let cmd = 'new-netfirewallrule ';
+  let cmd = 'New-NetFirewallRule ';
   Object.keys(newRule).forEach((key) => {
     cmd += ` -${key} '${String(newRule[key as 'Name'])}'`;
   });
-  console.log(cmd);
-
   return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
-    console.log(`Powershell Stderr: ${stderr}`);
+    // console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
 
     if (error === null) {
       return showSmartFirewallRule(newRule.DisplayName!);
     }
+    console.log(`Powershell Error: ${error}`);
     return undefined;
   });
 }
 
 export function copyFirewallRule(displayName: string, newName: string) {
-  const cmd = `copy-netfirewallrule -DisplayName '${displayName}' -NewName '${newName}'`;
+  const cmd = `Copy-NetFirewallRule -DisplayName '${displayName}' -NewName '${newName}'`;
   return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
-    console.log(`Powershell Stderr: ${stderr}`);
+    // console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
 
     if (error === null) {
@@ -235,7 +265,7 @@ export function copyFirewallRule(displayName: string, newName: string) {
   });
 }
 export function disableFirewallRule(displayName: string) {
-  const cmd = `disable-netfirewallrule -DisplayName '${displayName}'`;
+  const cmd = `Disable-NetFirewallRule -DisplayName '${displayName}'`;
   return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     console.log(`Powershell Stderr: ${stderr}`);
@@ -248,31 +278,33 @@ export function disableFirewallRule(displayName: string) {
   });
 }
 export function enableFirewallRule(displayName: string) {
-  const cmd = `enable-netfirewallrule -DisplayName '${displayName}'`;
+  const cmd = `Enable-NetFirewallRule -DisplayName '${displayName}'`;
   return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
-    console.log(`Powershell Stderr: ${stderr}`);
+    // console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
     if (error === null) {
       return showSmartFirewallRule(displayName);
     }
+    console.log(error);
     return undefined;
   });
 }
 export function removeFirewallRule(displayName: string) {
-  const cmd = `remove-netfirewallrule -DisplayName '${displayName}'`;
+  const cmd = `Remove-NetFirewallRule -DisplayName '${displayName}'`;
   return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
-    console.log(`Powershell Stderr: ${stderr}`);
+    // console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
     if (error === null) {
-      return false;
+      return true;
     }
-    return true;
+    console.log(error);
+    return false;
   });
 }
 export function renameFirewallRule(name: string, newName: string) {
-  const cmd = `rename-netfirewallrule -Name '${name}' -NewName '${newName}'`;
+  const cmd = `Rename-NetFirewallRule -Name '${name}' -NewName '${newName}'`;
   return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     console.log(`Powershell Stderr: ${stderr}`);
@@ -280,6 +312,7 @@ export function renameFirewallRule(name: string, newName: string) {
     if (error === null) {
       return showSmartFirewallRule(newName);
     }
+    console.log(error);
     return undefined;
   });
 }

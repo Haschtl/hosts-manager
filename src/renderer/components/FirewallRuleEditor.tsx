@@ -8,6 +8,7 @@ import {
   CommandBar,
   InputSearchBox,
   InputText,
+  LoaderBusy,
   Select,
   Switch,
 } from 'react-windows-ui';
@@ -277,20 +278,33 @@ const FirewallEditor: React.FC<Props> = ({
       OverrideBlockRules: !currentRule.OverrideBlockRules,
     });
   }, [currentRule]);
+  const [isLoading, setLoading] = React.useState(false);
   const navigate = useNavigate();
   const onSave = React.useCallback(() => {
+    setLoading(true);
     if (isNew) {
-      return window.firewall.rules.new(currentRule).then(() => {
-        return navigate('/firewall');
-      });
+      return window.firewall.rules
+        .new(currentRule)
+        .then(() => {
+          return navigate('/firewall');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
-    return window.firewall.rules.set(currentRule).then(() => {
-      return navigate('/firewall');
-    });
+    return window.firewall.rules
+      .set(currentRule)
+      .then(() => {
+        return navigate('/firewall');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [currentRule, isNew, navigate]);
   const onDelete = React.useCallback(() => {
     if (currentRule.DisplayName) {
-      window.firewall.rules
+      setLoading(true);
+      return window.firewall.rules
         .remove(currentRule.DisplayName)
         .then((v) => {
           console.log('Remove FW was successful:', v);
@@ -300,12 +314,16 @@ const FirewallEditor: React.FC<Props> = ({
           }
           return undefined;
         })
-        .catch((e) => console.log(e));
+        .catch((e) => console.log(e))
+        .finally(() => {
+          setLoading(false);
+        });
     }
+    return undefined;
   }, [currentRule.DisplayName, navigate, removeFirewallRule]);
-  console.log(currentRule);
   return (
     <>
+      <LoaderBusy isLoading={isLoading} display="overlay" />
       <CommandBar>
         {/* @ts-ignore */}
         <CommandBar.Button
@@ -359,17 +377,6 @@ const FirewallEditor: React.FC<Props> = ({
               onChange={setDisplayName}
               value={currentRule.DisplayName}
               defaultValue="DisplayName"
-            />
-          }
-        />
-        <ListItem
-          title="DisplayGroup"
-          subtitle="The displayed group of this rule"
-          ItemEndComponent={
-            <InputTextRegEx
-              onChange={setDisplayGroup}
-              value={currentRule.DisplayGroup}
-              defaultValue="DisplayGroup"
             />
           }
         />
@@ -619,12 +626,25 @@ const FirewallEditor: React.FC<Props> = ({
           }
         />
         <ListItem
+          title="DisplayGroup"
+          subtitle="The displayed group of this rule"
+          ItemEndComponent={
+            <InputTextRegEx
+              onChange={setDisplayGroup}
+              value={currentRule.DisplayGroup}
+              defaultValue="DisplayGroup"
+              disabled
+            />
+          }
+        />
+        <ListItem
           title="Group"
           subtitle="Specifies that only matching firewall rules of the indicated group association are copied. Wildcard characters are accepted. This parameter specifies the source string for the DisplayGroup parameter. If the DisplayGroup parameter value is a localizable string, then this parameter contains an indirect string."
           ItemEndComponent={
             <InputTextRegEx
               value={currentRule.Group}
               onChange={setGroup}
+              disabled
               defaultValue="Group"
             />
           }

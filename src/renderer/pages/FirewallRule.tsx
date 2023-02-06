@@ -19,8 +19,8 @@ const FirewallRule: React.FC<Props> = ({ rules }) => {
     isNew = true;
     rule = {
       DisplayName,
-      ...Rest,
       ...defaultRule,
+      ...Rest,
     };
   }
   // const currentRule = useState(rule);

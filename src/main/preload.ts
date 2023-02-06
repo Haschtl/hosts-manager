@@ -5,6 +5,7 @@ import {
   FirewallProfile,
   FirewallRule,
   FirewallRuleO,
+  FirewallSetting,
   HostsFile,
   Settings,
   SourceConfigFile,
@@ -185,9 +186,20 @@ const firewallHandler = {
   open: async (): Promise<void> => {
     return ipcRenderer.invoke('firewall:open');
   },
+  settings: {
+    get: async (): Promise<FirewallSetting> => {
+      return ipcRenderer.invoke('firewall:settings:get');
+    },
+  },
   profiles: {
     get: async (): Promise<FirewallProfile[]> => {
       return ipcRenderer.invoke('firewall:profiles:get');
+    },
+    toggle: async (
+      name: string,
+      value: boolean
+    ): Promise<FirewallProfile[]> => {
+      return ipcRenderer.invoke('firewall:profiles:toggle', name, value);
     },
   },
   rules: {
