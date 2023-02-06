@@ -381,7 +381,7 @@ export const applyProfile = (path: string) => {
   const absPath = extendPath(path);
   const id = path2profilename(path);
   console.log(`Setting profile ${absPath} to ${hostsPath}`);
-  return runAsAdmin(`copy ${absPath} ${hostsPath}`).then(({ error }) => {
+  return runAsAdmin(`copy '${absPath}' '${hostsPath}'`).then(({ error }) => {
     if (!error) {
       const currentConfig = loadSourceConfig();
       saveSourceConfig({ ...currentConfig, active: id });
