@@ -29,6 +29,7 @@ const GlobalSearch: React.FC<Props> = ({ searchText, setSearchText }) => {
   const location = useLocation();
   const isSearchAvailable =
     location.pathname.startsWith('/profile/') ||
+    location.pathname.startsWith('/system') ||
     location.pathname.startsWith('/firewall') ||
     location.pathname.startsWith('/dns') ||
     location.pathname.startsWith('/editsource') ||

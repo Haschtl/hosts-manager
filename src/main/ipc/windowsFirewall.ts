@@ -1,28 +1,14 @@
 /* eslint no-console: off */
-import { exec, ExecException } from 'child_process';
 import {
   FirewallProfile,
   FirewallRule,
   FirewallRuleO,
   FirewallSetting,
 } from 'shared/types';
-import { runAsAdmin } from './files';
-
-const execP = async (command: string) => {
-  return new Promise<{
-    error: ExecException | null;
-    stdout: string;
-    stderr: string;
-  }>((resolve) => {
-    console.log(`PS: ${command}`);
-    exec(command, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
-      resolve({ error, stdout, stderr });
-    });
-  });
-};
+import { execAdmin, execNormal } from '../util/os';
 
 export function openWindowsFirewall() {
-  exec('wf.msc', { shell: 'powershell.exe' });
+  return execNormal('wf.msc');
 }
 
 function parseLine(line: string) {
@@ -81,28 +67,28 @@ export function parseShowNetFirewallRules<O = FirewallRule>(stdout: string) {
 
 export function getFirewallProfiles(args = '') {
   const cmd = `Get-NetFirewallProfile ${args}`;
-  return execP(cmd).then(({ error, stdout, stderr }) => {
+  return execNormal(cmd).then(({ error, stdout, stderr }) => {
     // console.log(error, stderr);
     return parseGroups<FirewallProfile>(stdout);
   });
 }
 export function toggleFirewallProfile(name: string, enabled: boolean) {
   const cmd = `Set-NetFirewallProfile -Name '${name}' -Enabled ${enabled}`;
-  return runAsAdmin(cmd).then(({ error, stdout, stderr }) => {
+  return execAdmin(cmd).then(({ error, stdout, stderr }) => {
     // console.log(error, stderr);
     return getFirewallProfiles();
   });
 }
 export function getFirewallSettings(args = '-PolicyStore ActiveStore') {
   const cmd = `Get-NetFirewallSetting ${args}`;
-  return execP(cmd).then(({ error, stdout, stderr }) => {
+  return execNormal(cmd).then(({ error, stdout, stderr }) => {
     // console.log(error, stderr);
     return parseGroups<FirewallSetting>(stdout)[0];
   });
 }
 export function getFirewallRules(args = '') {
   const cmd = `Get-NetFirewallRule -all ${args}`;
-  return execP(cmd).then(({ error, stdout, stderr }) => {
+  return execNormal(cmd).then(({ error, stdout, stderr }) => {
     // console.log(error, stderr);
     return parseGroups(stdout);
   });
@@ -113,7 +99,7 @@ export function showFirewallRules(args = '') {
   // Object.keys(rule).forEach((key) => {
   //   cmd += `-${key} ${String(rule[key as 'Name'])}`;
   // });
-  return execP(cmd).then(({ error, stdout, stderr }) => {
+  return execNormal(cmd).then(({ error, stdout, stderr }) => {
     // console.log(error, stderr);
     return parseShowNetFirewallRules(stdout);
   });
@@ -134,7 +120,7 @@ function getFirewallFilter(filter: NetFirewallFilter, args?: string) {
     cmd = `Get-NetFirewallRule ${args} | ${filter}`;
   }
 
-  return execP(cmd).then(({ error, stdout, stderr }) => {
+  return execNormal(cmd).then(({ error, stdout, stderr }) => {
     // console.log(error, stderr);
     return parseGroups(stdout);
   });
@@ -221,7 +207,7 @@ export function setFirewallRule(rule: FirewallRuleO) {
   Object.keys(rest).forEach((key) => {
     cmd += ` -${key} '${String(rest[key as 'Name'])}'`;
   });
-  return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
+  return execAdmin(cmd).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     // console.log(`Powershell error: ${error}`);
 
@@ -238,7 +224,7 @@ export function newFirewallRule(newRule: FirewallRuleO) {
   Object.keys(newRule).forEach((key) => {
     cmd += ` -${key} '${String(newRule[key as 'Name'])}'`;
   });
-  return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
+  return execAdmin(cmd).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     // console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
@@ -253,7 +239,7 @@ export function newFirewallRule(newRule: FirewallRuleO) {
 
 export function copyFirewallRule(displayName: string, newName: string) {
   const cmd = `Copy-NetFirewallRule -DisplayName '${displayName}' -NewName '${newName}'`;
-  return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
+  return execAdmin(cmd).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     // console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
@@ -266,7 +252,7 @@ export function copyFirewallRule(displayName: string, newName: string) {
 }
 export function disableFirewallRule(displayName: string) {
   const cmd = `Disable-NetFirewallRule -DisplayName '${displayName}'`;
-  return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
+  return execAdmin(cmd).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
@@ -279,7 +265,7 @@ export function disableFirewallRule(displayName: string) {
 }
 export function enableFirewallRule(displayName: string) {
   const cmd = `Enable-NetFirewallRule -DisplayName '${displayName}'`;
-  return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
+  return execAdmin(cmd).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     // console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
@@ -292,7 +278,7 @@ export function enableFirewallRule(displayName: string) {
 }
 export function removeFirewallRule(displayName: string) {
   const cmd = `Remove-NetFirewallRule -DisplayName '${displayName}'`;
-  return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
+  return execAdmin(cmd).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     // console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);
@@ -305,7 +291,7 @@ export function removeFirewallRule(displayName: string) {
 }
 export function renameFirewallRule(name: string, newName: string) {
   const cmd = `Rename-NetFirewallRule -Name '${name}' -NewName '${newName}'`;
-  return runAsAdmin(cmd, false).then(({ error, stdout, stderr }) => {
+  return execAdmin(cmd).then(({ error, stdout, stderr }) => {
     // console.log(`Powershell Stdout: ${stdout}`);
     console.log(`Powershell Stderr: ${stderr}`);
     // console.log(`Powershell error: ${error}`);

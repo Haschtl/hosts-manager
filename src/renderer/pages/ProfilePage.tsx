@@ -98,10 +98,9 @@ const ListViewPage: React.FC<Props> = ({ settings, profiles, systemHosts }) => {
             }
           />
         </CommandBar>
-        <p>This is the combined list of your current source selection</p>
+        <p>This list represents the selected profile</p>
         <p className="app-para-light">
-          Note that this list still contains all duplicates. Created profiles
-          will not contain any duplicates.
+          It is currently not possible to edit profiles.
         </p>
         {/* <h3>{title}</h3> */}
         <div className="content">

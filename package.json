@@ -236,7 +236,7 @@
       "target": [
         "nsis"
       ],
-      "requestedExecutionLevel": "requireAdministrator"
+      "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
       "guid": "f0cb49a3-c075-4eca-aea9-efd44f0d0098",

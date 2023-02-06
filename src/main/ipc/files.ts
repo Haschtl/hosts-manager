@@ -3,8 +3,7 @@
 
 import fs from 'fs';
 import https from 'https';
-import { app, dialog } from 'electron';
-import { exec, ExecException } from 'child_process';
+import { dialog } from 'electron';
 
 import {
   mergeSources,
@@ -18,8 +17,18 @@ import {
   SourceFiles,
 } from '../../shared/types';
 import { annotateSources, path2profilename } from '../../shared/helper';
+import { execAdmin } from '../util/os';
+import {
+  configPath,
+  extendPath,
+  preHostsPath,
+  profilesFolder,
+  shortenPath,
+  sourcesFolder,
+  sourcesPath,
+  userFolder,
+} from '../util/userFolder';
 
-export const userFolder = `${app.getPath('home')}/.hosts`;
 let hostsPath: string;
 if (process.platform === 'win32') {
   hostsPath = 'C://windows/system32/drivers/etc/hosts';
@@ -27,101 +36,6 @@ if (process.platform === 'win32') {
   hostsPath = '/private/etc/hosts';
 } else {
   hostsPath = '/etc/hosts';
-}
-const sourcesFolder = `${userFolder}/sources/`;
-const preHostsPath = `${userFolder}/hosts`;
-const configPath = `${userFolder}/config.json`;
-const sourcesPath = `${userFolder}/sources.json`;
-const profilesFolder = `${userFolder}/profiles/`;
-
-function extendPath(path: string) {
-  if (path.startsWith('./')) {
-    return `${userFolder}/${path.replace('./', '')}`;
-  }
-  return path;
-}
-function shortenPath(path: string) {
-  if (path.startsWith(userFolder)) {
-    return path.replace(`${userFolder}/`, './');
-  }
-  return path;
-}
-type ExecReturn = {
-  error: ExecException | null;
-  stdout: string;
-  stderr: string;
-};
-
-/** Options to use when running an executable as admin */
-interface RunAsAdminCommand {
-  /** Path to the executable to run */
-  path: string;
-  /** Working dir to run the executable from */
-  workingDir?: string;
-}
-/**
- * Runs a PowerShell command or an executable as admin
- *
- * @param command If a string is provided, it will be used as a command to
- *   execute in an elevated PowerShell. If an object with `path` is provided,
- *   the executable will be started in Run As Admin mode
- *
- * If providing a string for elevated PowerShell, ensure the command is parsed
- *   by PowerShell correctly by using an interpolated string and wrap the
- *   command in double quotes.
- *
- * Example:
- *
- * ```
- * `"Do-The-Thing -Param '${pathToFile}'"`
- * ```
- */
-
-export const runAsAdminBase = async (command: string | RunAsAdminCommand) => {
-  const usePowerShell = typeof command === 'string';
-  let args;
-  if (usePowerShell) {
-    args = `-ArgumentList "${command.replaceAll('"', '`"')}"`;
-  } else {
-    args = `-FilePath '${command.path}'`;
-    if (command.workingDir) {
-      args += ` -WorkingDirectory '${command.workingDir}'`;
-    }
-  }
-  const cmd = `Start-Process ${
-    usePowerShell ? 'PowerShell' : ''
-  } -Verb RunAs -WindowStyle Hidden -PassThru ${
-    usePowerShell ? '-Wait' : ''
-  } ${args}`;
-  console.log(`PS (elevated): ${cmd}`);
-
-  return new Promise<ExecReturn>((resolve) => {
-    exec(cmd, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
-      resolve({ error, stdout, stderr });
-    });
-  });
-};
-export const runScriptAsAdmin = async (script: string) => {
-  const absPath = extendPath('./temp.ps1');
-  fs.writeFileSync(absPath, script);
-  return runAsAdminBase({ path: absPath, workingDir: userFolder });
-};
-export const runAsAdmin = async (
-  command: string | RunAsAdminCommand,
-  useScript = false
-) => {
-  if (useScript && typeof command === 'string') {
-    return runScriptAsAdmin(command);
-  }
-  return runAsAdminBase(command);
-};
-
-export function openFolder(path: string) {
-  return new Promise<ExecReturn>((resolve) =>
-    exec(`start "${path}"`, (error, stdout, stderr) =>
-      resolve({ error, stdout, stderr })
-    )
-  );
 }
 export function fileExists(path: string) {
   const absPath = extendPath(path);
@@ -381,7 +295,7 @@ export const applyProfile = (path: string) => {
   const absPath = extendPath(path);
   const id = path2profilename(path);
   console.log(`Setting profile ${absPath} to ${hostsPath}`);
-  return runAsAdmin(`copy '${absPath}' '${hostsPath}'`).then(({ error }) => {
+  return execAdmin(`copy '${absPath}' '${hostsPath}'`).then(({ error }) => {
     if (!error) {
       const currentConfig = loadSourceConfig();
       saveSourceConfig({ ...currentConfig, active: id });

@@ -49,7 +49,9 @@ import {
 import { getAssetPath } from './util/files';
 import { FirewallRuleO, HostsFile } from '../shared/types';
 import { path2profilename } from '../shared/helper';
+import { userFolder } from './util/userFolder';
 
+app.disableHardwareAcceleration();
 const onlyHide = false;
 class AppUpdater {
   constructor() {
@@ -352,7 +354,7 @@ const createWindow = async () => {
     return io.downloadFile(url, filepath);
   });
   ipcMain.handle('app:open-user-folder', () => {
-    shell.openPath(io.userFolder);
+    shell.openPath(userFolder);
   });
   ipcMain.handle('app:is-elevated', async () => {
     return false;
