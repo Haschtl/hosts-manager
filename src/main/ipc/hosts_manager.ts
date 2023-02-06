@@ -1,7 +1,7 @@
 /* eslint no-console: off */
 
 import { HostsLine, Sources } from '../../shared/types';
-import { isLineFiltered } from '../../shared/helper';
+import { defaultLines, isLineFiltered } from '../../shared/helper';
 
 function isIP(text: string) {
   if (text.split('.').length === 4 || text.split(':').length >= 3) {
@@ -115,7 +115,7 @@ export function parseHostsFile(file: string) {
 }
 
 export function mergeSources(sources: Sources, includeIPv6: boolean) {
-  const entries: HostsLine[] = [];
+  const entries: HostsLine[] = defaultLines;
   const domains: string[] = [];
   const blockSources = sources.filter((s) => s.enabled && s.format === 'block');
   const allowSources = sources.filter((s) => s.enabled && s.format === 'allow');

@@ -72,6 +72,13 @@ export function path2profilename(p: string) {
   return p.replace('./profiles/', '').replace('.hosts', '');
 }
 
+export const defaultLines: HostsLine[] = [
+  // { host: '::1', domain: 'localhost', enabled: true },
+  { host: '127.0.0.1', domain: 'localhost', enabled: true },
+  { host: '127.0.0.1', domain: 'localhost.localdomain', enabled: true },
+];
+const defaultDomains = defaultLines.map((l) => l.domain!);
+
 export function isLineFiltered(
   line: HostsLine,
   existing: string[],
@@ -97,8 +104,10 @@ export function isLineFiltered(
     );
     return false;
   }
-  if (line.domain === 'localhost') {
-    console.log(`Skipping invalid domain: ${line.domain}`);
+  if (defaultDomains.includes(line.domain!)) {
+    console.log(
+      `Skipping domain, because it is included in the defaults: ${line.domain}`
+    );
     return false;
   }
   return true;

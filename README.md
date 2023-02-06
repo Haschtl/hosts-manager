@@ -46,3 +46,11 @@
 ## Known issues
 
 - Currently the firewall-manager gets no feedback if changes were successful or not. This does not affect enabling/disabling the firewall or rules and the removal of rules, but on `edit` and `new`.
+
+## Troubleshooting
+
+A wrong configured hosts-file can lead to problems with the Windows DNS-Client. If the DNS-Client blocks access to the hosts-file, you cannot edit it anymore.
+
+- disable the DNS-Client `REG add “HKLM\SYSTEM\CurrentControlSet\services\dnscache” /v Start /t REG_DWORD /d 4 /f`
+- Reboot and delete or backup the hosts file
+- enable the DNS-Client `REG add “HKLM\SYSTEM\CurrentControlSet\services\dnscache” /v Start /t REG_DWORD /d 2 /f`
