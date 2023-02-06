@@ -70,6 +70,8 @@ export function formatLine(
     !['0.0.0.0', '127.0.0.1', 'localhost'].includes(line.host!)
   ) {
     host = line.host;
+  } else if (defaultLines.map((l) => l.domain!).includes(line.domain!)) {
+    host = defaultLines.find((l) => l.domain === line.domain)?.host;
   } else {
     host = hostOverwrite;
   }
@@ -115,7 +117,7 @@ export function parseHostsFile(file: string) {
 }
 
 export function mergeSources(sources: Sources, includeIPv6: boolean) {
-  const entries: HostsLine[] = defaultLines;
+  const entries: HostsLine[] = [];
   const domains: string[] = [];
   const blockSources = sources.filter((s) => s.enabled && s.format === 'block');
   const allowSources = sources.filter((s) => s.enabled && s.format === 'allow');
