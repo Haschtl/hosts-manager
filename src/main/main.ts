@@ -34,10 +34,15 @@ import {
   disableFirewallRule,
   enableFirewallRule,
   getFirewallRules,
+  openWindowsFirewall,
   newFirewallRule,
   removeFirewallRule,
   renameFirewallRule,
   setFirewallRule,
+  showFirewallRules,
+  showSmartFirewallRules,
+  getFirewallProfiles,
+  showSmartFirewallRule,
 } from './ipc/windowsFirewall';
 import { getAssetPath } from './util/files';
 import { FirewallRuleO } from '../shared/types';
@@ -269,7 +274,7 @@ const createWindow = async () => {
           },
         },
       ]);
-      tray?.setToolTip('hosts-manager');
+      tray?.setToolTip('hosts_manager');
       tray?.setContextMenu(contextMenu);
     }
     return profiles;
@@ -329,12 +334,15 @@ const createWindow = async () => {
     return false;
   });
   ipcMain.handle('app:notify', (e, message: string) => {
-    return notifier.notify({ title: 'hosts-manager', message });
+    return notifier.notify({ title: 'hosts_manager', message });
   });
   ipcMain.handle('app:close-window', () => {
     if (mainWindow !== null) {
       mainWindow.close();
     }
+  });
+  ipcMain.handle('app:show-open-dialog', () => {
+    return io.showOpenDialog();
   });
   ipcMain.handle('dark-mode:toggle', () => {
     if (nativeTheme.shouldUseDarkColors) {
@@ -372,30 +380,48 @@ const createWindow = async () => {
   ipcMain.handle('firewall:rules:get', () => {
     return getFirewallRules();
   });
-  ipcMain.handle('firewall:rules:set', (e, newRule: FirewallRuleO) => {
-    return setFirewallRule(newRule);
+  ipcMain.handle('firewall:profiles:get', () => {
+    return getFirewallProfiles();
+  });
+  ipcMain.handle('firewall:rules:show', () => {
+    return showFirewallRules();
+  });
+  ipcMain.handle('firewall:rules:show-smart', async () => {
+    return showSmartFirewallRules();
+  });
+  ipcMain.handle('firewall:rules:get-smart', async (e, displayName: string) => {
+    return showSmartFirewallRule(displayName);
+  });
+  ipcMain.handle('firewall:open', () => {
+    return openWindowsFirewall();
+  });
+  ipcMain.handle('firewall:rules:set', (e, rule: FirewallRuleO) => {
+    return setFirewallRule(rule);
   });
   ipcMain.handle('firewall:rules:new', (e, newRule: FirewallRuleO) => {
     return newFirewallRule(newRule);
   });
-  ipcMain.handle('firewall:rules:copy', (e, newRule: FirewallRuleO) => {
-    return copyFirewallRule(newRule);
+  ipcMain.handle('firewall:rules:copy', (e, displayName, newName) => {
+    return copyFirewallRule(displayName, newName);
   });
-  ipcMain.handle('firewall:rules:remove', (e, newRule: FirewallRuleO) => {
-    return removeFirewallRule(newRule);
+  ipcMain.handle('firewall:rules:remove', (e, displayName) => {
+    return removeFirewallRule(displayName);
   });
-  ipcMain.handle('firewall:rules:rename', (e, newRule: FirewallRuleO) => {
-    return renameFirewallRule(newRule);
+  ipcMain.handle('firewall:rules:enable', (e, displayName) => {
+    return enableFirewallRule(displayName);
   });
-  ipcMain.handle(
-    'firewall:rules:toggle',
-    (e, newRule: FirewallRuleO, value: boolean) => {
-      if (value) {
-        return enableFirewallRule(newRule);
-      }
-      return disableFirewallRule(newRule);
+  ipcMain.handle('firewall:rules:disable', (e, displayName) => {
+    return disableFirewallRule(displayName);
+  });
+  ipcMain.handle('firewall:rules:rename', (e, name, newName) => {
+    return renameFirewallRule(name, newName);
+  });
+  ipcMain.handle('firewall:rules:toggle', (e, displayName, value: boolean) => {
+    if (value) {
+      return enableFirewallRule(displayName);
     }
-  );
+    return disableFirewallRule(displayName);
+  });
 
   // // Taskbar overlay icon
   // mainWindow.setOverlayIcon(
@@ -474,11 +500,11 @@ const createWindow = async () => {
 // ]);
 
 // if (process.platform === 'win32') {
-//   const eventLogger = new EventLogger({ source: 'hosts-manager' });
+//   const eventLogger = new EventLogger({ source: 'hosts_manager' });
 //   // Create a new service object
 //   const svc = new Service({
-//     name: 'hosts-manager',
-//     description: 'Background autorun service for hosts-manager.',
+//     name: 'hosts_manager',
+//     description: 'Background autorun service for hosts_manager.',
 //     script: path.join(__dirname, 'main.js'),
 //     nodeOptions: '--harmony --max_old_space_size=4096',
 //     // workingDirectory: '...',
@@ -535,7 +561,7 @@ if (!gotTheLock) {
     .whenReady()
     .then(() => {
       globalShortcut.register('Alt+CommandOrControl+I', () => {
-        console.log('Toggle hosts-manager!');
+        console.log('Toggle hosts_manager!');
         // io.toggleHosts();
       });
       tray = new Tray(getAssetPath(app.isPackaged, 'icon.ico'));
@@ -563,7 +589,7 @@ if (!gotTheLock) {
         // { label: 'Disable', type: 'radio' },
         // { label: 'Enable', type: 'radio', checked: true },
       ]);
-      tray.setToolTip('hosts-manager');
+      tray.setToolTip('hosts_manager');
       tray.setContextMenu(contextMenu);
 
       tray.addListener('double-click', () => {

@@ -61,6 +61,7 @@ const App: React.FC<Props> = ({
   setHostsFile,
   setSourceConfig,
   setFirewallRules,
+  setFirewallProfiles,
 }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -75,7 +76,10 @@ const App: React.FC<Props> = ({
       window.taskbar.progress(0);
       return undefined;
     });
-    window.firewall.rules.get().then((rules) => setFirewallRules(rules));
+    window.firewall.rules.showSmart().then((rules) => setFirewallRules(rules));
+    window.firewall.profiles
+      .get()
+      .then((profiles) => setFirewallProfiles(profiles));
   }, []);
   const [highlight, setHighlight] = useState(false);
   const onDragEnter = useCallback((e: React.DragEvent) => {
@@ -151,7 +155,7 @@ const App: React.FC<Props> = ({
       <LoaderBusy isLoading={loading} display="overlay" />
       <NavBar
         collapsed
-        title="hosts-manager"
+        title="hosts_manager"
         shadowOnScroll
         titleBarMobile={
           <div
@@ -161,7 +165,7 @@ const App: React.FC<Props> = ({
               width: 'calc(100% - 60px)',
             }}
           >
-            <span className="app-navbar-name">hosts-manager</span>
+            <span className="app-navbar-name">hosts_manager</span>
           </div>
         }
       >
@@ -212,6 +216,7 @@ const mapDispatchToProps = {
   setSourceConfig: actions.setSourceConfig,
   setHostsFile: actions.setHostsFile,
   setFirewallRules: actions.setFirewallRules,
+  setFirewallProfiles: actions.setFirewallProfiles,
 };
 
 const mapStateToProps = (state: State) => {

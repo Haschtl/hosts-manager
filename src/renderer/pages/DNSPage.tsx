@@ -49,7 +49,7 @@ const DNSPage: React.FC<Props> = ({ searchText }) => {
         }
         setDNSQueries([
           ...dnsQueries,
-          { ip, status, domain, creator: 'hosts-manager' },
+          { ip, status, domain, creator: 'hosts_manager' },
         ]);
         setDomain('');
         setNewDNSQueryDialogVisible(false);

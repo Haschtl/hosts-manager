@@ -31,6 +31,7 @@ interface HBProps {
   icon?: string;
   imgSrc?: string;
   onClick?(): void;
+  className?: string;
 }
 export const HeaderButton: React.FC<HBProps> = ({
   title,
@@ -38,9 +39,10 @@ export const HeaderButton: React.FC<HBProps> = ({
   icon,
   imgSrc,
   onClick,
+  className = '',
 }) => {
   return (
-    <div className="buttonwrapper">
+    <div className={`buttonwrapper ${className}`}>
       <button type="button" className="headerbutton" onClick={onClick}>
         <div className="content">
           {title !== undefined && <div className="title">{title}</div>}
@@ -83,7 +85,7 @@ export const StartHeader: React.FC<HProps> = ({
           <img src={AppIcon} alt="app-icon" />
         </div>
         <div className="textWrapper">
-          <div className="title">hosts-manager</div>
+          <div className="title">hosts_manager</div>
           <div className="subtitle">Open Source ad blocker</div>
         </div>
         <div className="abs_buttonbar">
@@ -268,11 +270,8 @@ const StartPage: React.FC<Props> = ({
           {/* @ts-ignore */}
         </Dialog.Footer>
       </Dialog>
+      <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
       <div className="page full start">
-        <NotImplemented
-          onDismiss={hideNotImplemented}
-          isOpen={notImplemented}
-        />
         {!stateIsElevated && (
           <button
             type="button"
@@ -280,7 +279,7 @@ const StartPage: React.FC<Props> = ({
             onClick={openFolder}
           >
             <div className="adminWarningText">
-              hosts-manager not running as Admin. Can not write hosts file
+              hosts_manager is not running as Admin. Can not write hosts file
               directly
             </div>
           </button>

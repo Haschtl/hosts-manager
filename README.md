@@ -1,15 +1,15 @@
-# ![AdAway logo](assets/icon.png) hosts-manager
+# ![AdAway logo](assets/icon.png) hosts_manager
 
 [![Build Status](https://github.com/haschtl/hosts-manager/actions/workflows/publish.yml/badge.svg)](https://github.com/haschtl/hosts-manager/actions/workflows/publish.yml)
 [![GitHub Downloads](https://img.shields.io/github/downloads/haschtl/hosts-manager/total?logo=github)](https://github.com/haschtl/hosts-manager/releases)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/haschtl?logo=github)](https://github.com/sponsors/haschtl)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](/LICENSE.md)
 
-`hosts-manager` can manage your system's hosts file. This is used primarily for Ad-blocking purpose. You can include online-sources or custom files. `hosts-manager` includes a list of common Ad-Blocking files.
+`hosts_manager` can manage your system's hosts file. This is used primarily for Ad-blocking purpose. You can include online-sources or custom files. `hosts_manager` includes a list of common Ad-Blocking files.
 
 ## Availability
 
-`hosts-manager` was initially created for Windows, but could also be built for Linux/Mac with minimal changes.
+`hosts_manager` was initially created for Windows, but could also be built for Linux/Mac with minimal changes.
 
 ## Features
 
@@ -20,6 +20,7 @@
 - Compatible with PowerToys Hosts-Editor
 - Test DNS-queries
 - View and edit firewall rules
+- Drag-n-drop host files
 
 ## Screenshots
 
@@ -44,5 +45,6 @@
 
 ## Todo
 
-- main-icon ersetzen
-- firewall add/remove rules
+- bug mit callback
+
+- IsLoading bei toggle,save,remove

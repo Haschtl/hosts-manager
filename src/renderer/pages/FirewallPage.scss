@@ -3,3 +3,29 @@
   height: 20px;
   padding: 4px;
 }
+
+.programm-card-end {
+  display: flex;
+  gap: 8px;
+  div {
+    display: flex;
+  }
+}
+
+.firewall-program {
+  .item-subtitle {
+    overflow-wrap: anywhere;
+  }
+}
+
+.page-header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.profile-header {
+  .subtitle {
+    font-size: 1.2em;
+  }
+}

@@ -3,7 +3,7 @@
 
 import fs from 'fs';
 import https from 'https';
-import { app } from 'electron';
+import { app, dialog } from 'electron';
 import { exec, ExecException } from 'child_process';
 
 import {
@@ -19,6 +19,33 @@ import {
 } from '../../shared/types';
 import { annotateSources } from '../../shared/helper';
 
+export const userFolder = `${app.getPath('home')}/.hosts`;
+let hostsPath: string;
+if (process.platform === 'win32') {
+  hostsPath = 'C://windows/system32/drivers/etc/hosts';
+} else if (process.platform === 'darwin') {
+  hostsPath = '/private/etc/hosts';
+} else {
+  hostsPath = '/etc/hosts';
+}
+const sourcesFolder = `${userFolder}/sources/`;
+const preHostsPath = `${userFolder}/hosts`;
+const configPath = `${userFolder}/config.json`;
+const sourcesPath = `${userFolder}/sources.json`;
+const profilesFolder = `${userFolder}/profiles/`;
+
+function extendPath(path: string) {
+  if (path.startsWith('./')) {
+    return `${userFolder}/${path.replace('./', '')}`;
+  }
+  return path;
+}
+function shortenPath(path: string) {
+  if (path.startsWith(userFolder)) {
+    return path.replace(`${userFolder}/`, './');
+  }
+  return path;
+}
 type ExecReturn = {
   error: ExecException | null;
   stdout: string;
@@ -49,11 +76,12 @@ interface RunAsAdminCommand {
  * `"Do-The-Thing -Param '${pathToFile}'"`
  * ```
  */
-const runAsAdmin = async (command: string | RunAsAdminCommand) => {
+
+export const runAsAdminBase = async (command: string | RunAsAdminCommand) => {
   const usePowerShell = typeof command === 'string';
   let args;
   if (usePowerShell) {
-    args = `-ArgumentList '${command}'`;
+    args = `-ArgumentList "${command.replaceAll('"', '`"')}"`;
   } else {
     args = `-FilePath '${command.path}'`;
     if (command.workingDir) {
@@ -65,6 +93,7 @@ const runAsAdmin = async (command: string | RunAsAdminCommand) => {
   } -Verb RunAs -WindowStyle Hidden -PassThru ${
     usePowerShell ? '-Wait' : ''
   } ${args}`;
+  console.log(cmd);
 
   return new Promise<ExecReturn>((resolve) => {
     exec(cmd, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
@@ -73,21 +102,20 @@ const runAsAdmin = async (command: string | RunAsAdminCommand) => {
     });
   });
 };
-
-export const userFolder = `${app.getPath('home')}/.hosts`;
-let hostsPath: string;
-if (process.platform === 'win32') {
-  hostsPath = 'C://windows/system32/drivers/etc/hosts';
-} else if (process.platform === 'darwin') {
-  hostsPath = '/private/etc/hosts';
-} else {
-  hostsPath = '/etc/hosts';
-}
-const sourcesFolder = `${userFolder}/sources/`;
-const preHostsPath = `${userFolder}/hosts`;
-const configPath = `${userFolder}/config.json`;
-const sourcesPath = `${userFolder}/sources.json`;
-const profilesFolder = `${userFolder}/profiles/`;
+export const runScriptAsAdmin = async (script: string) => {
+  const absPath = extendPath('./temp.ps1');
+  fs.writeFileSync(absPath, script);
+  return runAsAdminBase({ path: absPath, workingDir: userFolder });
+};
+export const runAsAdmin = async (
+  command: string | RunAsAdminCommand,
+  useScript = false
+) => {
+  if (useScript && typeof command === 'string') {
+    return runScriptAsAdmin(command);
+  }
+  return runAsAdminBase(command);
+};
 
 export function openFolder(path: string) {
   return new Promise<ExecReturn>((resolve) =>
@@ -96,21 +124,37 @@ export function openFolder(path: string) {
     )
   );
 }
-function extendPath(path: string) {
-  if (path.startsWith('./')) {
-    return `${userFolder}/${path.replace('./', '')}`;
-  }
-  return path;
-}
-function shortenPath(path: string) {
-  if (path.startsWith(userFolder)) {
-    return path.replace(`${userFolder}/`, './');
-  }
-  return path;
-}
 export function fileExists(path: string) {
   const absPath = extendPath(path);
   return fs.existsSync(absPath);
+}
+export function showOpenDialog(
+  filters = [
+    { extensions: ['exe'], name: 'Executable' },
+    { extensions: ['*'], name: 'All' },
+  ],
+  title = 'Select executable',
+  message = 'Select a executable',
+  buttonLabel = 'Select',
+  properties: (
+    | 'openFile'
+    | 'showHiddenFiles'
+    | 'openDirectory'
+    | 'multiSelections'
+    | 'createDirectory'
+    | 'promptToCreate'
+    | 'noResolveAliases'
+    | 'treatPackageAsDirectory'
+    | 'dontAddToRecent'
+  )[] = ['openFile', 'showHiddenFiles']
+) {
+  return dialog.showOpenDialog({
+    properties,
+    buttonLabel,
+    filters,
+    message,
+    title,
+  });
 }
 
 function httpGet(url: string, path: string) {

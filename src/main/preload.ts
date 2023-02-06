@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import path from 'path';
 
 import {
+  FirewallProfile,
   FirewallRule,
   FirewallRuleO,
   HostsFile,
@@ -62,6 +63,9 @@ const darkModeHandler = {
 };
 
 const filesHandler = {
+  showOpenFileDialog: (): Promise<Electron.OpenDialogReturnValue> => {
+    return ipcRenderer.invoke('app:show-open-dialog');
+  },
   importFile: async (origPath: string, newPath: string): Promise<void> => {
     return ipcRenderer.invoke('app:import-file', origPath, newPath);
   },
@@ -178,27 +182,50 @@ const dnsHandler = {
   },
 };
 const firewallHandler = {
+  open: async (): Promise<void> => {
+    return ipcRenderer.invoke('firewall:open');
+  },
+  profiles: {
+    get: async (): Promise<FirewallProfile[]> => {
+      return ipcRenderer.invoke('firewall:profiles:get');
+    },
+  },
   rules: {
     get: async (): Promise<FirewallRule[]> => {
       return ipcRenderer.invoke('firewall:rules:get');
     },
-    set: async (newRule: FirewallRuleO) => {
-      return ipcRenderer.invoke('firewall:rules:set', newRule);
+    show: async (): Promise<FirewallRule[]> => {
+      return ipcRenderer.invoke('firewall:rules:show');
     },
-    new: async (newRule: FirewallRuleO) => {
+    showSmart: async (): Promise<FirewallRule[]> => {
+      return ipcRenderer.invoke('firewall:rules:show-smart');
+    },
+    getSmart: async (displayName: string): Promise<FirewallRule> => {
+      return ipcRenderer.invoke('firewall:rules:show-smart', displayName);
+    },
+    set: async (rule: FirewallRuleO): Promise<FirewallRule> => {
+      return ipcRenderer.invoke('firewall:rules:set', rule);
+    },
+    new: async (newRule: FirewallRuleO): Promise<FirewallRule> => {
       return ipcRenderer.invoke('firewall:rules:new', newRule);
     },
-    copy: async (newRule: FirewallRuleO) => {
-      return ipcRenderer.invoke('firewall:rules:copy', newRule);
+    copy: async (
+      displayName: string,
+      newName: string
+    ): Promise<FirewallRule> => {
+      return ipcRenderer.invoke('firewall:rules:copy', displayName, newName);
     },
-    remove: async (newRule: FirewallRuleO) => {
-      return ipcRenderer.invoke('firewall:rules:remove', newRule);
+    remove: async (displayName: string): Promise<boolean> => {
+      return ipcRenderer.invoke('firewall:rules:remove', displayName);
     },
-    rename: async (newRule: FirewallRuleO) => {
-      return ipcRenderer.invoke('firewall:rules:rename', newRule);
+    rename: async (name: string, newName: string): Promise<FirewallRule> => {
+      return ipcRenderer.invoke('firewall:rules:rename', name, newName);
     },
-    toggle: async (newRule: FirewallRuleO, value: boolean) => {
-      return ipcRenderer.invoke('firewall:rules:toggle', newRule, value);
+    toggle: async (
+      displayName: string,
+      value: boolean
+    ): Promise<FirewallRule> => {
+      return ipcRenderer.invoke('firewall:rules:toggle', displayName, value);
     },
   },
 };

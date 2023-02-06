@@ -56,6 +56,43 @@ const SupportPage: React.FC<Props> = () => {
               />
             </div>
           </div>
+          <br />
+          <br />
+          <div className="textWrapper">
+            <div className="title">Thanks to</div>
+            <ul>
+              <li>
+                <a target="_blank" rel="noreferrer" href="https://icons8.com">
+                  Icons8
+                </a>{' '}
+                for the{' '}
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://icons8.com/icon/zvzyoB3xqw1m/firewall"
+                >
+                  colorful
+                </a>{' '}
+                icons
+              </li>
+              <li>
+                <a target="_blank" rel="noreferrer" href="https://adaway.com">
+                  AdAway
+                </a>{' '}
+                for design inspirations
+              </li>
+              <li>
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://virtualvivek.github.io/react-windows-ui/"
+                >
+                  react-windows-ui
+                </a>{' '}
+                for FluentUI components.
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </NavPageContainer>

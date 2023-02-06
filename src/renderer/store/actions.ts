@@ -1,11 +1,12 @@
 import {
+  FirewallProfile,
   FirewallRule,
   HostsFile,
   HostsLine,
   Settings,
   SourceConfig,
 } from '../../shared/types';
-import { AppState } from './types';
+import { AppState, FirewallFilter } from './types';
 
 export const setState = (state: Partial<AppState>) => ({
   type: 'setState',
@@ -43,6 +44,22 @@ export const setSourceConfig = (config: SourceConfig) => ({
 export const setFirewallRules = (rules: FirewallRule[]) => ({
   type: 'setFirewallRules',
   payload: { rules },
+});
+export const setFirewallRule = (rule: FirewallRule) => ({
+  type: 'setFirewallRule',
+  payload: { rule },
+});
+export const removeFirewallRule = (displayName: string) => ({
+  type: 'removeFirewallRule',
+  payload: { displayName },
+});
+export const setFirewallProfiles = (profiles: FirewallProfile[]) => ({
+  type: 'setFirewallProfiles',
+  payload: { profiles },
+});
+export const setFirewallFilter = (filter: Partial<FirewallFilter>) => ({
+  type: 'setFirewallFilter',
+  payload: { filter },
 });
 export const setHostsLine = (
   file: HostsFile,

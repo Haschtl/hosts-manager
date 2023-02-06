@@ -52,8 +52,14 @@ const ProfileCard: React.FC<Props> = ({
     });
   }, [navigate, profile.path]);
   const [alertVisible, setAlertVisible] = React.useState(false);
+  const [alert2Visible, setAlert2Visible] = React.useState(false);
+
+  const showAlert2 = React.useCallback(() => {
+    setAlert2Visible(true);
+  }, []);
   const hideAlert = React.useCallback(() => {
     setAlertVisible(false);
+    setAlert2Visible(false);
   }, []);
   const sorted = sortHosts(hostsFile2sources(profile), true);
   const applyProfile = React.useCallback(
@@ -133,6 +139,32 @@ const ProfileCard: React.FC<Props> = ({
           {/* @ts-ignore */}
         </Alert.Footer>
       </Alert>
+
+      <Alert
+        isVisible={alert2Visible}
+        // @ts-ignore
+        style={{ padding: 20 }}
+        onBackdropPress={hideAlert}
+        title="Delete profile"
+        message="Do you really want to remove this profile?"
+      >
+        {/* @ts-ignore */}
+        <Alert.Footer>
+          <Button
+            style={{ flex: 'auto' }}
+            value="Abort"
+            // type="danger"
+            onClick={hideAlert}
+          />
+          <Button
+            style={{ flex: 'auto' }}
+            value="Confirm"
+            type="danger"
+            onClick={removeProfile}
+          />
+          {/* @ts-ignore */}
+        </Alert.Footer>
+      </Alert>
       <LoaderBusy display="overlay" isLoading={loading} />
       <div className="item-outer">
         <div className="item-wrapper">
@@ -173,7 +205,7 @@ const ProfileCard: React.FC<Props> = ({
             <Button
               icon={<i className="icons10-cross color-danger" />}
               style={{ margin: 1, height: '40px', width: '40px' }}
-              onClick={removeProfile}
+              onClick={showAlert2}
               value=""
               tooltip="Delete this profile"
             />

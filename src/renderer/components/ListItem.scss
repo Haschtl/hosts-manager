@@ -17,14 +17,17 @@
     }
   }
   .item-title {
+    overflow-wrap: anywhere;
     font-size: 1em;
   }
   .item-subtitle {
+    overflow-wrap: anywhere;
     padding-top: 3px;
     font-size: 0.8em;
   }
   .item-end {
     margin-right: 10px;
+    // overflow-wrap: anywhere;
   }
 
   &.disabled {

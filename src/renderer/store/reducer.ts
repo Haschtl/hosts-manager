@@ -25,7 +25,17 @@ export const initialState: AppState = {
   sourcesConfig: { sources: [] },
   profiles: [],
   sources: { files: [] },
-  firewall: { rules: [] },
+  firewall: {
+    rules: [],
+    profiles: [],
+    filter: {
+      system: true,
+      blocked: false,
+      allowed: false,
+      enabled: false,
+      disabled: false,
+    },
+  },
   searchText: '',
 };
 export const loadState = async () => {
@@ -79,6 +89,7 @@ const appReducer = (
 ): AppState => {
   let idx: number;
   let id: number;
+  // let rule: FirewallRule;
   switch (action.type) {
     case 'setState':
       return { ...state, ...action.payload.state };
@@ -93,7 +104,51 @@ const appReducer = (
     case 'setSystemHosts':
       return { ...state, systemHosts: action.payload.file };
     case 'setFirewallRules':
-      return { ...state, firewall: { rules: action.payload.rules } };
+      return {
+        ...state,
+        firewall: { ...state.firewall, rules: action.payload.rules },
+      };
+    case 'setFirewallRule':
+      idx = state.firewall.rules.findIndex(
+        (v) => v.DisplayName === action.payload.rule.DisplayName
+      );
+      if (idx === -1) {
+        state.firewall.rules.push(action.payload.rule);
+      } else {
+        state.firewall.rules[idx] = action.payload.rule;
+      }
+      return {
+        ...state,
+        firewall: { ...state.firewall, rules: [...state.firewall.rules] },
+      };
+    case 'removeFirewallRule':
+      idx = state.firewall.rules.findIndex(
+        (v) => v.DisplayName === action.payload.rule.DisplayName
+      );
+      if (idx !== -1) {
+        state.firewall.rules.splice(idx, 1);
+      }
+      return {
+        ...state,
+        firewall: { ...state.firewall, rules: [...state.firewall.rules] },
+      };
+
+    case 'setFirewallProfiles':
+      return {
+        ...state,
+        firewall: { ...state.firewall, profiles: action.payload.profiles },
+      };
+    case 'setFirewallFilter':
+      return {
+        ...state,
+        firewall: {
+          ...state.firewall,
+          filter: {
+            ...state.firewall.filter,
+            ...action.payload.filter,
+          },
+        },
+      };
     case 'setSettings':
       return {
         ...state,
@@ -108,7 +163,7 @@ const appReducer = (
       }
       idx = state.sourcesConfig.sources.findIndex((sc) => sc.id === id);
       if (idx === -1) {
-        state.sourcesConfig.sources.push(action.payload.config);
+        state.sourcesConfig.sources.push({ ...action.payload.config, id });
       } else {
         state.sourcesConfig.sources[idx] = action.payload.config;
       }
