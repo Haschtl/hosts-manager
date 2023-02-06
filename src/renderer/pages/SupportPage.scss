@@ -1,0 +1,105 @@
+.support {
+  .background {
+    background-color: var(--primary);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 100vh;
+  }
+  .textWrapper {
+    display: flex;
+    height: 40%;
+    flex-direction: column;
+    align-items: center;
+    a {
+      color: var(--text);
+    }
+    a:active,
+    a:hover {
+      color: var(--text);
+      background-color: transparent;
+    }
+    img {
+      padding-top: 50px;
+      padding-bottom: 20px;
+      height: 120px;
+
+      animation-name: stretch;
+      animation-duration: 2s;
+      animation-timing-function: ease-in-out;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-play-state: running;
+    }
+  }
+  .title {
+    font-size: 30px;
+    font-weight: 400;
+    text-align: left;
+    color: var(--text);
+  }
+  .subtitle {
+    font-size: 20px;
+    font-weight: 300;
+    text-align: left;
+    height: 35px;
+  }
+  .text {
+    font-size: 17px;
+    font-weight: 200;
+    color: var(--text);
+    margin-bottom: 40px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .icon {
+    height: 50%;
+    aspect-ratio: 1;
+  }
+  .changelog {
+    margin-left: 25px;
+    margin-right: 25px;
+    display: flex;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+  }
+  .buttonbar {
+    margin: 5px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+    .supportButton {
+      height: 40px;
+      padding: 5px;
+      margin: 10px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      width: 180px;
+      background-color: var(--darker);
+      border-radius: 30px;
+      color: var(--white);
+      img {
+        height: 80%;
+      }
+    }
+  }
+}
+
+@keyframes stretch {
+  0% {
+    transform: scale(0.8);
+  }
+
+  100% {
+    transform: scale(1.2);
+  }
+}

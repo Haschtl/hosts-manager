@@ -1,0 +1,324 @@
+.adminWarning {
+  width: 100%;
+  background-color: var(--warning);
+  padding: 5px;
+  .adminWarningText {
+    font-weight: 400;
+    font-size: 12px;
+    text-align: center;
+    color: var(--black);
+  }
+}
+.start-header {
+  // -webkit-app-region: drag;
+
+  padding-bottom: 60px;
+  padding-top: 30px;
+  display: flex;
+  max-height: 200px;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  transition: background-color 0.6s;
+
+  &.active {
+    background-color: var(--primary);
+  }
+  &.inactive {
+    background-color: var(--dark);
+  }
+  .textWrapper {
+    display: flex;
+    align-content: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    .title {
+      font-size: 30px;
+      font-weight: 400px;
+      text-align: left;
+      height: 40px;
+    }
+    .subtitle {
+      font-size: 22px;
+      text-align: left;
+      height: 35px;
+    }
+  }
+  .iconwrapper {
+    width: 20%;
+    aspect-ratio: 1;
+    margin: 10px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    // background-color: var(--primary);
+    border-radius: 20px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+    max-height: 150px;
+    max-width: 150px;
+  }
+  .abs_buttonbar {
+    -webkit-app-region: none;
+    position: absolute;
+    bottom: -50px;
+    padding-left: 10%;
+    padding-right: 10%;
+    width: 80%;
+    // transform: translateX(12%);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    gap: 20px;
+  }
+}
+
+.page-content {
+  // width: 80%;
+  padding-left: 10%;
+  padding-right: 10%;
+  // transform: translateX(12%);
+  margin-top: 80px;
+  .mainbutton {
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: var(--darker);
+    border-radius: 8px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+
+    .mainleft {
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+      justify-content: center;
+      padding: 10px;
+      width: 40px;
+    }
+    .maincenter {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 10px;
+      div {
+        color: var(--text);
+        margin: 5px;
+        text-align: center;
+      }
+    }
+    .mainright {
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      width: 40px;
+
+      .button {
+        transition: transform 0.2s;
+        &:hover {
+          transform: scale(1.2);
+        }
+        &:active {
+          transform: scale(1);
+        }
+      }
+    }
+    position: relative;
+    overflow: hidden;
+    .update-bar {
+      position: absolute;
+      bottom: -10px;
+      width: 100%;
+      .progress-bar {
+        height: 5px;
+        transition: transform 0.2s;
+        transform: translateY(300%);
+        &.visible {
+          transform: translateY(0%);
+        }
+
+        .half {
+          width: 50%;
+          overflow-x: hidden;
+        }
+        .half.full {
+          width: 100%;
+        }
+        .half .bar {
+          width: 200%;
+        }
+        .half.full .bar {
+          animation-duration: 1.5s;
+        }
+        .bar {
+          width: 100%;
+          height: 16px;
+
+          background: -webkit-linear-gradient(
+              left,
+              var(--darker) 30%,
+              var(--dark) 80%,
+              var(--darker) 100%
+            )
+            repeat;
+
+          background-size: 50% 100%;
+          animation-name: moving-gradient;
+          animation-duration: 0.9s;
+          animation-iteration-count: infinite;
+          animation-timing-function: linear;
+        }
+        .gradient-overlay {
+          position: absolute;
+          width: 100%;
+          height: 16px;
+        }
+        .border-overlay {
+          position: absolute;
+          width: 100%;
+          height: 16px;
+        }
+      }
+    }
+  }
+  .headerbutton {
+    height: 70px;
+  }
+
+  .button.simple {
+    background-color: var(--darker);
+    margin: 10px;
+    height: 50px;
+    text-align: center;
+    border-radius: 4px;
+  }
+}
+.headerbutton {
+  display: flex;
+  width: 100%;
+  margin-top: 20px;
+  background: var(--darker);
+  border-radius: 8px;
+  justify-content: center;
+  align-items: center;
+  .subtitle {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 100;
+    text-align: center;
+  }
+  .title {
+    color: var(--text);
+    font-size: 25px;
+    font-weight: 500;
+    text-align: center;
+  }
+  .icon {
+    margin-top: 0px;
+    width: 30px;
+  }
+  .content {
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+}
+
+.buttonbar {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.profile-statistics {
+  display: flex;
+  margin-top: 8px;
+  width: 100%;
+  align-items: center;
+
+  justify-content: space-evenly;
+}
+
+@keyframes moving-gradient {
+  0% {
+    background-position: left bottom;
+  }
+  100% {
+    background-position: right bottom;
+  }
+}
+
+.updates-available {
+  font-size: 0.7em;
+  margin-left: 20px;
+  position: absolute;
+  bottom: 4px;
+  left: 0px;
+  visibility: hidden;
+  &.visible {
+    visibility: visible;
+  }
+}
+
+.create-profile-wrapper {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.profiles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.buttonwrapper {
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+  transition: filter 0.2s;
+
+  &:hover {
+    filter: brightness(1.2);
+  }
+  &:active {
+    filter: brightness(0.8);
+  }
+
+  .title {
+    font-size: 30px;
+    font-weight: 400px;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 25px;
+    font-weight: 300px;
+    text-align: center;
+  }
+  .buttonicon {
+    i {
+      font-size: 25px;
+    }
+    height: 40px;
+    width: 40px;
+    background-color: var(--darker);
+    border-radius: 20px;
+    position: absolute;
+    top: 0px;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    img {
+      padding: 4px;
+    }
+  }
+}

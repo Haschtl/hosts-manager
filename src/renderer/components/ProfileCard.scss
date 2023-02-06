@@ -1,0 +1,18 @@
+.profile-inner {
+  display: flex;
+}
+.profile-item {
+  display: flex;
+}
+.profile-container {
+  .item-title {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    align-items: baseline;
+    overflow-wrap: anywhere;
+  }
+}
+.profile-changed-label {
+  font-size: 0.7em;
+}

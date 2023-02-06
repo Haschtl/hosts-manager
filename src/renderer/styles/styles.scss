@@ -1,0 +1,102 @@
+:root {
+  --PrimaryColor: #ae2538; /* App's primary color */
+  --PrimaryColorLight: #ae2538; /* Lighter version of --PrimaryColor for DarkMode */
+}
+body {
+  font-family: 'Segoe UI', sans-serif;
+}
+::selection {
+  color: #ffffff;
+  background-color: var(--PrimaryColor);
+}
+
+html {
+  user-select: none;
+}
+
+.page {
+  padding: 20px;
+  &.full {
+    padding: 0px;
+  }
+  .p20 {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .root {
+    --primary: #ae2538;
+    --primary80: #9c2d2680;
+    --primary40: #9c2d2640;
+    --text: #c7c7c7;
+    --white: #fff;
+    --lighter: #f3f3f3;
+    --light: #dae1e7;
+    --dark: #444;
+    --darker: #222222;
+    --black: #000;
+    --warning: #fa4;
+  }
+}
+@media (prefers-color-scheme: light) {
+  .root {
+    --primary: #ae2538;
+    --primary80: #9c2d2680;
+    --primary40: #9c2d2640;
+    --text: #181818;
+    --white: rgb(23, 23, 23);
+    --lighter: #323232;
+    --light: #565656;
+    --dark: rgb(174, 174, 174);
+    --darker: #c8c8c8;
+    --black: rgb(232, 232, 232);
+    --warning: #fa4;
+  }
+}
+.dark-theme {
+  --primary: #ae2538;
+  --primary80: #9c2d2680;
+  --primary40: #9c2d2640;
+  --text: #c7c7c7;
+  --white: #fff;
+  --lighter: #f3f3f3;
+  --light: #dae1e7;
+  --dark: #444;
+  --darker: #222222;
+  --black: #000;
+  --warning: #fa4;
+
+  --color-background-default: rgb(29, 29, 29);
+  --color-button-default: rgb(45, 45, 45);
+  --color-button-default-active: #272727;
+  --color-button-default-hover: #323232;
+}
+
+.light-theme {
+  --primary: #ae2538;
+  --primary80: #9c2d2680;
+  --primary40: #9c2d2640;
+  --text: #181818;
+  --white: rgb(23, 23, 23);
+  --lighter: #323232;
+  --light: #565656;
+  --dark: rgb(174, 174, 174);
+  --darker: #c8c8c8;
+  --black: rgb(232, 232, 232);
+  --warning: #fa4;
+
+  --color-button-default-active: #ffffff;
+  --color-button-default-hover: #f7f7f7;
+}
+
+.content {
+  overflow-y: auto;
+}
+input {
+  color: var(--text);
+}
+
+.clickable {
+  cursor: pointer;
+}
