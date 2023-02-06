@@ -1,6 +1,6 @@
 {
   "name": "hosts-manager",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A hosts-based ad-blocker for windows",
   "license": "MIT",
   "author": {

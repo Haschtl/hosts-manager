@@ -4,7 +4,7 @@ import { Settings } from '../../shared/types';
 import { AppState } from './types';
 import { sourceTemplates } from './templates';
 
-export const VERSION = '1.0.3';
+export const VERSION = '1.0.4';
 export const initialSettings: Settings = {
   autoUpdates: false,
   blockMode: 'admin',
