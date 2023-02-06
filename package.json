@@ -259,7 +259,7 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "haschtl",
+      "owner": "Haschtl",
       "repo": "hosts-manager"
     }
   },
