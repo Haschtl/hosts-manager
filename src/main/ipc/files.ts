@@ -3,6 +3,7 @@
 
 import fs from 'fs';
 import https from 'https';
+import http from 'http';
 import { dialog } from 'electron';
 
 import {
@@ -70,6 +71,23 @@ export function showOpenDialog(
   });
 }
 
+export function testPort(host: string, port: number) {
+  return new Promise<boolean>((resolve) => {
+    http
+      .get(
+        {
+          host,
+          port,
+        },
+        (res) => {
+          resolve(true);
+        }
+      )
+      .on('error', function (e) {
+        resolve(false);
+      });
+  });
+}
 function httpGet(url: string, path: string) {
   const file = fs.createWriteStream(path);
 
@@ -229,6 +247,11 @@ export function backupHostsFile(filepath?: string) {
   const absPath = extendPath(filepath);
   fs.copyFileSync(hostsPath, absPath);
   return loadHostsFile(absPath);
+}
+export function copyHostsFile(origPath: string, newPath: string) {
+  const absOrig = extendPath(origPath);
+  const absNew = extendPath(newPath);
+  return fs.copyFileSync(absOrig, absNew);
 }
 export function hostsFileAsSource(filepath?: string) {
   if (filepath === undefined) {

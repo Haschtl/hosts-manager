@@ -359,8 +359,14 @@ const createWindow = async () => {
   ipcMain.handle('app:is-elevated', async () => {
     return false;
   });
+  ipcMain.handle('app:copy-hosts-file', async (e, p1, p2) => {
+    return io.copyHostsFile(p1, p2);
+  });
   ipcMain.handle('app:notify', (e, message: string) => {
     return notifier.notify({ title: 'hosts_manager', message });
+  });
+  ipcMain.handle('app:test-port', (e, host: string, port: number) => {
+    return io.testPort(host, port);
   });
   ipcMain.handle('app:close-window', () => {
     if (mainWindow !== null) {

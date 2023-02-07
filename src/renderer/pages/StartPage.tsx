@@ -6,21 +6,14 @@
 import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router';
-import {
-  NavPageContainer,
-  Button,
-  LoaderBar,
-  Dialog,
-  InputText,
-} from 'react-windows-ui';
+import { LoaderBusy, NavPageContainer } from 'react-windows-ui';
 
 import { State } from '../store/types';
 import { NotImplemented } from '../components/NotImplemented';
 import { sortHosts } from '../store/selectors';
 import * as actions from '../store/actions';
-import { annotateSources, hostsFile2sources } from '../../shared/helper';
+import { hostsFile2sources } from '../../shared/helper';
 import ProfileCard from '../components/ProfileCard';
-import ListItem from '../components/ListItem';
 import AppIcon from '../../../assets/icon.png';
 import RedirectedIcon from '../../../assets/icons/redirect_24.svg';
 import './StartPage.scss';
@@ -121,50 +114,14 @@ export const StartHeader: React.FC<HProps> = ({
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const StartPage: React.FC<Props> = ({
   active,
-  sources,
-  sourcesConfig,
-  settings,
   systemHosts,
   stateIsElevated,
-  setHostsFile,
   profiles,
   setProfiles,
 }) => {
-  const [loading, setLoading] = useState<string>();
-  const navigate = useNavigate();
   const [notImplemented, setNotImplemented] = useState(false);
+  const [loading, setLoading] = useState<string>();
 
-  const onlineSources = sourcesConfig.sources.filter(
-    (s) =>
-      s.type === 'url' &&
-      s.url !== undefined &&
-      s.url !== '' &&
-      s.location !== '' &&
-      s.location !== undefined
-  );
-  const scs = onlineSources.filter((s) => s.enabled);
-  const updateSources = (e: React.MouseEvent) => {
-    if (scs.length === 0) {
-      return;
-    }
-    e.stopPropagation();
-    setLoading(`Downloading ${scs.length} sources`);
-
-    window.taskbar.progress(2);
-    scs.forEach(async (s, idx) => {
-      const f = await window.files.downloadFile(s.url!, s.location);
-
-      setLoading(`Downloaded ${s.label}...`);
-      if (f) {
-        setHostsFile(f);
-      }
-      if (idx === scs.length - 1) {
-        setLoading(undefined);
-        window.taskbar.progress(0);
-      }
-    });
-    window.files.notify('Updating sources');
-  };
   const openFolder = () => {
     window.files.openUserFolder();
   };
@@ -173,28 +130,6 @@ const StartPage: React.FC<Props> = ({
     setNotImplemented(false);
   }, []);
 
-  const sorted = sortHosts(
-    annotateSources(sources, sourcesConfig),
-    settings.ipv6
-  );
-  const [profileName, setProfileName] = useState('');
-  const [profileInputVisible, setProfileInputVisible] = useState(false);
-  const hideProfileInput = useCallback(() => {
-    setProfileInputVisible(false);
-    setProfileName('');
-  }, []);
-  const showProfileInput = useCallback((e: Event) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setProfileInputVisible(true);
-    setProfileName('');
-  }, []);
-  const onProfileNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setProfileName(e.target.value);
-    },
-    []
-  );
   const createSystemBackup = useCallback(() => {
     window.taskbar.progress(2);
     setLoading('Backing up system...');
@@ -211,70 +146,9 @@ const StartPage: React.FC<Props> = ({
       })
       .catch((e) => console.log(e));
   }, [setProfiles]);
-  const createProfile = useCallback(() => {
-    const name = profileName;
-    hideProfileInput();
-    setLoading('Creating profile...');
-    window.taskbar.progress(2);
-    window.files
-      .saveHostsFile(
-        sources,
-        sourcesConfig,
-        `./profiles/${name}.hosts`,
-        settings.ipv6,
-        settings.blockedHostOverwrite,
-        settings.removeComments
-      )
-      .then(async () => {
-        const profileFiles = await window.files.loadProfiles();
-
-        if (profileFiles) {
-          setProfiles(profileFiles);
-        }
-        setLoading(undefined);
-        window.taskbar.progress(0);
-      })
-      .catch((e) => console.log(e));
-  }, [
-    settings.ipv6,
-    settings.blockedHostOverwrite,
-    settings.removeComments,
-    sources,
-    profileName,
-    sourcesConfig,
-    setProfiles,
-    hideProfileInput,
-  ]);
   const systemSorted = sortHosts(hostsFile2sources(systemHosts), true);
   return (
     <NavPageContainer animateTransition>
-      <Dialog
-        isVisible={profileInputVisible}
-        onBackdropPress={hideProfileInput}
-      >
-        {/* @ts-ignore */}
-        <Dialog.Header>
-          <h3>Create profile</h3>
-          {/* @ts-ignore */}
-        </Dialog.Header>
-        {/* @ts-ignore */}
-        <Dialog.Body style={{ padding: 20 }}>
-          <p>Specify a profile name.</p>
-          <InputText
-            value={profileName}
-            onChange={onProfileNameChange}
-            label="Profilename"
-            placeholder="My profile"
-          />
-          {/* @ts-ignore */}
-        </Dialog.Body>
-        {/* @ts-ignore */}
-        <Dialog.Footer>
-          <Button value="Abort" type="danger" onClick={hideProfileInput} />
-          <Button value="Create" type="success" onClick={createProfile} />
-          {/* @ts-ignore */}
-        </Dialog.Footer>
-      </Dialog>
       <NotImplemented onDismiss={hideNotImplemented} isOpen={notImplemented} />
       <div className="page full start">
         {!stateIsElevated && (
@@ -296,61 +170,7 @@ const StartPage: React.FC<Props> = ({
           allowed={systemSorted.allowed.length}
         />
         <div className="page-content">
-          <ListItem
-            onClick={() => navigate('/sources')}
-            ItemEndComponent={
-              <>
-                <Button
-                  icon={<i className="icons10-refresh" />}
-                  style={{ margin: 1, height: '40px', width: '40px' }}
-                  onClick={updateSources}
-                  value=""
-                  disabled={scs.length === 0}
-                  tooltip="Fetch online sources"
-                />
-                <Button
-                  value="Create profile"
-                  style={{ height: '40px' }}
-                  onClick={showProfileInput}
-                />
-              </>
-            }
-            icon="icons10-bookmark"
-            title="Current selection"
-            subtitle={`${
-              sourcesConfig.sources.filter((sc) => sc.enabled).length
-            }/${sourcesConfig.sources.length} sources (${
-              onlineSources.filter((sc) => sc.enabled).length
-            }/${onlineSources.length} online)`}
-          >
-            <div className="profile-statistics">
-              <ListItem
-                title={String(sorted.blocked.length)}
-                subtitle="Blocked"
-                icon="icons10-cancel color-danger"
-              />
-              <ListItem
-                title={String(sorted.allowed.length)}
-                subtitle="Allowed"
-                icon="icons10-checkmark color-success"
-              />
-              <ListItem
-                title={String(sorted.redirected.length)}
-                subtitle="Redirected"
-                imgSrc={RedirectedIcon}
-              />
-            </div>
-            <div className="update-bar">
-              <div
-                className={`updates-available ${
-                  loading !== undefined ? ' visible' : ''
-                }`}
-              >
-                {loading}
-              </div>
-              <LoaderBar isLoading={loading !== undefined} />
-            </div>
-          </ListItem>
+          <LoaderBusy isLoading={loading !== undefined} title={loading} />
           <div className="profiles-header">
             <h1>Profiles</h1>
             <p onClick={createSystemBackup} style={{ cursor: 'pointer' }}>
@@ -378,16 +198,12 @@ const StartPage: React.FC<Props> = ({
 };
 const mapDispatchToProps = {
   setElevated: actions.setElevated,
-  setHostsFile: actions.setHostsFile,
   setProfiles: actions.setProfiles,
 };
 
 const mapStateToProps = (state: State) => {
   return {
     active: state.app.active,
-    sources: state.app.sources,
-    settings: state.app.settings,
-    sourcesConfig: state.app.sourcesConfig,
     stateIsElevated: state.app.isElevated,
     systemHosts: state.app.systemHosts,
     profiles: state.app.profiles,

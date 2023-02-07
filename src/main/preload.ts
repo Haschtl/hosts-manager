@@ -103,6 +103,12 @@ const filesHandler = {
   deleteSources: async (filepath: string): Promise<void> => {
     return ipcRenderer.invoke('app:delete-sources', filepath);
   },
+  copyHostsFile: async (origPath: string, newPath: string): Promise<void> => {
+    return ipcRenderer.invoke('app:copy-hosts-file', origPath, newPath);
+  },
+  testPort: async (domain: string, port: number): Promise<boolean> => {
+    return ipcRenderer.invoke('app:test-port', domain, port);
+  },
   backupHostsFile: async (
     filepath?: string
   ): Promise<HostsFile | undefined> => {

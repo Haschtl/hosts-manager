@@ -17,8 +17,8 @@ import HelpIcon from '../../assets/icons8/icons8-ask-question-48.png';
 import DnsIcon from '../../assets/icons8/icons8-dns-48.png';
 import SponsorIcon from '../../assets/icons8/icons8-favorite-48.png';
 import FirewallIcon from '../../assets/icons8/icons8-firewall-48.png';
-import HostsIcon from '../../assets/icons8/icons8-database-48.png';
 import SettingsIcon from '../../assets/icons8/icons8-settings-48.png';
+import DNSServerIcon from '../../assets/icons8/icons8-data-transfer-48.png';
 
 import StartPage from './pages/StartPage';
 import VersionPage from './pages/VersionPage';
@@ -32,6 +32,7 @@ import SourceEditor from './pages/SourceEditor';
 import FirewallPage from './pages/FirewallPage';
 import ProfilePage from './pages/ProfilePage';
 import Search from './components/Search';
+import DNSServerPage from './pages/DNSServerPage';
 
 const AppRoutes = () => (
   <Routes key="root">
@@ -48,6 +49,7 @@ const AppRoutes = () => (
     <Route path="support" element={<SupportPage />} />
     <Route path="help" element={<HelpPage />} />
     <Route path="dns/*" element={<DNSPage />} />
+    <Route path="dnsserver/*" element={<DNSServerPage />} />
     <Route path="firewall/*" element={<FirewallPage />} />
     <Route path="*" element={<StartPage />} />
   </Routes>
@@ -178,7 +180,7 @@ const App: React.FC<Props> = ({
         <div className="app-hr" />
         <NavBarLink to="/index.html" exact text="Home" imgSrc={HomeIcon} />
         <NavBarLink to="/sources" exact text="Sources" imgSrc={SourcesIcon} />
-        <NavBarLink to="/list" exact text="Hosts" imgSrc={HostsIcon} />
+        {/* <NavBarLink to="/list" exact text="Hosts" imgSrc={HostsIcon} /> */}
         <h1>Tools</h1>
         <div className="app-hr" />
         <NavBarLink
@@ -186,6 +188,12 @@ const App: React.FC<Props> = ({
           exact
           text="Firewall"
           imgSrc={FirewallIcon}
+        />
+        <NavBarLink
+          to="/dnsserver"
+          exact
+          text="DNS Server"
+          imgSrc={DNSServerIcon}
         />
         <NavBarLink to="/dns" exact text="DNS Queries" imgSrc={DnsIcon} />
 

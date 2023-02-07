@@ -5,7 +5,7 @@
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/haschtl?logo=github)](https://github.com/sponsors/haschtl)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](/LICENSE.md)
 
-`hosts_manager` can manage your system's hosts file. This is used primarily for Ad-blocking purpose. You can include online-sources or custom files. `hosts_manager` includes a list of common Ad-Blocking files. Additionally it provides a modern interface for Windows-Firewall rules.
+`hosts_manager` can manage your system's hosts file. You can include online-sources or custom files. `hosts_manager` includes a list of common Ad-Blocking files. Additionally it provides a modern interface for Windows-Firewall rules.
 
 ## Availability
 
@@ -21,6 +21,7 @@
 - Test DNS-queries
 - View and edit firewall rules
 - Drag-n-drop host files
+- Integration of [Technitium DNS Server](https://technitium.com/dns/)
 
 ## Screenshots
 
@@ -49,8 +50,12 @@
 
 ## Troubleshooting
 
-A wrong configured hosts-file can lead to problems with the Windows DNS-Client. If the DNS-Client blocks access to the hosts-file, you cannot edit it anymore.
+### Cannot modify system's hosts file?
+
+A wrong configured hosts-file can lead to problems with the Windows DNS-Client. Annoyingly the DNS-Client will crash, if the hosts-file is very long.
+If the DNS-Client blocks access to the hosts-file, you cannot edit it anymore. To solve this issue
 
 - disable the DNS-Client `REG add “HKLM\SYSTEM\CurrentControlSet\services\dnscache” /v Start /t REG_DWORD /d 4 /f`
 - Reboot and delete or backup the hosts file
 - enable the DNS-Client `REG add “HKLM\SYSTEM\CurrentControlSet\services\dnscache” /v Start /t REG_DWORD /d 2 /f`
+- Reboot

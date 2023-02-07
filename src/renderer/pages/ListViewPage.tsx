@@ -10,6 +10,7 @@ import HostsFileEditor from '../components/HostsFileEditor';
 import RedirectedIcon from '../../../assets/icons/redirect_24.svg';
 import { annotateSources } from '../../shared/helper';
 import './ListViewPage.scss';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 type Props = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>;
 const ListViewPage: React.FC<Props> = ({
@@ -43,7 +44,10 @@ const ListViewPage: React.FC<Props> = ({
   return (
     <NavPageContainer animateTransition>
       <div className="page list">
-        <h1>Hosts</h1>
+        <Breadcrumbs
+          history={[{ title: 'Sources', to: '/sources' }]}
+          title="Combined"
+        />
         <CommandBar>
           {/* @ts-ignore */}
           <CommandBar.Button
