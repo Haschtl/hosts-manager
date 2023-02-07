@@ -93,12 +93,12 @@ export const StartHeader: React.FC<HProps> = ({
             icon="icons10-cancel color-danger"
             onClick={navigateSystem}
           />
-          <HeaderButton
+          {/* <HeaderButton
             title={String(allowed)}
             subtitle="Allowed"
             icon="icons10-checkmark color-success"
             onClick={navigateSystem}
-          />
+          /> */}
           <HeaderButton
             title={String(redirected)}
             subtitle="Redirected"
