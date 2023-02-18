@@ -8,7 +8,7 @@ import { AppTheme, LoaderBusy, NavBar, NavBarLink } from 'react-windows-ui';
 
 import './App.scss';
 import './styles/styles.scss';
-import { loadState, VERSION } from './store/reducer';
+import { loadState } from './store/reducer';
 import * as actions from './store/actions';
 import { State } from './store/types';
 import HomeIcon from '../../assets/icons8/icons8-home-page-48.png';
@@ -65,6 +65,7 @@ const App: React.FC<Props> = ({
   setFirewallRules,
   setFirewallProfiles,
   setFirewallSettings,
+  version,
 }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -214,7 +215,7 @@ const App: React.FC<Props> = ({
           className="flat abs_version"
           onClick={navigateVersion}
         >
-          {VERSION}
+          {version}
         </button>
       </NavBar>
       <AppRoutes />
@@ -236,6 +237,7 @@ const mapDispatchToProps = {
 const mapStateToProps = (state: State) => {
   return {
     darkMode: state.app.settings.darkMode,
+    version: state.app.version,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(App);

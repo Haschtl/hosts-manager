@@ -62,6 +62,10 @@ const configuration: webpack.Configuration = {
       NODE_ENV: 'development',
     }),
 
+    new webpack.DefinePlugin({
+      VERSION: JSON.stringify(process.env.npm_package_version || '0.0.1'),
+    }),
+
     new webpack.LoaderOptionsPlugin({
       debug: true,
       options: {

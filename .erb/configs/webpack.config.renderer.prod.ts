@@ -116,6 +116,10 @@ const configuration: webpack.Configuration = {
       DEBUG_PROD: false,
     }),
 
+    new webpack.DefinePlugin({
+      VERSION: JSON.stringify(process.env.npm_package_version || '0.0.1'),
+    }),
+
     new MiniCssExtractPlugin({
       filename: 'style.css',
     }),

@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { combineReducers } from 'redux';
 import { getUniqueID } from 'shared/helper';
 import { Settings } from '../../shared/types';
 import { AppState } from './types';
 import { sourceTemplates } from './templates';
 
-export const VERSION = '1.0.5';
 export const initialSettings: Settings = {
   autoUpdates: false,
   blockMode: 'admin',
@@ -19,6 +19,7 @@ export const initialState: AppState = {
   sourceTemplates,
   active: false,
   isElevated: true,
+  // @ts-ignore
   version: VERSION,
   settings: initialSettings,
   systemHosts: { path: '', lines: [] },
@@ -73,7 +74,7 @@ export const loadState = async () => {
   });
   return {
     active: false,
-    version: VERSION,
+    // version: VERSION,
     settings: { ...config, ...initialSettings },
     sources,
     profiles,
